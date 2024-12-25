@@ -43,6 +43,7 @@ dependencies:
   fl_chart: ^0.66.2
   intl: ^0.19.0
   flutter_dotenv: ^5.1.0
+  url_launcher: ^6.2.4
 
 dev_dependencies:
   flutter_test:
@@ -106,3 +107,4 @@ flutter:
 
   assets:
     - .env
+    - assets/logo.png

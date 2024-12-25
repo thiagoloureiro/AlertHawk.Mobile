@@ -1,9 +1,7 @@
-import 'dart:math' show min, max;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/monitor_group.dart';
-import '../config/app_config.dart';
 
 class MonitorDetailScreen extends StatelessWidget {
   final Monitor monitor;
@@ -37,7 +35,7 @@ class MonitorDetailScreen extends StatelessWidget {
       final hours = (entry.key * 10) / 60;
 
       // Check if any request in this interval failed
-      final hasFailed = entry.value.any((d) => !d.status);
+      entry.value.any((d) => !d.status);
 
       return FlSpot(hours, avgResponse);
     }).toList()
