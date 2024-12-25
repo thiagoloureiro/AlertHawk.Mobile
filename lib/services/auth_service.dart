@@ -4,17 +4,17 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aad_oauth/aad_oauth.dart';
 import 'package:aad_oauth/model/config.dart';
+import '../config/app_config.dart';
 
 class AuthService {
-  static const String baseUrl = 'https://auth.alerthawk.net/api/auth';
   final SharedPreferences _prefs;
   final GlobalKey<NavigatorState> _navigatorKey;
   late final AadOAuth _oauth;
 
   AuthService(this._prefs, this._navigatorKey) {
     final config = Config(
-      tenant: '326ac626-dcd5-4409-be50-481d4c0316e4',
-      clientId: 'e6cc6189-3b58-4c15-a1c4-e24e9f5e4a97',
+      tenant: AppConfig.azureAdTenant,
+      clientId: AppConfig.azureAdClientId,
       scope: 'openid profile email',
       redirectUri: 'msauth.net.alerthawk://auth',
       navigatorKey: _navigatorKey,
@@ -25,7 +25,7 @@ class AuthService {
   Future<bool> loginWithCredentials(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/login'),
+        Uri.parse('${AppConfig.authApiUrl}/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'username': username,
@@ -59,11 +59,25 @@ class AuthService {
   }
 
   Future<void> logout() async {
+    final token = await getToken();
+    if (token != null) {
+      await http.post(
+        Uri.parse('${AppConfig.authApiUrl}/logout'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+    }
     await _prefs.clear();
     await _oauth.logout();
   }
 
   bool isAuthenticated() {
     return _prefs.containsKey('auth_token');
+  }
+
+  Future<String?> getToken() async {
+    return _prefs.getString('auth_token');
   }
 }

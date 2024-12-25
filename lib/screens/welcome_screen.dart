@@ -13,6 +13,8 @@ import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../models/environment.dart';
 import 'monitor_detail_screen.dart';
+import 'alerts_screen.dart';
+import '../config/app_config.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -48,7 +50,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     final response = await http.get(
       Uri.parse(
-          'https://monitoring.alerthawk.net/api/MonitorGroup/monitorDashboardGroupListByUser/${_selectedEnvironment.id}'),
+          '${AppConfig.monitoringApiUrl}/api/MonitorGroup/monitorDashboardGroupListByUser/${_selectedEnvironment.id}'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -77,7 +79,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     final response = await http.get(
       Uri.parse(
-          'https://monitoring.alerthawk.net/api/Monitor/monitorStatusDashboard/${_selectedEnvironment.id}'),
+          '${AppConfig.monitoringApiUrl}/api/Monitor/monitorStatusDashboard/${_selectedEnvironment.id}'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -326,6 +328,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   );
                 }
                 break;
+              case 'alerts':
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AlertsScreen()),
+                );
+                break;
             }
           },
           itemBuilder: (context) => [
@@ -337,6 +344,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     _selectedEnvironment.name,
+                    style: GoogleFonts.robotoMono(),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'alerts',
+              child: Row(
+                children: [
+                  const Icon(Icons.notifications_outlined),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Alerts',
                     style: GoogleFonts.robotoMono(),
                   ),
                 ],
@@ -398,7 +418,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       color: Colors.green,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 24),
                   Text(
                     '↓${status.monitorDown}',
                     style: GoogleFonts.robotoMono(
@@ -406,13 +426,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       color: Colors.red,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '⏸${status.monitorPaused}',
-                    style: GoogleFonts.robotoMono(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
-                    ),
+                  const SizedBox(width: 24),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '⏸',
+                        style: GoogleFonts.robotoMono(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '${status.monitorPaused}',
+                        style: GoogleFonts.robotoMono(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
