@@ -7,6 +7,7 @@ import '../models/monitor_alert.dart';
 import '../models/environment.dart';
 import 'package:intl/intl.dart';
 import '../config/app_config.dart';
+import '../services/http_extensions.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -47,6 +48,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
         'Content-Type': 'application/json',
       },
     );
+
+    response.handleUnauthorized(context);
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);

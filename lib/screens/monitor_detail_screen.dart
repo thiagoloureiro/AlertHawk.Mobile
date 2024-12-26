@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/monitor_group.dart';
 import 'package:intl/intl.dart';
+import '../services/http_extensions.dart';
 
 class MonitorDetailScreen extends StatelessWidget {
   final Monitor monitor;
@@ -122,7 +123,7 @@ class MonitorDetailScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 // Chart with fixed height
                 SizedBox(
-                  height: 300, // Fixed height instead of MediaQuery percentage
+                  height: 216, // Reduced from 240 (additional 10% reduction)
                   child: LineChart(
                     LineChartData(
                       gridData: FlGridData(
@@ -259,7 +260,7 @@ class MonitorDetailScreen extends StatelessWidget {
                               // Calculate actual time for this point
                               final now = DateTime.now();
                               final pointTime = now.subtract(Duration(
-                                  hours: (24 - touchedSpot.x).round()));
+                                  minutes: ((1 - touchedSpot.x) * 60).round()));
 
                               return LineTooltipItem(
                                 'Avg: ${touchedSpot.y.round()}ms\n'
@@ -277,7 +278,7 @@ class MonitorDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 // Statistics section
                 Text(
                   'Uptime Statistics',

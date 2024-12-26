@@ -15,6 +15,7 @@ import '../models/environment.dart';
 import 'monitor_detail_screen.dart';
 import 'alerts_screen.dart';
 import '../config/app_config.dart';
+import '../services/http_extensions.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -56,6 +57,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         'Content-Type': 'application/json',
       },
     );
+
+    response.handleUnauthorized(context);
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
