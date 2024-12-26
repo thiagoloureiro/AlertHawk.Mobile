@@ -2,8 +2,8 @@
 
 Mobile version of AlertHawk - Real-time monitoring dashboard application.
 
-[![Build status](https://dev.azure.com/thiagoguaru/AlertHawk/_apis/build/status/AlertHawk%20-%20Mobile%20Android)](https://dev.azure.com/thiagoguaru/AlertHawk/_build/latest?definitionId=31)
-[![Build status](https://dev.azure.com/thiagoguaru/AlertHawk/_apis/build/status/AlertHawk%20-%20Mobile%20iOS)](https://dev.azure.com/thiagoguaru/AlertHawk/_build/latest?definitionId=30)
+[![Build status - Android](https://dev.azure.com/thiagoguaru/AlertHawk/_apis/build/status/AlertHawk%20-%20Mobile%20Android)](https://dev.azure.com/thiagoguaru/AlertHawk/_build/latest?definitionId=31)
+[![Build status - iOS](https://dev.azure.com/thiagoguaru/AlertHawk/_apis/build/status/AlertHawk%20-%20Mobile%20iOS)](https://dev.azure.com/thiagoguaru/AlertHawk/_build/latest?definitionId=30)
 
 ## Overview
 
