@@ -25,7 +25,7 @@ class AuthService {
   Future<bool> loginWithCredentials(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('${AppConfig.authApiUrl}/login'),
+        Uri.parse('${AppConfig.authApiUrl}/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'username': username,
