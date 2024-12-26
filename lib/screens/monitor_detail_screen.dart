@@ -230,7 +230,7 @@ class MonitorDetailScreen extends StatelessWidget {
                         LineChartBarData(
                           spots: spots,
                           isCurved: true,
-                          color: Colors.blue,
+                          color: Colors.green,
                           barWidth: 2,
                           isStrokeCapRound: true,
                           dotData: FlDotData(
@@ -257,7 +257,7 @@ class MonitorDetailScreen extends StatelessWidget {
                           ),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: Colors.blue
+                            color: Colors.green
                                 .withOpacity(isDarkMode ? 0.15 : 0.1),
                           ),
                         ),
