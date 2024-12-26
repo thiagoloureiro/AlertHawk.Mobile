@@ -36,7 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: Text(
           'AlertHawk',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.robotoMono(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
         ),
         actions: [
           IconButton(
@@ -62,15 +65,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 60),
-                  // Logo and Title
+                  // Logo
                   Center(
-                    child: Text(
-                      'AlertHawk',
-                      style: GoogleFonts.robotoMono(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: isDarkMode ? Colors.white : Colors.blue[800],
-                      ),
+                    child: Image.asset(
+                      'assets/logo.png',
+                      height: 120,
+                      width: 120,
                     ),
                   ),
                   const SizedBox(height: 40),
