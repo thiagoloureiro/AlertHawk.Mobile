@@ -521,7 +521,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               ),
                             ),
                           ),
-                          ...group.monitors.map(_buildMonitorCard).toList(),
+                          ...group.monitors.map(_buildMonitorCard),
                         ],
                       );
                     },
