@@ -58,8 +58,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       },
     );
 
-    response.handleUnauthorized(context);
-
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
       return jsonList.map((json) {

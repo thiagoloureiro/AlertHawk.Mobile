@@ -8,7 +8,7 @@
 PRODUCT_NAME = alerthawk_mobile
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = net.alerthawk.alerthawkMobile
+PRODUCT_BUNDLE_IDENTIFIER = net.alerthawk
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2024 net.alerthawk. All rights reserved.

@@ -5,6 +5,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../services/auth_service.dart';
 import 'welcome_screen.dart';
 import '../main.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,10 +22,35 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'AlertHawk',
+          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, _) => Icon(
+                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              ),
+            ),
+            onPressed: () {
+              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+            },
+          ),
+        ],
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -55,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: isDarkMode 
+                          color: isDarkMode
                               ? Colors.black26
                               : Colors.grey.withOpacity(0.1),
                           spreadRadius: 5,
@@ -125,7 +152,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ElevatedButton(
                           onPressed: _isLoading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isDarkMode ? Colors.blue[700] : Colors.blue[600],
+                            backgroundColor: isDarkMode
+                                ? Colors.blue[700]
+                                : Colors.blue[600],
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -138,7 +167,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
                                   ),
                                 )
                               : Text(
@@ -153,7 +183,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ElevatedButton(
                           onPressed: _isLoading ? null : _handleMSALLogin,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isDarkMode ? Colors.blue[800] : Colors.blue[700],
+                            backgroundColor: isDarkMode
+                                ? Colors.blue[800]
+                                : Colors.blue[700],
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -163,7 +195,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const FaIcon(FontAwesomeIcons.microsoft, size: 20),
+                              const FaIcon(FontAwesomeIcons.microsoft,
+                                  size: 20),
                               const SizedBox(width: 8),
                               Text(
                                 'Login with Microsoft',
@@ -190,7 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
-      
+
       final success = await AuthService(
         await SharedPreferences.getInstance(),
         navigatorKey,
@@ -215,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleMSALLogin() async {
     setState(() => _isLoading = true);
-    
+
     final success = await AuthService(
       await SharedPreferences.getInstance(),
       navigatorKey,
@@ -233,4 +266,4 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
-} 
+}

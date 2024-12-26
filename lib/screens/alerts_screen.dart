@@ -8,6 +8,8 @@ import '../models/environment.dart';
 import 'package:intl/intl.dart';
 import '../config/app_config.dart';
 import '../services/http_extensions.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -49,8 +51,6 @@ class _AlertsScreenState extends State<AlertsScreen> {
       },
     );
 
-    response.handleUnauthorized(context);
-
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
       return jsonList.map((json) => MonitorAlert.fromJson(json)).toList();
@@ -70,6 +70,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -80,6 +82,18 @@ class _AlertsScreenState extends State<AlertsScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          IconButton(
+            icon: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, _) => Icon(
+                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              ),
+            ),
+            onPressed: () {
+              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -119,13 +133,19 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       child: DropdownButton<int>(
                         value: _selectedDays,
                         isExpanded: true,
-                        style: GoogleFonts.robotoMono(),
+                        style: GoogleFonts.robotoMono(
+                          color: isDarkMode ? Colors.white : Colors.black,
+                        ),
+                        dropdownColor:
+                            isDarkMode ? Colors.grey[800] : Colors.white,
                         items: _dayOptions.map((days) {
                           return DropdownMenuItem<int>(
                             value: days,
                             child: Text(
                               '$days days',
-                              style: GoogleFonts.robotoMono(),
+                              style: GoogleFonts.robotoMono(
+                                color: isDarkMode ? Colors.white : Colors.black,
+                              ),
                             ),
                           );
                         }).toList(),
