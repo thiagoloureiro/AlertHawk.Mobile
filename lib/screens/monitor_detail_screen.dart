@@ -44,8 +44,13 @@ class MonitorDetailScreen extends StatelessWidget {
 
     // Convert grouped data to spots
     return groupedData.entries.map((entry) {
-      final avgResponse =
-          entry.value.map((d) => d.responseTime).reduce((a, b) => a + b) /
+      // Check if any data point in this minute had a failed status
+      final hasFailed = entry.value.any((d) => !d.status);
+
+      // If failed, set response time to 0, otherwise calculate average
+      final avgResponse = hasFailed
+          ? 0.0
+          : entry.value.map((d) => d.responseTime).reduce((a, b) => a + b) /
               entry.value.length;
 
       // Calculate minutes from the start and convert to x-axis position (0-60 minutes)
@@ -242,7 +247,7 @@ class MonitorDetailScreen extends StatelessWidget {
 
                               if (hasFailed) {
                                 return FlDotCirclePainter(
-                                  radius: 6,
+                                  radius: 3,
                                   color: Colors.red,
                                   strokeWidth: 0,
                                 );
