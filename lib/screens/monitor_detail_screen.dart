@@ -11,8 +11,17 @@ class MonitorDetailScreen extends StatelessWidget {
   const MonitorDetailScreen({super.key, required this.monitor});
 
   List<FlSpot> _getChartData() {
-    final now = DateTime.now();
-    final lastHour = now.subtract(const Duration(hours: 1));
+    if (monitor.monitorStatusDashboard.historyData.isEmpty) {
+      return [];
+    }
+
+    // Find the latest timestamp from the data
+    final latestTime = monitor.monitorStatusDashboard.historyData
+        .map((d) => d.localTimeStamp)
+        .reduce((a, b) => a.isAfter(b) ? a : b);
+
+    // Calculate the time one hour before the latest timestamp
+    final oneHourBefore = latestTime.subtract(const Duration(hours: 1));
 
     // Group data by 1-minute intervals
     final Map<DateTime, List<MonitorHistoryData>> groupedData = {};
@@ -20,7 +29,7 @@ class MonitorDetailScreen extends StatelessWidget {
     for (var data in monitor.monitorStatusDashboard.historyData) {
       final localTime = data.localTimeStamp;
 
-      if (localTime.isAfter(lastHour)) {
+      if (localTime.isAfter(oneHourBefore)) {
         // Round to nearest minute
         final roundedTime = DateTime(
           localTime.year,
@@ -39,20 +48,28 @@ class MonitorDetailScreen extends StatelessWidget {
           entry.value.map((d) => d.responseTime).reduce((a, b) => a + b) /
               entry.value.length;
 
-      // Calculate minutes ago and convert to x-axis position (0-60 minutes)
-      final minutesAgo = now.difference(entry.key).inMinutes;
-      final x = minutesAgo / 60;
+      // Calculate minutes from the start and convert to x-axis position (0-60 minutes)
+      final minutesFromStart = entry.key.difference(oneHourBefore).inMinutes;
+      final x = minutesFromStart / 60;
 
-      return FlSpot(1 - x, avgResponse);
+      return FlSpot(x, avgResponse);
     }).toList()
-      ..sort((a, b) => a.x.compareTo(b.x))
-      ..removeWhere((spot) => spot.x < 0 || spot.x > 1);
+      ..sort((a, b) => a.x.compareTo(b.x));
   }
 
   List<MonitorHistoryData> _getHistoryDataForSpot(FlSpot spot) {
-    final now = DateTime.now();
+    if (monitor.monitorStatusDashboard.historyData.isEmpty) {
+      return [];
+    }
+
+    final latestTime = monitor.monitorStatusDashboard.historyData
+        .map((d) => d.localTimeStamp)
+        .reduce((a, b) => a.isAfter(b) ? a : b);
+    final oneHourBefore = latestTime.subtract(const Duration(hours: 1));
+
+    // Calculate the target time based on the spot's x value
     final targetTime =
-        now.subtract(Duration(minutes: ((1 - spot.x) * 60).round()));
+        oneHourBefore.add(Duration(minutes: (spot.x * 60).round()));
     final windowStart = targetTime.subtract(const Duration(seconds: 30));
     final windowEnd = targetTime.add(const Duration(seconds: 30));
 
