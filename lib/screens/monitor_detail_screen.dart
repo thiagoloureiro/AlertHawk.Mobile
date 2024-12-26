@@ -3,7 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/monitor_group.dart';
 import 'package:intl/intl.dart';
-import '../services/http_extensions.dart';
 
 class MonitorDetailScreen extends StatelessWidget {
   final Monitor monitor;

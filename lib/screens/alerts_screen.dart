@@ -7,7 +7,6 @@ import '../models/monitor_alert.dart';
 import '../models/environment.dart';
 import 'package:intl/intl.dart';
 import '../config/app_config.dart';
-import '../services/http_extensions.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 
