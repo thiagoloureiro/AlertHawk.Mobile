@@ -15,7 +15,7 @@ class AuthService {
     final config = Config(
       tenant: AppConfig.azureAdTenant,
       clientId: AppConfig.azureAdClientId,
-      scope: 'openid profile email User.Read',
+      scope: 'openid profile email https://graph.microsoft.com/User.Read',
       redirectUri: 'msauth.net.alerthawk://auth',
       navigatorKey: _navigatorKey,
     );
@@ -47,24 +47,38 @@ class AuthService {
   Future<bool> loginWithMSAL() async {
     try {
       await _oauth.login();
-      final accessToken = await _oauth.getAccessToken();
+      final graphToken = await _oauth.getAccessToken();
 
-      if (accessToken != null) {
-        final response = await http.get(
+      if (graphToken != null) {
+        final graphResponse = await http.get(
           Uri.parse('https://graph.microsoft.com/v1.0/me'),
           headers: {
-            'Authorization': 'Bearer $accessToken',
+            'Authorization': 'Bearer $graphToken',
             'Content-Type': 'application/json',
           },
         );
 
-        if (response.statusCode == 200) {
-          final userData = json.decode(response.body);
+        if (graphResponse.statusCode == 200) {
+          final userData = json.decode(graphResponse.body);
           final userEmail = userData['userPrincipalName'] ?? userData['mail'];
 
-          await _prefs.setString('auth_token', accessToken);
-          await _prefs.setString('user_email', userEmail);
-          return true;
+          final apiResponse = await http.post(
+            Uri.parse('${AppConfig.authApiUrl}/auth/azure'),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: json.encode({
+              'apikey': AppConfig.authApiKey,
+              'email': userEmail,
+            }),
+          );
+
+          if (apiResponse.statusCode == 200) {
+            final apiToken = json.decode(apiResponse.body)['token'];
+            await _prefs.setString('auth_token', apiToken);
+            await _prefs.setString('user_email', userEmail);
+            return true;
+          }
         }
       }
       return false;

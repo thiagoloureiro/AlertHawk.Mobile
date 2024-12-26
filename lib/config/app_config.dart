@@ -17,4 +17,7 @@ class AppConfig {
   static String get azureAdClientId =>
       dotenv.env['AZURE_AD_CLIENT_ID'] ??
       'e6cc6189-3b58-4c15-a1c4-e24e9f5e4a97';
+
+  static String get authApiKey =>
+      dotenv.env['AUTH_API_KEY'] ?? 'your_auth_api_key';
 }
