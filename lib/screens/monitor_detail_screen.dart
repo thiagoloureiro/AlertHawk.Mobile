@@ -79,199 +79,324 @@ class MonitorDetailScreen extends StatelessWidget {
           style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Response Time (ms) - Last 24 Hours',
-                style: GoogleFonts.robotoMono(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // Add refresh functionality if needed
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Response Time (ms) - Last Hour',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Failed Checks',
-                    style: GoogleFonts.robotoMono(
-                      fontSize: 12,
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.5,
-                child: LineChart(
-                  LineChartData(
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: true,
-                      horizontalInterval: 50,
-                      verticalInterval: 4,
-                      getDrawingHorizontalLine: (value) {
-                        return FlLine(
-                          color: isDarkMode
-                              ? Colors.grey.shade800
-                              : Colors.grey.shade300,
-                          strokeWidth: 1,
-                        );
-                      },
-                      getDrawingVerticalLine: (value) {
-                        return FlLine(
-                          color: isDarkMode
-                              ? Colors.grey.shade800
-                              : Colors.grey.shade300,
-                          strokeWidth: 1,
-                        );
-                      },
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          interval: 0.2,
-                          getTitlesWidget: (value, meta) {
-                            final now = DateTime.now();
-                            final minutesAgo = ((1 - value) * 60).round();
-                            final pointTime =
-                                now.subtract(Duration(minutes: minutesAgo));
-
-                            return Text(
-                              DateFormat('HH:mm').format(pointTime),
-                              style: GoogleFonts.robotoMono(
-                                color: isDarkMode
-                                    ? Colors.white70
-                                    : Colors.black87,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          interval: 50,
-                          reservedSize: 42,
-                          getTitlesWidget: (value, meta) {
-                            if (value % 50 != 0) {
-                              return const SizedBox.shrink();
-                            }
-                            return Text(
-                              value.toInt().toString(),
-                              style: GoogleFonts.robotoMono(
-                                color: isDarkMode
-                                    ? Colors.white70
-                                    : Colors.black87,
-                              ),
-                            );
-                          },
-                        ),
+                const SizedBox(height: 8),
+                // Legend
+                Row(
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
                       ),
                     ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border.all(
-                        color: isDarkMode ? Colors.white24 : Colors.black12,
+                    const SizedBox(width: 8),
+                    Text(
+                      'Failed Checks',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 12,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
                       ),
                     ),
-                    minX: 0,
-                    maxX: 1,
-                    minY: 0,
-                    maxY: defaultMaxY,
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: spots,
-                        isCurved: true,
-                        color: Colors.blue,
-                        barWidth: 2,
-                        isStrokeCapRound: true,
-                        dotData: FlDotData(
-                          show: true,
-                          getDotPainter: (spot, percent, barData, index) {
-                            final historyData = _getHistoryDataForSpot(spot);
-                            final hasFailed = historyData.any((d) => !d.status);
-
-                            if (hasFailed) {
-                              return FlDotCirclePainter(
-                                radius: 6,
-                                color: Colors.red,
-                                strokeWidth: 0,
-                              );
-                            }
-
-                            return FlDotCirclePainter(
-                              radius: 0,
-                              color: Colors.transparent,
-                              strokeWidth: 0,
-                            );
-                          },
-                        ),
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color:
-                              Colors.blue.withOpacity(isDarkMode ? 0.15 : 0.1),
-                        ),
-                      ),
-                    ],
-                    lineTouchData: LineTouchData(
-                      enabled: true,
-                      touchTooltipData: LineTouchTooltipData(
-                        tooltipBgColor:
-                            isDarkMode ? Colors.grey.shade800 : Colors.white,
-                        getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                          return touchedSpots.map((LineBarSpot touchedSpot) {
-                            final historyData =
-                                _getHistoryDataForSpot(touchedSpot);
-                            final failedRequests =
-                                historyData.where((d) => !d.status).toList();
-
-                            // Calculate actual time for this point
-                            final now = DateTime.now();
-                            final pointTime = now.subtract(
-                                Duration(hours: (24 - touchedSpot.x).round()));
-
-                            return LineTooltipItem(
-                              'Avg: ${touchedSpot.y.round()}ms\n'
-                              '${DateFormat('HH:mm').format(pointTime)}'
-                              '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
-                              GoogleFonts.robotoMono(
-                                color: isDarkMode ? Colors.white : Colors.black,
-                              ),
-                            );
-                          }).toList();
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Chart with fixed height
+                SizedBox(
+                  height: 300, // Fixed height instead of MediaQuery percentage
+                  child: LineChart(
+                    LineChartData(
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: true,
+                        horizontalInterval: 50,
+                        verticalInterval: 4,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: isDarkMode
+                                ? Colors.grey.shade800
+                                : Colors.grey.shade300,
+                            strokeWidth: 1,
+                          );
+                        },
+                        getDrawingVerticalLine: (value) {
+                          return FlLine(
+                            color: isDarkMode
+                                ? Colors.grey.shade800
+                                : Colors.grey.shade300,
+                            strokeWidth: 1,
+                          );
                         },
                       ),
+                      titlesData: FlTitlesData(
+                        show: true,
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            interval: 0.2,
+                            getTitlesWidget: (value, meta) {
+                              final now = DateTime.now();
+                              final minutesAgo = ((1 - value) * 60).round();
+                              final pointTime =
+                                  now.subtract(Duration(minutes: minutesAgo));
+
+                              return Text(
+                                DateFormat('HH:mm').format(pointTime),
+                                style: GoogleFonts.robotoMono(
+                                  color: isDarkMode
+                                      ? Colors.white70
+                                      : Colors.black87,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: 50,
+                            reservedSize: 42,
+                            getTitlesWidget: (value, meta) {
+                              if (value % 50 != 0) {
+                                return const SizedBox.shrink();
+                              }
+                              return Text(
+                                value.toInt().toString(),
+                                style: GoogleFonts.robotoMono(
+                                  color: isDarkMode
+                                      ? Colors.white70
+                                      : Colors.black87,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      borderData: FlBorderData(
+                        show: true,
+                        border: Border.all(
+                          color: isDarkMode ? Colors.white24 : Colors.black12,
+                        ),
+                      ),
+                      minX: 0,
+                      maxX: 1,
+                      minY: 0,
+                      maxY: defaultMaxY,
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: spots,
+                          isCurved: true,
+                          color: Colors.blue,
+                          barWidth: 2,
+                          isStrokeCapRound: true,
+                          dotData: FlDotData(
+                            show: true,
+                            getDotPainter: (spot, percent, barData, index) {
+                              final historyData = _getHistoryDataForSpot(spot);
+                              final hasFailed =
+                                  historyData.any((d) => !d.status);
+
+                              if (hasFailed) {
+                                return FlDotCirclePainter(
+                                  radius: 6,
+                                  color: Colors.red,
+                                  strokeWidth: 0,
+                                );
+                              }
+
+                              return FlDotCirclePainter(
+                                radius: 0,
+                                color: Colors.transparent,
+                                strokeWidth: 0,
+                              );
+                            },
+                          ),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: Colors.blue
+                                .withOpacity(isDarkMode ? 0.15 : 0.1),
+                          ),
+                        ),
+                      ],
+                      lineTouchData: LineTouchData(
+                        enabled: true,
+                        touchTooltipData: LineTouchTooltipData(
+                          tooltipBgColor:
+                              isDarkMode ? Colors.grey.shade800 : Colors.white,
+                          getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                            return touchedSpots.map((LineBarSpot touchedSpot) {
+                              final historyData =
+                                  _getHistoryDataForSpot(touchedSpot);
+                              final failedRequests =
+                                  historyData.where((d) => !d.status).toList();
+
+                              // Calculate actual time for this point
+                              final now = DateTime.now();
+                              final pointTime = now.subtract(Duration(
+                                  hours: (24 - touchedSpot.x).round()));
+
+                              return LineTooltipItem(
+                                'Avg: ${touchedSpot.y.round()}ms\n'
+                                '${DateFormat('HH:mm').format(pointTime)}'
+                                '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
+                                GoogleFonts.robotoMono(
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black,
+                                ),
+                              );
+                            }).toList();
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 32),
+                // Statistics section
+                Text(
+                  'Uptime Statistics',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Statistics cards with padding at the bottom
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: Card(
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        _buildUptimeListTile('Last Hour',
+                            monitor.monitorStatusDashboard.uptime1Hr),
+                        const Divider(height: 1),
+                        _buildUptimeListTile('Last 24 Hours',
+                            monitor.monitorStatusDashboard.uptime24Hrs),
+                        const Divider(height: 1),
+                        _buildUptimeListTile('Last 7 Days',
+                            monitor.monitorStatusDashboard.uptime7Days),
+                        const Divider(height: 1),
+                        _buildUptimeListTile('Last 30 Days',
+                            monitor.monitorStatusDashboard.uptime30Days),
+                        const Divider(height: 1),
+                        _buildUptimeListTile('Last 3 Months',
+                            monitor.monitorStatusDashboard.uptime3Months),
+                        const Divider(height: 1),
+                        _buildUptimeListTile('Last 6 Months',
+                            monitor.monitorStatusDashboard.uptime6Months),
+                        const Divider(height: 1),
+                        _buildStatListTile(
+                          'SSL Certificate Expiry',
+                          '${monitor.monitorStatusDashboard.certExpDays} days',
+                          monitor.monitorStatusDashboard.certExpDays,
+                        ),
+                        const Divider(height: 1),
+                        _buildStatListTile(
+                          'Average Response Time',
+                          '${monitor.monitorStatusDashboard.responseTime.toStringAsFixed(1)}ms',
+                          null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildUptimeListTile(String period, double uptime) {
+    final formattedUptime = uptime.toStringAsFixed(2);
+    final color = uptime >= 99.9
+        ? Colors.green
+        : uptime >= 95
+            ? Colors.orange
+            : Colors.red;
+
+    return ListTile(
+      title: Text(
+        period,
+        style: GoogleFonts.robotoMono(
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: Text(
+        '$formattedUptime%',
+        style: GoogleFonts.robotoMono(
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
+      dense: true,
+    );
+  }
+
+  Widget _buildStatListTile(String title, String value, int? certDays) {
+    Color? valueColor;
+
+    if (certDays != null) {
+      // Color coding for SSL certificate expiration
+      valueColor = certDays > 30
+          ? Colors.green
+          : certDays >= 10
+              ? Colors.orange
+              : Colors.red;
+    } else if (title == 'Average Response Time') {
+      // Color coding for response time
+      final responseTime = monitor.monitorStatusDashboard.responseTime;
+      valueColor = responseTime < 500
+          ? Colors.green
+          : responseTime < 1000
+              ? Colors.orange
+              : Colors.red;
+    }
+
+    return ListTile(
+      title: Text(
+        title,
+        style: GoogleFonts.robotoMono(
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: Text(
+        value,
+        style: GoogleFonts.robotoMono(
+          fontWeight: FontWeight.bold,
+          color: valueColor,
+        ),
+      ),
+      dense: true,
     );
   }
 }

@@ -83,12 +83,22 @@ class MonitorStatusDashboard {
   final double uptime1Hr;
   final double uptime24Hrs;
   final double uptime7Days;
+  final double uptime30Days;
+  final double uptime3Months;
+  final double uptime6Months;
+  final int certExpDays;
+  final double responseTime;
   final List<MonitorHistoryData> historyData;
 
   MonitorStatusDashboard({
     required this.uptime1Hr,
     required this.uptime24Hrs,
     required this.uptime7Days,
+    required this.uptime30Days,
+    required this.uptime3Months,
+    required this.uptime6Months,
+    required this.certExpDays,
+    required this.responseTime,
     required this.historyData,
   });
 
@@ -105,6 +115,11 @@ class MonitorStatusDashboard {
       uptime1Hr: parseUptime(json['uptime1Hr']),
       uptime24Hrs: parseUptime(json['uptime24Hrs']),
       uptime7Days: parseUptime(json['uptime7Days']),
+      uptime30Days: parseUptime(json['uptime30Days']),
+      uptime3Months: parseUptime(json['uptime3Months']),
+      uptime6Months: parseUptime(json['uptime6Months']),
+      certExpDays: json['certExpDays'] ?? 0,
+      responseTime: parseUptime(json['responseTime']),
       historyData: (json['historyData'] as List? ?? [])
           .map((data) => MonitorHistoryData.fromJson(data))
           .toList(),
