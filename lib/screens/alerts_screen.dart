@@ -201,7 +201,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                             children: [
                               Text(
                                 DateFormat('yyyy-MM-dd HH:mm:ss')
-                                    .format(alert.timeStamp.toLocal()),
+                                    .format(alert.localTimeStamp),
                                 style: GoogleFonts.robotoMono(
                                   fontSize: 12,
                                 ),

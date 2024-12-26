@@ -19,6 +19,12 @@ class MonitorAlert {
     required this.urlToCheck,
   });
 
+  DateTime get localTimeStamp {
+    final now = DateTime.now();
+    final offset = now.timeZoneOffset;
+    return timeStamp.add(offset);
+  }
+
   factory MonitorAlert.fromJson(Map<String, dynamic> json) {
     return MonitorAlert(
       id: json['id'],
@@ -31,4 +37,4 @@ class MonitorAlert {
       urlToCheck: json['urlToCheck'],
     );
   }
-} 
+}
