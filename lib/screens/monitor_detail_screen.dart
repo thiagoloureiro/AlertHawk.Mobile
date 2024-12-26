@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/monitor_group.dart';
+import 'package:intl/intl.dart';
 
 class MonitorDetailScreen extends StatelessWidget {
   final Monitor monitor;
@@ -10,51 +11,53 @@ class MonitorDetailScreen extends StatelessWidget {
 
   List<FlSpot> _getChartData() {
     final now = DateTime.now();
-    final last24Hours = now.subtract(const Duration(hours: 24));
+    final lastHour = now.subtract(const Duration(hours: 1));
 
-    // Group data by 10-minute intervals
-    final Map<int, List<MonitorHistoryData>> groupedData = {};
+    // Group data by 1-minute intervals
+    final Map<DateTime, List<MonitorHistoryData>> groupedData = {};
 
     for (var data in monitor.monitorStatusDashboard.historyData) {
-      if (data.timeStamp.isAfter(last24Hours)) {
-        // Convert timestamp to 10-minute interval key
-        final timeKey =
-            (data.timeStamp.hour * 60 + data.timeStamp.minute) ~/ 10;
-        groupedData.putIfAbsent(timeKey, () => []).add(data);
+      final localTime = data.localTimeStamp;
+
+      if (localTime.isAfter(lastHour)) {
+        // Round to nearest minute
+        final roundedTime = DateTime(
+          localTime.year,
+          localTime.month,
+          localTime.day,
+          localTime.hour,
+          localTime.minute,
+        );
+        groupedData.putIfAbsent(roundedTime, () => []).add(data);
       }
     }
 
     // Convert grouped data to spots
     return groupedData.entries.map((entry) {
-      // Calculate average response time for the interval
       final avgResponse =
           entry.value.map((d) => d.responseTime).reduce((a, b) => a + b) /
               entry.value.length;
 
-      // Convert time key back to hours
-      final hours = (entry.key * 10) / 60;
+      // Calculate minutes ago and convert to x-axis position (0-60 minutes)
+      final minutesAgo = now.difference(entry.key).inMinutes;
+      final x = minutesAgo / 60;
 
-      // Check if any request in this interval failed
-      entry.value.any((d) => !d.status);
-
-      return FlSpot(hours, avgResponse);
+      return FlSpot(1 - x, avgResponse);
     }).toList()
-      ..sort((a, b) => a.x.compareTo(b.x)); // Ensure spots are sorted by time
+      ..sort((a, b) => a.x.compareTo(b.x))
+      ..removeWhere((spot) => spot.x < 0 || spot.x > 1);
   }
 
-  // Add this helper method to get history data for a specific spot
   List<MonitorHistoryData> _getHistoryDataForSpot(FlSpot spot) {
-    final timeKey = (spot.x * 60).round() ~/
-        10; // Convert hours back to 10-minute interval key
-    final startMinute = timeKey * 10;
-    final endMinute = startMinute + 10;
+    final now = DateTime.now();
+    final targetTime =
+        now.subtract(Duration(minutes: ((1 - spot.x) * 60).round()));
+    final windowStart = targetTime.subtract(const Duration(seconds: 30));
+    final windowEnd = targetTime.add(const Duration(seconds: 30));
 
-    return monitor.monitorStatusDashboard.historyData
-        .where((data) => data.timeStamp
-            .isAfter(DateTime.now().subtract(const Duration(hours: 24))))
-        .where((data) {
-      final minutes = data.timeStamp.hour * 60 + data.timeStamp.minute;
-      return minutes >= startMinute && minutes < endMinute;
+    return monitor.monitorStatusDashboard.historyData.where((data) {
+      final localTime = data.localTimeStamp;
+      return localTime.isAfter(windowStart) && localTime.isBefore(windowEnd);
     }).toList();
   }
 
@@ -149,10 +152,15 @@ class MonitorDetailScreen extends StatelessWidget {
                         sideTitles: SideTitles(
                           showTitles: true,
                           reservedSize: 30,
-                          interval: 4,
+                          interval: 0.2,
                           getTitlesWidget: (value, meta) {
+                            final now = DateTime.now();
+                            final minutesAgo = ((1 - value) * 60).round();
+                            final pointTime =
+                                now.subtract(Duration(minutes: minutesAgo));
+
                             return Text(
-                              '${value.toInt()}h',
+                              DateFormat('HH:mm').format(pointTime),
                               style: GoogleFonts.robotoMono(
                                 color: isDarkMode
                                     ? Colors.white70
@@ -190,7 +198,7 @@ class MonitorDetailScreen extends StatelessWidget {
                       ),
                     ),
                     minX: 0,
-                    maxX: 24,
+                    maxX: 1,
                     minY: 0,
                     maxY: defaultMaxY,
                     lineBarsData: [
@@ -239,13 +247,15 @@ class MonitorDetailScreen extends StatelessWidget {
                                 _getHistoryDataForSpot(touchedSpot);
                             final failedRequests =
                                 historyData.where((d) => !d.status).toList();
-                            final hour = touchedSpot.x.floor();
-                            final minute =
-                                ((touchedSpot.x - hour) * 60).round();
+
+                            // Calculate actual time for this point
+                            final now = DateTime.now();
+                            final pointTime = now.subtract(
+                                Duration(hours: (24 - touchedSpot.x).round()));
 
                             return LineTooltipItem(
                               'Avg: ${touchedSpot.y.round()}ms\n'
-                              '$hour:${minute.toString().padLeft(2, '0')}'
+                              '${DateFormat('HH:mm').format(pointTime)}'
                               '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
                               GoogleFonts.robotoMono(
                                 color: isDarkMode ? Colors.white : Colors.black,

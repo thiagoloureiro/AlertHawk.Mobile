@@ -47,30 +47,34 @@ class Monitor {
       id: json['id'],
       name: json['name'],
       status: json['status'],
-      monitorStatusDashboard: MonitorStatusDashboard.fromJson(json['monitorStatusDashboard']),
+      monitorStatusDashboard:
+          MonitorStatusDashboard.fromJson(json['monitorStatusDashboard']),
     );
   }
 }
 
 class MonitorHistoryData {
-  final bool status;
   final DateTime timeStamp;
-  final int statusCode;
   final int responseTime;
+  final bool status;
 
   MonitorHistoryData({
-    required this.status,
     required this.timeStamp,
-    required this.statusCode,
     required this.responseTime,
+    required this.status,
   });
+
+  DateTime get localTimeStamp {
+    final now = DateTime.now();
+    final offset = now.timeZoneOffset;
+    return timeStamp.add(offset);
+  }
 
   factory MonitorHistoryData.fromJson(Map<String, dynamic> json) {
     return MonitorHistoryData(
-      status: json['status'],
       timeStamp: DateTime.parse(json['timeStamp']),
-      statusCode: json['statusCode'],
       responseTime: json['responseTime'],
+      status: json['status'],
     );
   }
 }
@@ -106,4 +110,4 @@ class MonitorStatusDashboard {
           .toList(),
     );
   }
-} 
+}
