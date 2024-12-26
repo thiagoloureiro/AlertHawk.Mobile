@@ -48,7 +48,8 @@ AUTH_API_URL=https://auth.alerthawk.net/api
 NOTIFICATION_API_URL=https://notification.alerthawk.net/api
 AZURE_AD_TENANT=your-tenant-id
 AZURE_AD_CLIENT_ID=your-client-id
-AUTH_API_KEY=your-auth-api-key```
+AUTH_API_KEY=your-auth-api-key
+```
 
 ## Authentication
 
