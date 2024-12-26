@@ -39,4 +39,3 @@ RUN apk update && apk upgrade
 
 USER nginx
 COPY --from=build-env /app/build/web /usr/share/nginx/html
-COPY --from=build-env /app/index.html /usr/share/nginx/html
