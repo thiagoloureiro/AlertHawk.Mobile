@@ -7,6 +7,7 @@ import '../models/monitor_group.dart';
 import '../services/auth_service.dart';
 import 'about_screen.dart';
 import 'login_screen.dart';
+import 'settings_screen.dart';
 import '../main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -340,6 +341,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   MaterialPageRoute(builder: (_) => const AlertsScreen()),
                 );
                 break;
+              case 'settings':
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+                break;
             }
           },
           itemBuilder: (context) => [
@@ -376,6 +382,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Icon(Icons.info_outline),
                   SizedBox(width: 8),
                   Text('About'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'settings',
+              child: Row(
+                children: [
+                  const Icon(Icons.settings),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Settings',
+                    style: GoogleFonts.robotoMono(),
+                  ),
                 ],
               ),
             ),

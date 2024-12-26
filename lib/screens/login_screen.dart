@@ -7,6 +7,7 @@ import 'welcome_screen.dart';
 import '../main.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import 'settings_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -64,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 24),
                   // Logo
                   Center(
                     child: Image.asset(
@@ -73,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 120,
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
                   // Login Form
                   Container(
                     padding: const EdgeInsets.all(24),
@@ -209,6 +210,24 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const SettingsScreen()),
+                      );
+                    },
+                    icon: const Icon(Icons.settings),
+                    label: Text(
+                      'Settings',
+                      style: GoogleFonts.robotoMono(),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor:
+                          isDarkMode ? Colors.white70 : Colors.black54,
                     ),
                   ),
                 ],
