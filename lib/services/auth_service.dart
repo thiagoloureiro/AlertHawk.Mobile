@@ -15,7 +15,7 @@ class AuthService {
     final config = Config(
       tenant: AppConfig.azureAdTenant,
       clientId: AppConfig.azureAdClientId,
-      scope: 'openid profile email',
+      scope: 'openid profile email User.Read',
       redirectUri: 'msauth.net.alerthawk://auth',
       navigatorKey: _navigatorKey,
     );
@@ -48,12 +48,28 @@ class AuthService {
     try {
       await _oauth.login();
       final accessToken = await _oauth.getAccessToken();
+
       if (accessToken != null) {
-        await _prefs.setString('auth_token', accessToken);
-        return true;
+        final response = await http.get(
+          Uri.parse('https://graph.microsoft.com/v1.0/me'),
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+            'Content-Type': 'application/json',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          final userData = json.decode(response.body);
+          final userEmail = userData['userPrincipalName'] ?? userData['mail'];
+
+          await _prefs.setString('auth_token', accessToken);
+          await _prefs.setString('user_email', userEmail);
+          return true;
+        }
       }
       return false;
     } catch (e) {
+      print('MSAL login error: $e');
       return false;
     }
   }
@@ -79,5 +95,9 @@ class AuthService {
 
   Future<String?> getToken() async {
     return _prefs.getString('auth_token');
+  }
+
+  Future<String?> getUserEmail() async {
+    return _prefs.getString('user_email');
   }
 }
