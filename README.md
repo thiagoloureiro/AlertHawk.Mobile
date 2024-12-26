@@ -51,6 +51,25 @@ AZURE_AD_CLIENT_ID=your-client-id
 AUTH_API_KEY=your-auth-api-key
 ```
 
+These settings can also be configured through the app's settings screen.
+
+### Installation
+
+1. Clone the repository
+```
+git clone https://github.com/thiagoloureiro/AlertHawk.Mobile.git
+```
+
+2. Install dependencies
+```
+flutter pub get
+```
+
+3. Run the app
+```
+flutter run
+```
+
 ## Authentication
 
 The app supports two authentication methods:
