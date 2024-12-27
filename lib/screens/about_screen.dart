@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
+import '../games/snake_game.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -13,6 +15,8 @@ class AboutScreen extends StatefulWidget {
 
 class _AboutScreenState extends State<AboutScreen> {
   late Future<String> _version;
+  int _tapCount = 0;
+  Timer? _tapTimer;
 
   @override
   void initState() {
@@ -69,11 +73,28 @@ class _AboutScreenState extends State<AboutScreen> {
                 height: 150,
               ),
               const SizedBox(height: 16),
-              Text(
-                'AlertHawk',
-                style: GoogleFonts.robotoMono(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  _tapCount++;
+                  _tapTimer?.cancel();
+                  _tapTimer = Timer(const Duration(seconds: 2), () {
+                    _tapCount = 0;
+                  });
+
+                  if (_tapCount >= 5) {
+                    _tapCount = 0;
+                    _tapTimer?.cancel();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const SnakeGame()),
+                    );
+                  }
+                },
+                child: Text(
+                  'AlertHawk',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -120,5 +141,11 @@ class _AboutScreenState extends State<AboutScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _tapTimer?.cancel();
+    super.dispose();
   }
 }
