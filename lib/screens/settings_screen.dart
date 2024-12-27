@@ -84,6 +84,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Settings saved successfully')),
         );
+
+        // Clear auth token
+        await prefs.remove('auth_token');
+
+        // Show a dialog informing the user
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Text(
+              'Settings Updated',
+              style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+            ),
+            content: Text(
+              'The app will now log out to apply the new settings.',
+              style: GoogleFonts.robotoMono(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Navigate to login screen and clear navigation stack
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/login',
+                    (route) => false,
+                  );
+                },
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        );
       }
     } finally {
       setState(() => _isLoading = false);

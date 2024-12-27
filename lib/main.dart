@@ -40,6 +40,9 @@ class MyApp extends StatelessWidget {
           title: 'AlertHawk',
           theme: themeProvider.theme,
           home: isAuthenticated ? const WelcomeScreen() : const LoginScreen(),
+          routes: {
+            '/login': (context) => const LoginScreen(),
+          },
         );
       },
     );
