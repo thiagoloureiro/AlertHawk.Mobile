@@ -16,6 +16,7 @@ import '../models/environment.dart';
 import 'monitor_detail_screen.dart';
 import 'alerts_screen.dart';
 import '../config/app_config.dart';
+import 'agents_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -345,6 +346,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   MaterialPageRoute(builder: (_) => const AlertsScreen()),
                 );
                 break;
+              case 'agents':
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AgentsScreen()),
+                );
+                break;
               case 'settings':
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -374,6 +380,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Alerts',
+                    style: GoogleFonts.robotoMono(),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'agents',
+              child: Row(
+                children: [
+                  const Icon(Icons.list),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Agents',
                     style: GoogleFonts.robotoMono(),
                   ),
                 ],
