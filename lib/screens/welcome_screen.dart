@@ -243,7 +243,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   List<MonitorGroup> _filterGroups(List<MonitorGroup> groups) {
-    return groups
+    // First sort the groups alphabetically by name
+    final sortedGroups = List<MonitorGroup>.from(groups)
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+    return sortedGroups
         .map((group) {
           return MonitorGroup(
             id: group.id,
