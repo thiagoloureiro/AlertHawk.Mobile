@@ -34,16 +34,16 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  http: ^1.2.0  # For API calls
-  shared_preferences: ^2.2.2  # For session management
+  http: ^1.2.2  # For API calls
+  shared_preferences: ^2.3.4  # For session management
   aad_oauth: ^1.0.1  # For Azure AD authentication
   provider: ^6.1.1  # For state management
-  google_fonts: ^6.1.0  # Add this line for easy font handling
-  font_awesome_flutter: ^10.7.0  # Add this line
+  google_fonts: ^6.2.1  # Add this line for easy font handling
+  font_awesome_flutter: ^10.8.0  # Add this line
   fl_chart: ^0.66.2
-  intl: ^0.19.0
-  flutter_dotenv: ^5.1.0
-  url_launcher: ^6.2.4
+  intl: ^0.20.1
+  flutter_dotenv: ^5.2.1
+  url_launcher: ^6.3.1
   mobile_scanner: ^3.5.6
 
 dev_dependencies:
