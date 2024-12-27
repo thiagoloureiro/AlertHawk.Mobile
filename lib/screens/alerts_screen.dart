@@ -94,164 +94,173 @@ class _AlertsScreenState extends State<AlertsScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: _searchController,
-                    style: GoogleFonts.robotoMono(),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Search by name...',
-                      hintStyle: GoogleFonts.robotoMono(),
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Column(
+          children: [
+            // Search and filter section
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextField(
+                      controller: _searchController,
+                      style: GoogleFonts.robotoMono(),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search by name...',
+                        hintStyle: GoogleFonts.robotoMono(),
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(color: Theme.of(context).dividerColor),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Theme.of(context).dividerColor),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<int>(
-                        value: _selectedDays,
-                        isExpanded: true,
-                        style: GoogleFonts.robotoMono(
-                          color: isDarkMode ? Colors.white : Colors.black,
-                        ),
-                        dropdownColor:
-                            isDarkMode ? Colors.grey[800] : Colors.white,
-                        items: _dayOptions.map((days) {
-                          return DropdownMenuItem<int>(
-                            value: days,
-                            child: Text(
-                              '$days days',
-                              style: GoogleFonts.robotoMono(
-                                color: isDarkMode ? Colors.white : Colors.black,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<int>(
+                          value: _selectedDays,
+                          isExpanded: true,
+                          style: GoogleFonts.robotoMono(
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
+                          dropdownColor:
+                              isDarkMode ? Colors.grey[800] : Colors.white,
+                          items: _dayOptions.map((days) {
+                            return DropdownMenuItem<int>(
+                              value: days,
+                              child: Text(
+                                '$days days',
+                                style: GoogleFonts.robotoMono(
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black,
+                                ),
                               ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (int? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              _selectedDays = newValue;
-                              _alerts = _fetchAlerts();
-                            });
-                          }
-                        },
+                            );
+                          }).toList(),
+                          onChanged: (int? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _selectedDays = newValue;
+                                _alerts = _fetchAlerts();
+                              });
+                            }
+                          },
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                setState(() {
-                  _alerts = _fetchAlerts();
-                });
-              },
-              child: FutureBuilder<List<MonitorAlert>>(
-                future: _alerts,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Error loading alerts',
-                        style: GoogleFonts.robotoMono(color: Colors.red),
-                      ),
-                    );
-                  }
-
-                  final filteredAlerts = _filterAlerts(snapshot.data!);
-
-                  if (filteredAlerts.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No alerts found',
-                        style: GoogleFonts.robotoMono(),
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    itemCount: filteredAlerts.length,
-                    itemBuilder: (context, index) {
-                      final alert = filteredAlerts[index];
-                      final env = Environment.values.firstWhere(
-                        (e) => e.id == alert.environment,
-                        orElse: () => Environment.production,
-                      );
-
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            alert.monitorName,
-                            style: GoogleFonts.robotoMono(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                DateFormat('yyyy-MM-dd HH:mm:ss')
-                                    .format(alert.localTimeStamp),
-                                style: GoogleFonts.robotoMono(
-                                  fontSize: 12,
-                                ),
-                              ),
-                              Text(
-                                'Environment: ${env.name}',
-                                style: GoogleFonts.robotoMono(
-                                  fontSize: 12,
-                                ),
-                              ),
-                              Text(
-                                alert.message,
-                                style: GoogleFonts.robotoMono(
-                                  fontSize: 12,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
+                ],
               ),
             ),
-          ),
-        ],
+            // Alerts list
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  setState(() {
+                    _alerts = _fetchAlerts();
+                  });
+                },
+                child: FutureBuilder<List<MonitorAlert>>(
+                  future: _alerts,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error loading alerts',
+                          style: GoogleFonts.robotoMono(color: Colors.red),
+                        ),
+                      );
+                    }
+
+                    final filteredAlerts = _filterAlerts(snapshot.data!);
+
+                    if (filteredAlerts.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No alerts found',
+                          style: GoogleFonts.robotoMono(),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      itemCount: filteredAlerts.length,
+                      itemBuilder: (context, index) {
+                        final alert = filteredAlerts[index];
+                        final env = Environment.values.firstWhere(
+                          (e) => e.id == alert.environment,
+                          orElse: () => Environment.production,
+                        );
+
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              alert.monitorName,
+                              style: GoogleFonts.robotoMono(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  DateFormat('yyyy-MM-dd HH:mm:ss')
+                                      .format(alert.localTimeStamp),
+                                  style: GoogleFonts.robotoMono(
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  'Environment: ${env.name}',
+                                  style: GoogleFonts.robotoMono(
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  alert.message,
+                                  style: GoogleFonts.robotoMono(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

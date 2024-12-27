@@ -492,12 +492,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          setState(() {
-            _monitorStatus = _fetchMonitorStatus();
-            _monitorGroups = _fetchMonitorGroups();
-          });
+      body: GestureDetector(
+        onTap: () {
+          // Dismiss keyboard when tapping outside
+          FocusScope.of(context).unfocus();
         },
         child: Column(
           children: [
