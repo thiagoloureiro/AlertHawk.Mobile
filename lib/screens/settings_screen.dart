@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../screens/qr_scanner_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -86,6 +87,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } finally {
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _scanQRCode() async {
+    final settings = await Navigator.of(context).push<Map<String, String>>(
+      MaterialPageRoute(builder: (_) => const QRScannerScreen()),
+    );
+
+    if (settings != null) {
+      setState(() {
+        _monitoringApiController.text = settings['monitoring_api_url'] ?? '';
+        _authApiController.text = settings['auth_api_url'] ?? '';
+        _notificationApiController.text =
+            settings['notification_api_url'] ?? '';
+        _azureTenantController.text = settings['azure_ad_tenant'] ?? '';
+        _azureClientIdController.text = settings['azure_ad_client_id'] ?? '';
+        _authKeyController.text = settings['auth_api_key'] ?? '';
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Settings loaded from QR code')),
+      );
     }
   }
 
@@ -260,6 +283,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _scanQRCode,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        isDarkMode ? Colors.grey[700] : Colors.grey[200],
+                    foregroundColor: isDarkMode ? Colors.white : Colors.black87,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: const Size(double.infinity, 0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  icon: const Icon(Icons.qr_code_scanner),
+                  label: Text(
+                    'Read QR Code',
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),
