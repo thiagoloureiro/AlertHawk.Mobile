@@ -93,20 +93,20 @@ class MonitorDetailScreen extends StatelessWidget {
         ? 50.0
         : spots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
 
-    // Calculate interval and max Y value
-    double interval;
-    double defaultMaxY;
-
-    if (maxResponse <= 100) {
-      interval = 10.0;
-      defaultMaxY = 100.0;
-    } else if (maxResponse <= 500) {
-      interval = 50.0;
-      defaultMaxY = 500.0;
-    } else {
-      interval = 100.0;
-      defaultMaxY = ((maxResponse / 100).ceil() * 100).toDouble();
+    // Calculate interval and max Y value to have at most 12 intervals
+    double calculateInterval(double maxValue) {
+      // Base intervals to try: 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000...
+      double baseInterval = 1;
+      while (true) {
+        if (maxValue / baseInterval <= 12) return baseInterval;
+        if (maxValue / (baseInterval * 2) <= 12) return baseInterval * 2;
+        if (maxValue / (baseInterval * 5) <= 12) return baseInterval * 5;
+        baseInterval *= 10;
+      }
     }
+
+    final interval = calculateInterval(maxResponse);
+    final defaultMaxY = (maxResponse / interval).ceil() * interval;
 
     return Scaffold(
       appBar: AppBar(
