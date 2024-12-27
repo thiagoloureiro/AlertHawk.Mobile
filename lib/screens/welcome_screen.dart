@@ -494,66 +494,74 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ),
       body: GestureDetector(
         onTap: () {
-          // Dismiss keyboard when tapping outside
           FocusScope.of(context).unfocus();
         },
-        child: Column(
-          children: [
-            _buildFilters(),
-            Expanded(
-              child: FutureBuilder<List<MonitorGroup>>(
-                future: _monitorGroups,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+        child: RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              _monitorGroups = _fetchMonitorGroups();
+              _monitorStatus = _fetchMonitorStatus();
+            });
+          },
+          child: Column(
+            children: [
+              _buildFilters(),
+              Expanded(
+                child: FutureBuilder<List<MonitorGroup>>(
+                  future: _monitorGroups,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Error loading monitors',
-                        style: GoogleFonts.robotoMono(color: Colors.red),
-                      ),
-                    );
-                  }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error loading monitors',
+                          style: GoogleFonts.robotoMono(color: Colors.red),
+                        ),
+                      );
+                    }
 
-                  final filteredGroups = _filterGroups(snapshot.data!);
+                    final filteredGroups = _filterGroups(snapshot.data!);
 
-                  if (filteredGroups.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No monitors found',
-                        style: GoogleFonts.robotoMono(),
-                      ),
-                    );
-                  }
+                    if (filteredGroups.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No monitors found',
+                          style: GoogleFonts.robotoMono(),
+                        ),
+                      );
+                    }
 
-                  return ListView.builder(
-                    itemCount: filteredGroups.length,
-                    itemBuilder: (context, groupIndex) {
-                      final group = filteredGroups[groupIndex];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text(
-                              group.name,
-                              style: GoogleFonts.robotoMono(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                    return ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: filteredGroups.length,
+                      itemBuilder: (context, index) {
+                        final group = filteredGroups[index];
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                group.name,
+                                style: GoogleFonts.robotoMono(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                          ...group.monitors.map(_buildMonitorCard),
-                        ],
-                      );
-                    },
-                  );
-                },
+                            ...group.monitors.map(_buildMonitorCard),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
