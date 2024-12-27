@@ -46,6 +46,7 @@ class AuthService {
 
   Future<bool> loginWithMSAL() async {
     try {
+      await _oauth.logout();
       await _oauth.login();
       final graphToken = await _oauth.getAccessToken();
 
@@ -84,6 +85,7 @@ class AuthService {
       return false;
     } catch (e) {
       print('MSAL login error: $e');
+      await _oauth.logout();
       return false;
     }
   }
@@ -99,7 +101,6 @@ class AuthService {
         },
       );
     }
-    await _prefs.clear();
     await _oauth.logout();
   }
 
