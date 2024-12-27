@@ -88,11 +88,25 @@ class MonitorDetailScreen extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final spots = _getChartData();
 
-    // Calculate maxY rounded to next 50
+    // Calculate maxY with dynamic intervals
     final maxResponse = spots.isEmpty
         ? 50.0
         : spots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
-    final defaultMaxY = ((maxResponse / 50).ceil() * 50).toDouble();
+
+    // Calculate interval and max Y value
+    double interval;
+    double defaultMaxY;
+
+    if (maxResponse <= 100) {
+      interval = 10.0;
+      defaultMaxY = 100.0;
+    } else if (maxResponse <= 500) {
+      interval = 50.0;
+      defaultMaxY = 500.0;
+    } else {
+      interval = 100.0;
+      defaultMaxY = ((maxResponse / 100).ceil() * 100).toDouble();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -144,13 +158,13 @@ class MonitorDetailScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 // Chart with fixed height
                 SizedBox(
-                  height: 216, // Reduced from 240 (additional 10% reduction)
+                  height: 216,
                   child: LineChart(
                     LineChartData(
                       gridData: FlGridData(
                         show: true,
                         drawVerticalLine: true,
-                        horizontalInterval: 50,
+                        horizontalInterval: interval,
                         verticalInterval: 4,
                         getDrawingHorizontalLine: (value) {
                           return FlLine(
@@ -202,12 +216,9 @@ class MonitorDetailScreen extends StatelessWidget {
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            interval: 50,
+                            interval: interval,
                             reservedSize: 42,
                             getTitlesWidget: (value, meta) {
-                              if (value % 50 != 0) {
-                                return const SizedBox.shrink();
-                              }
                               return Text(
                                 value.toInt().toString(),
                                 style: GoogleFonts.robotoMono(
