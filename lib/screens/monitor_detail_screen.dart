@@ -143,6 +143,29 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        widget.monitor.monitorTcp != null ? 'Host: ' : 'URL: ',
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: SelectableText(
+                          widget.monitor.checkTarget,
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Text(
                   'Response Time (ms) - Last Hour',
                   style: GoogleFonts.robotoMono(

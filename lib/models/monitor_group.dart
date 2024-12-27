@@ -31,24 +31,44 @@ class MonitorGroup {
 
 class Monitor {
   final int id;
+  final int monitorTypeId;
   final String name;
   final bool status;
+  final bool paused;
+  final String? urlToCheck;
+  final String? monitorTcp;
+  final int monitorRegion;
+  final int monitorEnvironment;
   final MonitorStatusDashboard monitorStatusDashboard;
 
   Monitor({
     required this.id,
+    required this.monitorTypeId,
     required this.name,
     required this.status,
+    required this.paused,
+    this.urlToCheck,
+    this.monitorTcp,
+    required this.monitorRegion,
+    required this.monitorEnvironment,
     required this.monitorStatusDashboard,
   });
 
+  String get checkTarget => urlToCheck ?? monitorTcp ?? 'N/A';
+
   factory Monitor.fromJson(Map<String, dynamic> json) {
     return Monitor(
-      id: json['id'],
-      name: json['name'],
-      status: json['status'],
+      id: json['id'] ?? 0,
+      monitorTypeId: json['monitorTypeId'] ?? 0,
+      name: json['name'] ?? '',
+      status: json['status'] ?? false,
+      paused: json['paused'] ?? false,
+      urlToCheck: json['urlToCheck'],
+      monitorTcp: json['monitorTcp'],
+      monitorRegion: json['monitorRegion'] ?? 1,
+      monitorEnvironment: json['monitorEnvironment'] ?? 6,
       monitorStatusDashboard:
-          MonitorStatusDashboard.fromJson(json['monitorStatusDashboard']),
+          MonitorStatusDashboard.fromJson(json['monitorStatusDashboard'] ?? {}),
     );
   }
 }
