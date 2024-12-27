@@ -3,19 +3,28 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/monitor_group.dart';
 import 'package:intl/intl.dart';
+import './alerts_screen.dart';
 
-class MonitorDetailScreen extends StatelessWidget {
+class MonitorDetailScreen extends StatefulWidget {
   final Monitor monitor;
 
-  const MonitorDetailScreen({super.key, required this.monitor});
+  const MonitorDetailScreen({
+    super.key,
+    required this.monitor,
+  });
 
+  @override
+  State<MonitorDetailScreen> createState() => _MonitorDetailScreenState();
+}
+
+class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   List<FlSpot> _getChartData() {
-    if (monitor.monitorStatusDashboard.historyData.isEmpty) {
+    if (widget.monitor.monitorStatusDashboard.historyData.isEmpty) {
       return [];
     }
 
     // Find the latest timestamp from the data
-    final latestTime = monitor.monitorStatusDashboard.historyData
+    final latestTime = widget.monitor.monitorStatusDashboard.historyData
         .map((d) => d.localTimeStamp)
         .reduce((a, b) => a.isAfter(b) ? a : b);
 
@@ -25,7 +34,7 @@ class MonitorDetailScreen extends StatelessWidget {
     // Group data by 1-minute intervals
     final Map<DateTime, List<MonitorHistoryData>> groupedData = {};
 
-    for (var data in monitor.monitorStatusDashboard.historyData) {
+    for (var data in widget.monitor.monitorStatusDashboard.historyData) {
       final localTime = data.localTimeStamp;
 
       if (localTime.isAfter(oneHourBefore)) {
@@ -62,11 +71,11 @@ class MonitorDetailScreen extends StatelessWidget {
   }
 
   List<MonitorHistoryData> _getHistoryDataForSpot(FlSpot spot) {
-    if (monitor.monitorStatusDashboard.historyData.isEmpty) {
+    if (widget.monitor.monitorStatusDashboard.historyData.isEmpty) {
       return [];
     }
 
-    final latestTime = monitor.monitorStatusDashboard.historyData
+    final latestTime = widget.monitor.monitorStatusDashboard.historyData
         .map((d) => d.localTimeStamp)
         .reduce((a, b) => a.isAfter(b) ? a : b);
     final oneHourBefore = latestTime.subtract(const Duration(hours: 1));
@@ -77,10 +86,18 @@ class MonitorDetailScreen extends StatelessWidget {
     final windowStart = targetTime.subtract(const Duration(seconds: 30));
     final windowEnd = targetTime.add(const Duration(seconds: 30));
 
-    return monitor.monitorStatusDashboard.historyData.where((data) {
+    return widget.monitor.monitorStatusDashboard.historyData.where((data) {
       final localTime = data.localTimeStamp;
       return localTime.isAfter(windowStart) && localTime.isBefore(windowEnd);
     }).toList();
+  }
+
+  void _openAlerts() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AlertsScreen(monitorId: widget.monitor.id),
+      ),
+    );
   }
 
   @override
@@ -111,7 +128,7 @@ class MonitorDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          monitor.name,
+          widget.monitor.name,
           style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
         ),
       ),
@@ -122,7 +139,7 @@ class MonitorDetailScreen extends StatelessWidget {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -312,14 +329,38 @@ class MonitorDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 // Statistics section
-                Text(
-                  'Uptime Statistics',
-                  style: GoogleFonts.robotoMono(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Uptime Statistics',
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: _openAlerts,
+                        icon: const Icon(
+                          Icons.warning_amber_rounded,
+                          color: Colors.amber,
+                        ),
+                        label: Text(
+                          'Alerts',
+                          style: GoogleFonts.robotoMono(
+                            color: Colors.red,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 // Statistics cards with padding at the bottom
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
@@ -329,32 +370,36 @@ class MonitorDetailScreen extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
                         _buildUptimeListTile('Last Hour',
-                            monitor.monitorStatusDashboard.uptime1Hr),
+                            widget.monitor.monitorStatusDashboard.uptime1Hr),
                         const Divider(height: 1),
                         _buildUptimeListTile('Last 24 Hours',
-                            monitor.monitorStatusDashboard.uptime24Hrs),
+                            widget.monitor.monitorStatusDashboard.uptime24Hrs),
                         const Divider(height: 1),
                         _buildUptimeListTile('Last 7 Days',
-                            monitor.monitorStatusDashboard.uptime7Days),
+                            widget.monitor.monitorStatusDashboard.uptime7Days),
                         const Divider(height: 1),
                         _buildUptimeListTile('Last 30 Days',
-                            monitor.monitorStatusDashboard.uptime30Days),
+                            widget.monitor.monitorStatusDashboard.uptime30Days),
                         const Divider(height: 1),
-                        _buildUptimeListTile('Last 3 Months',
-                            monitor.monitorStatusDashboard.uptime3Months),
+                        _buildUptimeListTile(
+                            'Last 3 Months',
+                            widget
+                                .monitor.monitorStatusDashboard.uptime3Months),
                         const Divider(height: 1),
-                        _buildUptimeListTile('Last 6 Months',
-                            monitor.monitorStatusDashboard.uptime6Months),
+                        _buildUptimeListTile(
+                            'Last 6 Months',
+                            widget
+                                .monitor.monitorStatusDashboard.uptime6Months),
                         const Divider(height: 1),
                         _buildStatListTile(
                           'SSL Certificate Expiry',
-                          '${monitor.monitorStatusDashboard.certExpDays} days',
-                          monitor.monitorStatusDashboard.certExpDays,
+                          '${widget.monitor.monitorStatusDashboard.certExpDays} days',
+                          widget.monitor.monitorStatusDashboard.certExpDays,
                         ),
                         const Divider(height: 1),
                         _buildStatListTile(
                           'Average Response Time',
-                          '${monitor.monitorStatusDashboard.responseTime.toStringAsFixed(1)}ms',
+                          '${widget.monitor.monitorStatusDashboard.responseTime.toStringAsFixed(1)}ms',
                           null,
                         ),
                       ],
@@ -407,7 +452,7 @@ class MonitorDetailScreen extends StatelessWidget {
               : Colors.red;
     } else if (title == 'Average Response Time') {
       // Color coding for response time
-      final responseTime = monitor.monitorStatusDashboard.responseTime;
+      final responseTime = widget.monitor.monitorStatusDashboard.responseTime;
       valueColor = responseTime < 500
           ? Colors.green
           : responseTime < 1000

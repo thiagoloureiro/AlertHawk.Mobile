@@ -11,7 +11,9 @@ import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 
 class AlertsScreen extends StatefulWidget {
-  const AlertsScreen({super.key});
+  final int? monitorId;
+
+  const AlertsScreen({super.key, this.monitorId});
 
   @override
   State<AlertsScreen> createState() => _AlertsScreenState();
@@ -41,9 +43,12 @@ class _AlertsScreenState extends State<AlertsScreen> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
+    final url = widget.monitorId != null
+        ? '${AppConfig.monitoringApiUrl}/api/MonitorAlert/monitorAlerts/${widget.monitorId}/$_selectedDays'
+        : '${AppConfig.monitoringApiUrl}/api/MonitorAlert/monitorAlerts/0/$_selectedDays';
+
     final response = await http.get(
-      Uri.parse(
-          '${AppConfig.monitoringApiUrl}/api/MonitorAlert/monitorAlerts/0/$_selectedDays'),
+      Uri.parse(url),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
