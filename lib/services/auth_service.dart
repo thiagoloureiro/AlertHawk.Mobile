@@ -25,7 +25,7 @@ class AuthService {
   Future<bool> loginWithCredentials(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('${AppConfig.authApiUrl}/auth/login'),
+        Uri.parse('${AppConfig.authApiUrl}/api/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'username': username,
@@ -63,7 +63,7 @@ class AuthService {
           final userEmail = userData['userPrincipalName'] ?? userData['mail'];
 
           final apiResponse = await http.post(
-            Uri.parse('${AppConfig.authApiUrl}/auth/azure'),
+            Uri.parse('${AppConfig.authApiUrl}/api/auth/azure'),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -92,7 +92,7 @@ class AuthService {
     final token = await getToken();
     if (token != null) {
       await http.post(
-        Uri.parse('${AppConfig.authApiUrl}/logout'),
+        Uri.parse('${AppConfig.authApiUrl}/api/logout'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

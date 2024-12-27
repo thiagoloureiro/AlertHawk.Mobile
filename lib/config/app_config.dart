@@ -16,12 +16,12 @@ class AppConfig {
   static String get authApiUrl =>
       _prefs.getString('auth_api_url') ??
       dotenv.env['AUTH_API_URL'] ??
-      'https://auth.alerthawk.net/api';
+      'https://auth.alerthawk.net';
 
   static String get notificationApiUrl =>
       _prefs.getString('notification_api_url') ??
       dotenv.env['NOTIFICATION_API_URL'] ??
-      'https://notification.alerthawk.net/api';
+      'https://notification.alerthawk.net';
 
   static String get azureAdTenant =>
       _prefs.getString('azure_ad_tenant') ??
