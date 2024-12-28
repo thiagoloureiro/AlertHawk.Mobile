@@ -192,9 +192,23 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
                     if (snapshot.hasError) {
                       return Center(
-                        child: Text(
-                          'Error loading alerts',
-                          style: GoogleFonts.robotoMono(color: Colors.red),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Error loading alerts',
+                              style: GoogleFonts.robotoMono(color: Colors.red),
+                            ),
+                            const SizedBox(height: 16),
+                            IconButton(
+                              icon: const Icon(Icons.refresh),
+                              onPressed: () {
+                                setState(() {
+                                  _alerts = _fetchAlerts();
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       );
                     }

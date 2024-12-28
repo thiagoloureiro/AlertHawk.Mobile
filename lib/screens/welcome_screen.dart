@@ -539,9 +539,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                     if (snapshot.hasError) {
                       return Center(
-                        child: Text(
-                          'Error loading monitors',
-                          style: GoogleFonts.robotoMono(color: Colors.red),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Error loading monitors',
+                              style: GoogleFonts.robotoMono(color: Colors.red),
+                            ),
+                            const SizedBox(height: 16),
+                            IconButton(
+                              icon: const Icon(Icons.refresh),
+                              onPressed: () {
+                                setState(() {
+                                  _monitorGroups = _fetchMonitorGroups();
+                                  _monitorStatus = _fetchMonitorStatus();
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       );
                     }
