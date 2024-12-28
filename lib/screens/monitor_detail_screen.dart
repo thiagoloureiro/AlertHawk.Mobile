@@ -5,7 +5,6 @@ import '../models/monitor_group.dart';
 import 'package:intl/intl.dart';
 import './alerts_screen.dart';
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
@@ -24,12 +23,10 @@ class MonitorDetailScreen extends StatefulWidget {
 
 class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   late Future<Monitor> _monitorDetails;
-  Monitor? _currentMonitor;
 
   @override
   void initState() {
     super.initState();
-    _currentMonitor = widget.monitor;
     _monitorDetails = Future.value(widget.monitor);
   }
 
@@ -67,7 +64,6 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     try {
       final monitor = await _fetchMonitorDetails();
       setState(() {
-        _currentMonitor = monitor;
         _monitorDetails = Future.value(monitor);
       });
     } catch (e) {
@@ -416,9 +412,10 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                           lineTouchData: LineTouchData(
                             enabled: true,
                             touchTooltipData: LineTouchTooltipData(
-                              tooltipBgColor: isDarkMode
-                                  ? Colors.grey.shade800
-                                  : Colors.white,
+                              getTooltipColor: (LineBarSpot touchedSpot) =>
+                                  isDarkMode
+                                      ? Colors.grey.shade800
+                                      : Colors.white,
                               getTooltipItems:
                                   (List<LineBarSpot> touchedSpots) {
                                 return touchedSpots

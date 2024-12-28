@@ -40,7 +40,7 @@ dependencies:
   provider: ^6.1.1  # For state management
   google_fonts: ^6.2.1  # Add this line for easy font handling
   font_awesome_flutter: ^10.8.0  # Add this line
-  fl_chart: ^0.66.2
+  fl_chart: ^0.70.0
   intl: ^0.20.1
   flutter_dotenv: ^5.2.1
   url_launcher: ^6.3.1
