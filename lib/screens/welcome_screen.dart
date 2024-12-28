@@ -163,7 +163,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
           leading: Icon(
             Icons.circle,
-            color: monitor.status ? Colors.green : Colors.red,
+            color: monitor.paused
+                ? Colors.grey
+                : monitor.status
+                    ? Colors.green
+                    : Colors.red,
             size: 12,
           ),
         ),

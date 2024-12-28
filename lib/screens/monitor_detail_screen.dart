@@ -212,9 +212,37 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                       child: Row(
                         children: [
                           Text(
-                            widget.monitor.monitorTcp != null
-                                ? 'Host: '
-                                : 'URL: ',
+                            'Status: ',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            monitor.paused
+                                ? 'Paused'
+                                : monitor.status
+                                    ? 'Online'
+                                    : 'Offline',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: monitor.paused
+                                  ? Colors.grey
+                                  : monitor.status
+                                      ? Colors.green
+                                      : Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Row(
+                        children: [
+                          Text(
+                            monitor.monitorTcp != null ? 'Host: ' : 'URL: ',
                             style: GoogleFonts.robotoMono(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -222,7 +250,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                           ),
                           Expanded(
                             child: SelectableText(
-                              widget.monitor.checkTarget,
+                              monitor.checkTarget,
                               style: GoogleFonts.robotoMono(
                                 fontSize: 14,
                                 color: Theme.of(context).colorScheme.primary,
