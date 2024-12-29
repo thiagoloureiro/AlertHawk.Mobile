@@ -286,164 +286,170 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    // Chart with fixed height
-                    SizedBox(
-                      height: 216,
-                      child: LineChart(
-                        LineChartData(
-                          gridData: FlGridData(
-                            show: true,
-                            drawVerticalLine: true,
-                            horizontalInterval: interval,
-                            verticalInterval: 4,
-                            getDrawingHorizontalLine: (value) {
-                              return FlLine(
-                                color: isDarkMode
-                                    ? Colors.grey.shade800
-                                    : Colors.grey.shade300,
-                                strokeWidth: 1,
-                              );
-                            },
-                            getDrawingVerticalLine: (value) {
-                              return FlLine(
-                                color: isDarkMode
-                                    ? Colors.grey.shade800
-                                    : Colors.grey.shade300,
-                                strokeWidth: 1,
-                              );
-                            },
-                          ),
-                          titlesData: FlTitlesData(
-                            show: true,
-                            rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
+                    // Chart with fixed height and padding
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20.0),
+                      child: SizedBox(
+                        height: 216,
+                        child: LineChart(
+                          LineChartData(
+                            gridData: FlGridData(
+                              show: true,
+                              drawVerticalLine: true,
+                              horizontalInterval: interval,
+                              verticalInterval: 4,
+                              getDrawingHorizontalLine: (value) {
+                                return FlLine(
+                                  color: isDarkMode
+                                      ? Colors.grey.shade800
+                                      : Colors.grey.shade300,
+                                  strokeWidth: 1,
+                                );
+                              },
+                              getDrawingVerticalLine: (value) {
+                                return FlLine(
+                                  color: isDarkMode
+                                      ? Colors.grey.shade800
+                                      : Colors.grey.shade300,
+                                  strokeWidth: 1,
+                                );
+                              },
                             ),
-                            topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 30,
-                                interval: 0.2,
-                                getTitlesWidget: (value, meta) {
-                                  final now = DateTime.now();
-                                  final minutesAgo = ((1 - value) * 60).round();
-                                  final pointTime = now
-                                      .subtract(Duration(minutes: minutesAgo));
+                            titlesData: FlTitlesData(
+                              show: true,
+                              rightTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              topTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 30,
+                                  interval: 0.2,
+                                  getTitlesWidget: (value, meta) {
+                                    final now = DateTime.now();
+                                    final minutesAgo =
+                                        ((1 - value) * 60).round();
+                                    final pointTime = now.subtract(
+                                        Duration(minutes: minutesAgo));
 
-                                  return Text(
-                                    DateFormat('HH:mm').format(pointTime),
-                                    style: GoogleFonts.robotoMono(
-                                      color: isDarkMode
-                                          ? Colors.white70
-                                          : Colors.black87,
-                                    ),
-                                  );
-                                },
+                                    return Text(
+                                      DateFormat('HH:mm').format(pointTime),
+                                      style: GoogleFonts.robotoMono(
+                                        color: isDarkMode
+                                            ? Colors.white70
+                                            : Colors.black87,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  interval: interval,
+                                  reservedSize: 42,
+                                  getTitlesWidget: (value, meta) {
+                                    return Text(
+                                      value.toInt().toString(),
+                                      style: GoogleFonts.robotoMono(
+                                        color: isDarkMode
+                                            ? Colors.white70
+                                            : Colors.black87,
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                interval: interval,
-                                reservedSize: 42,
-                                getTitlesWidget: (value, meta) {
-                                  return Text(
-                                    value.toInt().toString(),
-                                    style: GoogleFonts.robotoMono(
-                                      color: isDarkMode
-                                          ? Colors.white70
-                                          : Colors.black87,
-                                    ),
-                                  );
-                                },
+                            borderData: FlBorderData(
+                              show: true,
+                              border: Border.all(
+                                color: isDarkMode
+                                    ? Colors.white24
+                                    : Colors.black12,
                               ),
                             ),
-                          ),
-                          borderData: FlBorderData(
-                            show: true,
-                            border: Border.all(
-                              color:
-                                  isDarkMode ? Colors.white24 : Colors.black12,
-                            ),
-                          ),
-                          minX: 0,
-                          maxX: 1,
-                          minY: 0,
-                          maxY: defaultMaxY,
-                          lineBarsData: [
-                            LineChartBarData(
-                              spots: spots,
-                              isCurved: true,
-                              color: Colors.green,
-                              barWidth: 2,
-                              isStrokeCapRound: true,
-                              dotData: FlDotData(
-                                show: true,
-                                getDotPainter: (spot, percent, barData, index) {
-                                  final historyData =
-                                      _getHistoryDataForSpot(spot);
-                                  final hasFailed =
-                                      historyData.any((d) => !d.status);
+                            minX: 0,
+                            maxX: 1,
+                            minY: 0,
+                            maxY: defaultMaxY,
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: spots,
+                                isCurved: true,
+                                color: Colors.green,
+                                barWidth: 2,
+                                isStrokeCapRound: true,
+                                dotData: FlDotData(
+                                  show: true,
+                                  getDotPainter:
+                                      (spot, percent, barData, index) {
+                                    final historyData =
+                                        _getHistoryDataForSpot(spot);
+                                    final hasFailed =
+                                        historyData.any((d) => !d.status);
 
-                                  if (hasFailed) {
+                                    if (hasFailed) {
+                                      return FlDotCirclePainter(
+                                        radius: 3,
+                                        color: Colors.red,
+                                        strokeWidth: 0,
+                                      );
+                                    }
+
                                     return FlDotCirclePainter(
-                                      radius: 3,
-                                      color: Colors.red,
+                                      radius: 0,
+                                      color: Colors.transparent,
                                       strokeWidth: 0,
                                     );
-                                  }
+                                  },
+                                ),
+                                belowBarData: BarAreaData(
+                                  show: true,
+                                  color: Colors.green
+                                      .withOpacity(isDarkMode ? 0.15 : 0.1),
+                                ),
+                              ),
+                            ],
+                            lineTouchData: LineTouchData(
+                              enabled: true,
+                              touchTooltipData: LineTouchTooltipData(
+                                getTooltipColor: (LineBarSpot touchedSpot) =>
+                                    isDarkMode
+                                        ? Colors.grey.shade800
+                                        : Colors.white,
+                                getTooltipItems:
+                                    (List<LineBarSpot> touchedSpots) {
+                                  return touchedSpots
+                                      .map((LineBarSpot touchedSpot) {
+                                    final historyData =
+                                        _getHistoryDataForSpot(touchedSpot);
+                                    final failedRequests = historyData
+                                        .where((d) => !d.status)
+                                        .toList();
 
-                                  return FlDotCirclePainter(
-                                    radius: 0,
-                                    color: Colors.transparent,
-                                    strokeWidth: 0,
-                                  );
+                                    // Calculate actual time for this point
+                                    final now = DateTime.now();
+                                    final pointTime = now.subtract(Duration(
+                                        minutes: ((1 - touchedSpot.x) * 60)
+                                            .round()));
+
+                                    return LineTooltipItem(
+                                      'Avg: ${touchedSpot.y.round()}ms\n'
+                                      '${DateFormat('HH:mm').format(pointTime)}'
+                                      '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
+                                      GoogleFonts.robotoMono(
+                                        color: isDarkMode
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
+                                    );
+                                  }).toList();
                                 },
                               ),
-                              belowBarData: BarAreaData(
-                                show: true,
-                                color: Colors.green
-                                    .withOpacity(isDarkMode ? 0.15 : 0.1),
-                              ),
-                            ),
-                          ],
-                          lineTouchData: LineTouchData(
-                            enabled: true,
-                            touchTooltipData: LineTouchTooltipData(
-                              getTooltipColor: (LineBarSpot touchedSpot) =>
-                                  isDarkMode
-                                      ? Colors.grey.shade800
-                                      : Colors.white,
-                              getTooltipItems:
-                                  (List<LineBarSpot> touchedSpots) {
-                                return touchedSpots
-                                    .map((LineBarSpot touchedSpot) {
-                                  final historyData =
-                                      _getHistoryDataForSpot(touchedSpot);
-                                  final failedRequests = historyData
-                                      .where((d) => !d.status)
-                                      .toList();
-
-                                  // Calculate actual time for this point
-                                  final now = DateTime.now();
-                                  final pointTime = now.subtract(Duration(
-                                      minutes:
-                                          ((1 - touchedSpot.x) * 60).round()));
-
-                                  return LineTooltipItem(
-                                    'Avg: ${touchedSpot.y.round()}ms\n'
-                                    '${DateFormat('HH:mm').format(pointTime)}'
-                                    '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
-                                    GoogleFonts.robotoMono(
-                                      color: isDarkMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                  );
-                                }).toList();
-                              },
                             ),
                           ),
                         ),
