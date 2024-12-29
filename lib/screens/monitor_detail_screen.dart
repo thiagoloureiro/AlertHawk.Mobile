@@ -184,7 +184,8 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
       appBar: AppBar(
         title: Text(
           widget.monitor.name,
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style:
+              GoogleFonts.robotoMono(fontWeight: FontWeight.bold, fontSize: 18),
         ),
       ),
       body: RefreshIndicator(
@@ -203,8 +204,10 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Status
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16.0, horizontal: 16.0),
                       child: Row(
                         children: [
                           Text(
@@ -233,8 +236,9 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                         ],
                       ),
                     ),
+                    // URL/Host
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         children: [
                           Text(
@@ -256,39 +260,48 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                         ],
                       ),
                     ),
-                    Text(
-                      'Response Time (ms) - Last Hour',
-                      style: GoogleFonts.robotoMono(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(height: 16),
+                    // Response Time title
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'Response Time (ms) - Last Hour',
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
                     // Legend
-                    Row(
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Failed Checks',
-                          style: GoogleFonts.robotoMono(
-                            fontSize: 12,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          const SizedBox(width: 8),
+                          Text(
+                            'Failed Checks',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 12,
+                              color:
+                                  Theme.of(context).textTheme.bodySmall?.color,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 24),
                     // Chart with fixed height and padding
                     Padding(
-                      padding: const EdgeInsets.only(right: 20.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: SizedBox(
                         height: 216,
                         child: LineChart(
