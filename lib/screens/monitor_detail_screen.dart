@@ -23,11 +23,13 @@ class MonitorDetailScreen extends StatefulWidget {
 
 class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   late Future<Monitor> _monitorDetails;
+  Monitor? _currentMonitor;
 
   @override
   void initState() {
     super.initState();
-    _monitorDetails = Future.value(widget.monitor);
+    _currentMonitor = widget.monitor;
+    _monitorDetails = _fetchMonitorDetails();
   }
 
   Future<Monitor> _fetchMonitorDetails() async {
@@ -65,6 +67,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
       final monitor = await _fetchMonitorDetails();
       setState(() {
         _monitorDetails = Future.value(monitor);
+        _currentMonitor = monitor;
       });
     } catch (e) {
       setState(() {
@@ -74,12 +77,13 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   }
 
   List<FlSpot> _getChartData() {
-    if (widget.monitor.monitorStatusDashboard.historyData.isEmpty) {
+    if (_currentMonitor == null ||
+        _currentMonitor!.monitorStatusDashboard.historyData.isEmpty) {
       return [];
     }
 
     // Find the latest timestamp from the data
-    final latestTime = widget.monitor.monitorStatusDashboard.historyData
+    final latestTime = _currentMonitor!.monitorStatusDashboard.historyData
         .map((d) => d.localTimeStamp)
         .reduce((a, b) => a.isAfter(b) ? a : b);
 
@@ -89,7 +93,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     // Group data by 1-minute intervals
     final Map<DateTime, List<MonitorHistoryData>> groupedData = {};
 
-    for (var data in widget.monitor.monitorStatusDashboard.historyData) {
+    for (var data in _currentMonitor!.monitorStatusDashboard.historyData) {
       final localTime = data.localTimeStamp;
 
       if (localTime.isAfter(oneHourBefore)) {
@@ -126,11 +130,12 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   }
 
   List<MonitorHistoryData> _getHistoryDataForSpot(FlSpot spot) {
-    if (widget.monitor.monitorStatusDashboard.historyData.isEmpty) {
+    if (_currentMonitor == null ||
+        _currentMonitor!.monitorStatusDashboard.historyData.isEmpty) {
       return [];
     }
 
-    final latestTime = widget.monitor.monitorStatusDashboard.historyData
+    final latestTime = _currentMonitor!.monitorStatusDashboard.historyData
         .map((d) => d.localTimeStamp)
         .reduce((a, b) => a.isAfter(b) ? a : b);
     final oneHourBefore = latestTime.subtract(const Duration(hours: 1));
@@ -141,7 +146,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     final windowStart = targetTime.subtract(const Duration(seconds: 30));
     final windowEnd = targetTime.add(const Duration(seconds: 30));
 
-    return widget.monitor.monitorStatusDashboard.historyData.where((data) {
+    return _currentMonitor!.monitorStatusDashboard.historyData.where((data) {
       final localTime = data.localTimeStamp;
       return localTime.isAfter(windowStart) && localTime.isBefore(windowEnd);
     }).toList();
@@ -158,12 +163,11 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final spots = _getChartData();
 
     // Calculate maxY with dynamic intervals
-    final maxResponse = spots.isEmpty
+    final maxResponse = _getChartData().isEmpty
         ? 50.0
-        : spots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
+        : _getChartData().map((e) => e.y).reduce((a, b) => a > b ? a : b);
 
     // Calculate interval and max Y value to have at most 12 intervals
     double calculateInterval(double maxValue) {
@@ -196,11 +200,13 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
             future: _monitorDetails,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (snapshot.hasData) {
                 final monitor = snapshot.data!;
+                _currentMonitor = monitor;
+                final spots = _getChartData();
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

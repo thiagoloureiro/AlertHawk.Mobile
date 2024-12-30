@@ -45,8 +45,8 @@ AlertHawk Mobile provides real-time monitoring of your services across different
 Create a `.env` file in the project root with the following settings:
 ```
 MONITORING_API_URL=https://monitoring.alerthawk.net
-AUTH_API_URL=https://auth.alerthawk.net/api
-NOTIFICATION_API_URL=https://notification.alerthawk.net/api
+AUTH_API_URL=https://auth.alerthawk.net
+NOTIFICATION_API_URL=https://notification.alerthawk.net
 AZURE_AD_TENANT=your-tenant-id
 AZURE_AD_CLIENT_ID=your-client-id
 AUTH_API_KEY=your-auth-api-key
