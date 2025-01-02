@@ -45,7 +45,10 @@ dependencies:
   flutter_dotenv: ^5.2.1
   url_launcher: ^6.3.1
   mobile_scanner: ^6.0.2
-  pushy_flutter: ^2.0.18
+  pushy_flutter: ^2.0.28
+
+dependency_overrides:
+  js:  
 
 dev_dependencies:
   flutter_test:
