@@ -1,4 +1,8 @@
 PODS:
+  - CocoaMQTT (2.1.0):
+    - CocoaMQTT/Core (= 2.1.0)
+  - CocoaMQTT/Core (2.1.0):
+    - MqttCocoaAsyncSocket (~> 1.0.8)
   - Flutter (1.0.0)
   - flutter_secure_storage (6.0.0):
     - Flutter
@@ -45,6 +49,7 @@ PODS:
   - mobile_scanner (6.0.2):
     - Flutter
     - GoogleMLKit/BarcodeScanning (~> 7.0.0)
+  - MqttCocoaAsyncSocket (1.0.8)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -54,6 +59,11 @@ PODS:
     - Flutter
     - FlutterMacOS
   - PromisesObjC (2.4.0)
+  - Pushy (1.0.48):
+    - CocoaMQTT (= 2.1.0)
+  - pushy_flutter (2.0.18):
+    - Flutter
+    - Pushy (= 1.0.48)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -68,12 +78,14 @@ DEPENDENCIES:
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - pushy_flutter (from `.symlinks/plugins/pushy_flutter/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
+    - CocoaMQTT
     - GoogleDataTransport
     - GoogleMLKit
     - GoogleToolboxForMac
@@ -83,8 +95,10 @@ SPEC REPOS:
     - MLKitBarcodeScanning
     - MLKitCommon
     - MLKitVision
+    - MqttCocoaAsyncSocket
     - nanopb
     - PromisesObjC
+    - Pushy
 
 EXTERNAL SOURCES:
   Flutter:
@@ -95,6 +109,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/mobile_scanner/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  pushy_flutter:
+    :path: ".symlinks/plugins/pushy_flutter/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   url_launcher_ios:
@@ -103,6 +119,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  CocoaMQTT: 43666585403f664bb55361189c03c54897060324
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -115,9 +132,12 @@ SPEC CHECKSUMS:
   MLKitCommon: 07c2c33ae5640e5380beaaa6e4b9c249a205542d
   MLKitVision: 45e79d68845a2de77e2dd4d7f07947f0ed157b0e
   mobile_scanner: af8f71879eaba2bbcb4d86c6a462c3c0e7f23036
+  MqttCocoaAsyncSocket: 77d3b74f76228dd5a05d1f9526eab101d415b30c
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
+  Pushy: c07f638ea2e40cac2198b01d41737579116379c2
+  pushy_flutter: 932109789f6b06ffcb83793174c4789689d0df10
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   webview_flutter_wkwebview: 44d4dee7d7056d5ad185d25b38404436d56c547c
