@@ -20,6 +20,7 @@
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-16.3.3/android" />
             <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.2/android" />
             <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/mobile_scanner-6.0.2/android" />
             <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.15/android" />
