@@ -136,6 +136,19 @@ class _AboutScreenState extends State<AboutScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
+              const SizedBox(height: 16),
+              InkWell(
+                onTap: () => _launchUrl('https://alerthawk.net/privacy.html'),
+                child: Text(
+                  'Privacy Notice',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 16,
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
         ),
