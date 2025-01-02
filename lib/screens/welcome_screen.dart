@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../models/monitor_status.dart';
@@ -90,6 +91,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Future<void> _refreshData() async {
+    Sentry.captureMessage(
+      'refreshing data',
+    );
     try {
       final groups = await _fetchMonitorGroups();
 
@@ -111,11 +115,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         });
       }
     } catch (e) {
+      Sentry.captureException(e);
       print('Background refresh error: $e');
     }
   }
 
   void _showStatusChangeNotification(Monitor monitor) {
+    Sentry.captureMessage(
+        'Monitor status change: ${monitor.name} is now ${monitor.status}');
     SharedPreferences.getInstance().then((prefs) {
       if (prefs.getBool('notifications_enabled') ?? true) {
         final status = monitor.status ? 'Online ✅' : 'Offline 🚫';
@@ -155,6 +162,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         try {
           return MonitorGroup.fromJson(json);
         } catch (e) {
+          Sentry.captureException(e);
           print('Error parsing group: $e');
           print('Group JSON: $json');
           rethrow;
