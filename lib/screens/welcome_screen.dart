@@ -7,7 +7,7 @@ import '../models/monitor_group.dart';
 import '../services/auth_service.dart';
 import 'about_screen.dart';
 import 'login_screen.dart';
-import 'settings_screen.dart';
+import 'config_screen.dart';
 import '../main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +17,10 @@ import 'monitor_detail_screen.dart';
 import 'alerts_screen.dart';
 import '../config/app_config.dart';
 import 'agents_screen.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
+import '../services/notification_service.dart';
+import 'settings_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -32,16 +36,102 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   String _searchQuery = '';
   String _statusFilter = 'All';
   Environment _selectedEnvironment = Environment.production;
+  Map<int, bool> _lastKnownStatus = {};
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _monitorStatus = _fetchMonitorStatus();
     _monitorGroups = _fetchMonitorGroups();
+    _setupAutoRefresh();
+
+    // Listen for settings changes
+    NotificationService.init().then((_) {
+      if (mounted) {
+        NotificationService.setOnNotificationReceived((payload) {
+          if (payload == 'refresh_settings') {
+            _setupAutoRefresh(); // Re-setup refresh when settings change
+          }
+        });
+      }
+    });
+  }
+
+  Future<void> _setupAutoRefresh() async {
+    _stopAutoRefresh(); // Always stop existing timer first
+
+    final prefs = await SharedPreferences.getInstance();
+    final notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+
+    if (notificationsEnabled && mounted) {
+      _startAutoRefresh();
+    }
+  }
+
+  void _startAutoRefresh() {
+    if (_refreshTimer != null) return;
+
+    SharedPreferences.getInstance().then((prefs) {
+      final duration = prefs.getInt('refresh_duration') ?? 30;
+      _refreshTimer = Timer.periodic(Duration(seconds: duration), (timer) {
+        if (mounted) {
+          _refreshData();
+        } else {
+          _stopAutoRefresh();
+        }
+      });
+    });
+  }
+
+  void _stopAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+  }
+
+  Future<void> _refreshData() async {
+    try {
+      final groups = await _fetchMonitorGroups();
+
+      // Check for status changes
+      for (var group in groups) {
+        for (var monitor in group.monitors) {
+          final lastStatus = _lastKnownStatus[monitor.id];
+          if (lastStatus != null && lastStatus != monitor.status) {
+            _showStatusChangeNotification(monitor);
+          }
+          _lastKnownStatus[monitor.id] = monitor.status;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _monitorGroups = Future.value(groups);
+          _monitorStatus = _fetchMonitorStatus();
+        });
+      }
+    } catch (e) {
+      print('Background refresh error: $e');
+    }
+  }
+
+  void _showStatusChangeNotification(Monitor monitor) {
+    SharedPreferences.getInstance().then((prefs) {
+      if (prefs.getBool('notifications_enabled') ?? true) {
+        final status = monitor.status ? 'Online ✅' : 'Offline 🚫';
+        final message = '${monitor.name} is now $status';
+        NotificationService.showNotification(
+          title: 'Monitor Alert',
+          body: message,
+          payload: monitor.id.toString(),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -355,6 +445,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   MaterialPageRoute(builder: (_) => const AgentsScreen()),
                 );
                 break;
+              case 'configuration':
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ConfigScreen()),
+                );
+                break;
               case 'settings':
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -402,13 +497,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ],
               ),
             ),
-            const PopupMenuItem(
-              value: 'about',
+            PopupMenuItem(
+              value: 'configuration',
               child: Row(
                 children: [
-                  Icon(Icons.info_outline),
-                  SizedBox(width: 8),
-                  Text('About'),
+                  const Icon(Icons.settings_applications),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Configuration',
+                    style: GoogleFonts.robotoMono(),
+                  ),
                 ],
               ),
             ),
@@ -416,12 +514,22 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               value: 'settings',
               child: Row(
                 children: [
-                  const Icon(Icons.settings),
+                  const Icon(Icons.tune),
                   const SizedBox(width: 8),
                   Text(
                     'Settings',
                     style: GoogleFonts.robotoMono(),
                   ),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'about',
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline),
+                  SizedBox(width: 8),
+                  Text('About'),
                 ],
               ),
             ),

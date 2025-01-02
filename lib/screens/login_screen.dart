@@ -7,7 +7,7 @@ import 'welcome_screen.dart';
 import '../main.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
-import 'settings_screen.dart';
+import 'config_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -216,13 +216,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton.icon(
                     onPressed: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const SettingsScreen()),
+                        MaterialPageRoute(builder: (_) => const ConfigScreen()),
                       );
                     },
                     icon: const Icon(Icons.settings),
                     label: Text(
-                      'Settings',
+                      'Configuration',
                       style: GoogleFonts.robotoMono(),
                     ),
                     style: TextButton.styleFrom(

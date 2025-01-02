@@ -7,6 +7,7 @@ import 'services/auth_service.dart';
 import 'providers/theme_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/app_config.dart';
+import 'services/notification_service.dart';
 
 // Global navigator key for MSAL authentication
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -16,6 +17,7 @@ Future<void> main() async {
   await dotenv.load();
   await AppConfig.initialize();
   final prefs = await SharedPreferences.getInstance();
+  await NotificationService.init();
 
   runApp(
     ChangeNotifierProvider(

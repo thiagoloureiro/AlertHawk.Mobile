@@ -31,7 +31,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         throw Exception('Invalid QR code format');
       }
 
-      final settings = {
+      final configuration = {
         'monitoring_api_url': values[0],
         'auth_api_url': values[1],
         'notification_api_url': values[2],
@@ -41,7 +41,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       };
 
       _hasScanned = true;
-      Navigator.of(context).pop(settings);
+      Navigator.of(context).pop(configuration);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid QR code format')),
