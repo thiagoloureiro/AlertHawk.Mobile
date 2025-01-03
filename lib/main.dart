@@ -30,6 +30,9 @@ Future<void> main() async {
     // Start the Pushy service
     Pushy.listen();
 
+    // Clear iOS app badge number when app is launched
+    Pushy.clearBadge();
+
     // Optional: Handle background notifications
     Pushy.setNotificationListener((Map<String, dynamic> data) {
       // Print notification payload data
