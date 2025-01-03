@@ -36,6 +36,7 @@ class AuthService {
       if (response.statusCode == 200) {
         final token = json.decode(response.body)['token'];
         await _prefs.setString('auth_token', token);
+        await _updateDeviceToken();
         return true;
       }
       return false;
@@ -78,6 +79,7 @@ class AuthService {
             final apiToken = json.decode(apiResponse.body)['token'];
             await _prefs.setString('auth_token', apiToken);
             await _prefs.setString('user_email', userEmail);
+            await _updateDeviceToken();
             return true;
           }
         }
@@ -114,5 +116,25 @@ class AuthService {
 
   Future<String?> getUserEmail() async {
     return _prefs.getString('user_email');
+  }
+
+  Future<void> _updateDeviceToken() async {
+    try {
+      final deviceToken = _prefs.getString('deviceToken');
+      final token = _prefs.getString('auth_token');
+
+      await http.post(
+        Uri.parse('${AppConfig.authApiUrl}/api/User/UpdateUserDeviceToken'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'deviceToken': deviceToken,
+        }),
+      );
+    } catch (e) {
+      print('Failed to update device token: $e');
+    }
   }
 }

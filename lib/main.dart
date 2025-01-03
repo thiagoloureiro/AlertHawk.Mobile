@@ -23,7 +23,7 @@ Future<void> main() async {
   try {
     // Register the device for push notifications
     String deviceToken = await Pushy.register();
-
+    await prefs.setString('deviceToken', deviceToken);
     // Print token to console/logcat
     print('Device token: $deviceToken');
 
