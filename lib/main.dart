@@ -49,6 +49,8 @@ Future<void> main() async {
       print('Notification clicked: $data');
 
       // Your custom notification click handling here
+      // Clear iOS app badge number
+      Pushy.clearBadge();
     });
   } on PlatformException catch (error) {
     print('Failed to register for push notifications: $error');
