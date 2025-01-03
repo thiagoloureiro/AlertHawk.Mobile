@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:pushy_flutter/pushy_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/monitor_alert.dart';
 import '../models/environment.dart';
@@ -31,6 +32,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
   void initState() {
     super.initState();
     _alerts = _fetchAlerts();
+
+    // Clear iOS app badge number when alerts are loaded
+    Pushy.clearBadge();
   }
 
   @override
