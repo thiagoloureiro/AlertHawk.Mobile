@@ -38,6 +38,9 @@ Future<void> main() async {
       // Display notification as alert
       String message = data['message'] ?? 'No message';
       Pushy.notify("AlertHawk", message, data);
+
+      // Clear iOS app badge number
+      Pushy.clearBadge();
     });
 
     // Optional: Handle notification clicks
