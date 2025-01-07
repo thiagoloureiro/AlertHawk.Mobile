@@ -81,6 +81,7 @@ class MyApp extends StatelessWidget {
           navigatorKey: navigatorKey,
           title: 'AlertHawk',
           theme: themeProvider.theme,
+          debugShowCheckedModeBanner: false,
           home: isAuthenticated ? const WelcomeScreen() : const LoginScreen(),
           routes: {
             '/login': (context) => const LoginScreen(),

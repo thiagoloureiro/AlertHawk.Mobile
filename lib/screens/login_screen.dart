@@ -112,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _usernameController,
                           style: GoogleFonts.robotoMono(),
                           decoration: InputDecoration(
-                            labelText: 'Username',
+                            labelText: 'E-mail',
                             labelStyle: GoogleFonts.robotoMono(),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           validator: (value) {
                             if (value?.isEmpty ?? true) {
-                              return 'Please enter username';
+                              return 'Please enter e-mail';
                             }
                             return null;
                           },
@@ -338,12 +338,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   TextFormField(
                     controller: usernameController,
-                    decoration: const InputDecoration(labelText: 'Username'),
+                    decoration: const InputDecoration(labelText: 'Name'),
                     validator: (value) {
                       if (value?.isEmpty ?? true)
-                        return 'Please enter username';
+                        return 'Please enter your name';
                       if ((value?.length ?? 0) < 3)
-                        return 'Username must be at least 3 characters';
+                        return 'Name must be at least 3 characters';
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: emailController,
+                    decoration:
+                        const InputDecoration(labelText: 'Email Address'),
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) return 'Please enter email';
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                          .hasMatch(value!)) {
+                        return 'Please enter a valid email';
+                      }
                       return null;
                     },
                   ),
@@ -371,19 +384,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         return 'Password must be at least 6 characters';
                       if (value != passwordController.text)
                         return 'Passwords do not match';
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: emailController,
-                    decoration:
-                        const InputDecoration(labelText: 'Email Address'),
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) return 'Please enter email';
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(value!)) {
-                        return 'Please enter a valid email';
-                      }
                       return null;
                     },
                   ),
@@ -434,6 +434,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             );
                           }
                         } catch (e) {
+                          print(e.toString());
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Network error occurred'),
