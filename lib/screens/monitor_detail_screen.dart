@@ -650,10 +650,10 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
 
     final Map<String, int> periodToDays = {
       'Last 24 Hours': 1,
-      'Last 7 Days': 7,
-      'Last 30 Days': 30,
-      'Last 3 Months': 180,
-      'Last 6 Months': 360,
+      'Last 7 Days': 50,
+      'Last 30 Days': 100,
+      'Last 3 Months': 200,
+      'Last 6 Months': 400,
     };
 
     return ListTile(
