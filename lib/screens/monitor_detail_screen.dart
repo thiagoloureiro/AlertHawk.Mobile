@@ -167,9 +167,15 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
+    // Determine sampling factor based on days
+    int samplingFactor = 30; // default
+    if (days >= 30) samplingFactor = 60; // 1 month
+    if (days >= 90) samplingFactor = 100; // 3 months
+    if (days >= 180) samplingFactor = 200; // 6 months
+
     final response = await http.get(
       Uri.parse(
-        '${AppConfig.monitoringApiUrl}/api/MonitorHistory/MonitorHistoryByIdDays/${widget.monitor.id}/$days/true/50',
+        '${AppConfig.monitoringApiUrl}/api/MonitorHistory/MonitorHistoryByIdDays/${widget.monitor.id}/$days/true/$samplingFactor',
       ),
       headers: {
         'Authorization': 'Bearer $token',
