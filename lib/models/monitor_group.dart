@@ -108,7 +108,7 @@ class MonitorStatusDashboard {
   final double uptime6Months;
   final int certExpDays;
   final double responseTime;
-  final List<MonitorHistoryData> historyData;
+  List<MonitorHistoryData> historyData;
 
   MonitorStatusDashboard({
     required this.uptime1Hr,

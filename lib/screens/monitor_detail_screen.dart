@@ -24,6 +24,8 @@ class MonitorDetailScreen extends StatefulWidget {
 class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   late Future<Monitor> _monitorDetails;
   Monitor? _currentMonitor;
+  String _selectedPeriod = 'Last Hour';
+  bool _isLoadingChart = false;
 
   @override
   void initState() {
@@ -82,51 +84,52 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
       return [];
     }
 
-    // Find the latest timestamp from the data
-    final latestTime = _currentMonitor!.monitorStatusDashboard.historyData
-        .map((d) => d.localTimeStamp)
-        .reduce((a, b) => a.isAfter(b) ? a : b);
+    if (_selectedPeriod == 'Last Hour') {
+      // Hourly data logic
+      final latestTime = _currentMonitor!.monitorStatusDashboard.historyData
+          .map((d) => d.localTimeStamp)
+          .reduce((a, b) => a.isAfter(b) ? a : b);
+      final oneHourBefore = latestTime.subtract(const Duration(hours: 1));
 
-    // Calculate the time one hour before the latest timestamp
-    final oneHourBefore = latestTime.subtract(const Duration(hours: 1));
+      final Map<DateTime, List<MonitorHistoryData>> groupedData = {};
 
-    // Group data by 1-minute intervals
-    final Map<DateTime, List<MonitorHistoryData>> groupedData = {};
-
-    for (var data in _currentMonitor!.monitorStatusDashboard.historyData) {
-      final localTime = data.localTimeStamp;
-
-      if (localTime.isAfter(oneHourBefore)) {
-        // Round to nearest minute
-        final roundedTime = DateTime(
-          localTime.year,
-          localTime.month,
-          localTime.day,
-          localTime.hour,
-          localTime.minute,
-        );
-        groupedData.putIfAbsent(roundedTime, () => []).add(data);
+      for (var data in _currentMonitor!.monitorStatusDashboard.historyData) {
+        final localTime = data.localTimeStamp;
+        if (localTime.isAfter(oneHourBefore)) {
+          final roundedTime = DateTime(
+            localTime.year,
+            localTime.month,
+            localTime.day,
+            localTime.hour,
+            localTime.minute,
+          );
+          groupedData.putIfAbsent(roundedTime, () => []).add(data);
+        }
       }
+
+      return groupedData.entries.map((entry) {
+        final hasFailed = entry.value.any((d) => !d.status);
+        final avgResponse = hasFailed
+            ? 0.0
+            : entry.value.map((d) => d.responseTime).reduce((a, b) => a + b) /
+                entry.value.length;
+        final minutesFromStart = entry.key.difference(oneHourBefore).inMinutes;
+        return FlSpot(minutesFromStart / 60, avgResponse.toDouble());
+      }).toList()
+        ..sort((a, b) => a.x.compareTo(b.x));
+    } else {
+      // Historical data logic
+      final data = _currentMonitor!.monitorStatusDashboard.historyData;
+      final startTime = data.first.localTimeStamp;
+      final totalDuration = data.last.localTimeStamp.difference(startTime);
+
+      return data.map((point) {
+        final x = point.localTimeStamp.difference(startTime).inMilliseconds /
+            totalDuration.inMilliseconds;
+        return FlSpot(x, point.status ? point.responseTime.toDouble() : 0.0);
+      }).toList()
+        ..sort((a, b) => a.x.compareTo(b.x));
     }
-
-    // Convert grouped data to spots
-    return groupedData.entries.map((entry) {
-      // Check if any data point in this minute had a failed status
-      final hasFailed = entry.value.any((d) => !d.status);
-
-      // If failed, set response time to 0, otherwise calculate average
-      final avgResponse = hasFailed
-          ? 0.0
-          : entry.value.map((d) => d.responseTime).reduce((a, b) => a + b) /
-              entry.value.length;
-
-      // Calculate minutes from the start and convert to x-axis position (0-60 minutes)
-      final minutesFromStart = entry.key.difference(oneHourBefore).inMinutes;
-      final x = minutesFromStart / 60;
-
-      return FlSpot(x, avgResponse);
-    }).toList()
-      ..sort((a, b) => a.x.compareTo(b.x));
   }
 
   List<MonitorHistoryData> _getHistoryDataForSpot(FlSpot spot) {
@@ -158,6 +161,27 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
         builder: (context) => AlertsScreen(monitorId: widget.monitor.id),
       ),
     );
+  }
+
+  Future<List<MonitorHistoryData>> _fetchHistoricalData(int days) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.get(
+      Uri.parse(
+        '${AppConfig.monitoringApiUrl}/api/MonitorHistory/MonitorHistoryByIdDays/${widget.monitor.id}/$days/true/50',
+      ),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body);
+      return jsonData.map((data) => MonitorHistoryData.fromJson(data)).toList();
+    }
+    throw Exception('Failed to load history data');
   }
 
   @override
@@ -267,211 +291,247 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Response Time title
+                    // Chart section
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        'Response Time (ms) - Last Hour',
-                        style: GoogleFonts.robotoMono(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Legend
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 12,
-                            height: 12,
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
                           Text(
-                            'Failed Checks',
+                            'Response Time (ms) - $_selectedPeriod',
                             style: GoogleFonts.robotoMono(
-                              fontSize: 12,
-                              color:
-                                  Theme.of(context).textTheme.bodySmall?.color,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 216,
+                            child: _isLoadingChart
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : LineChart(
+                                    LineChartData(
+                                      gridData: FlGridData(
+                                        show: true,
+                                        drawVerticalLine: true,
+                                        horizontalInterval: interval,
+                                        verticalInterval: 4,
+                                        getDrawingHorizontalLine: (value) {
+                                          return FlLine(
+                                            color: isDarkMode
+                                                ? Colors.grey.shade800
+                                                : Colors.grey.shade300,
+                                            strokeWidth: 1,
+                                          );
+                                        },
+                                        getDrawingVerticalLine: (value) {
+                                          return FlLine(
+                                            color: isDarkMode
+                                                ? Colors.grey.shade800
+                                                : Colors.grey.shade300,
+                                            strokeWidth: 1,
+                                          );
+                                        },
+                                      ),
+                                      titlesData: FlTitlesData(
+                                        show: true,
+                                        rightTitles: const AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false),
+                                        ),
+                                        topTitles: const AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false),
+                                        ),
+                                        bottomTitles: AxisTitles(
+                                          sideTitles: SideTitles(
+                                            showTitles: true,
+                                            reservedSize: 35,
+                                            interval:
+                                                _selectedPeriod == 'Last Hour'
+                                                    ? 0.2
+                                                    : 0.25,
+                                            getTitlesWidget: (value, meta) {
+                                              if (_selectedPeriod ==
+                                                  'Last Hour') {
+                                                final now = DateTime.now();
+                                                final minutesAgo =
+                                                    ((1 - value) * 60).round();
+                                                final pointTime = now.subtract(
+                                                    Duration(
+                                                        minutes: minutesAgo));
+                                                return Text(
+                                                  DateFormat('HH:mm')
+                                                      .format(pointTime),
+                                                  style: GoogleFonts.robotoMono(
+                                                    fontSize: 13,
+                                                    color: isDarkMode
+                                                        ? Colors.white70
+                                                        : Colors.black87,
+                                                  ),
+                                                );
+                                              } else {
+                                                if (_currentMonitor
+                                                        ?.monitorStatusDashboard
+                                                        .historyData
+                                                        .isEmpty ??
+                                                    true) {
+                                                  return const Text('');
+                                                }
+                                                final data = _currentMonitor!
+                                                    .monitorStatusDashboard
+                                                    .historyData;
+                                                final startTime =
+                                                    data.first.localTimeStamp;
+                                                final endTime =
+                                                    data.last.localTimeStamp;
+                                                final pointTime =
+                                                    startTime.add(Duration(
+                                                  milliseconds: (value *
+                                                          endTime
+                                                              .difference(
+                                                                  startTime)
+                                                              .inMilliseconds)
+                                                      .round(),
+                                                ));
+
+                                                // Different format based on period length
+                                                String format =
+                                                    _selectedPeriod ==
+                                                            'Last 24 Hours'
+                                                        ? 'HH:mm'
+                                                        : 'MM/dd';
+                                                return Text(
+                                                  DateFormat(format)
+                                                      .format(pointTime),
+                                                  style: GoogleFonts.robotoMono(
+                                                    fontSize: 13,
+                                                    color: isDarkMode
+                                                        ? Colors.white70
+                                                        : Colors.black87,
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                        leftTitles: AxisTitles(
+                                          sideTitles: SideTitles(
+                                            showTitles: true,
+                                            interval: interval,
+                                            reservedSize: 42,
+                                            getTitlesWidget: (value, meta) {
+                                              return Text(
+                                                value.toInt().toString(),
+                                                style: GoogleFonts.robotoMono(
+                                                  fontSize: 13,
+                                                  color: isDarkMode
+                                                      ? Colors.white70
+                                                      : Colors.black87,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      borderData: FlBorderData(
+                                        show: true,
+                                        border: Border.all(
+                                          color: isDarkMode
+                                              ? Colors.white24
+                                              : Colors.black12,
+                                        ),
+                                      ),
+                                      minX: 0,
+                                      maxX: 1,
+                                      minY: 0,
+                                      maxY: defaultMaxY,
+                                      clipData: FlClipData.all(),
+                                      lineBarsData: [
+                                        LineChartBarData(
+                                          spots: spots,
+                                          isCurved: true,
+                                          color: Colors.green,
+                                          barWidth: 2,
+                                          isStrokeCapRound: true,
+                                          dotData: FlDotData(
+                                            show: true,
+                                            getDotPainter: (spot, percent,
+                                                barData, index) {
+                                              final historyData =
+                                                  _getHistoryDataForSpot(spot);
+                                              final hasFailed = historyData
+                                                  .any((d) => !d.status);
+
+                                              if (hasFailed) {
+                                                return FlDotCirclePainter(
+                                                  radius: 3,
+                                                  color: Colors.red,
+                                                  strokeWidth: 0,
+                                                );
+                                              }
+
+                                              return FlDotCirclePainter(
+                                                radius: 0,
+                                                color: Colors.transparent,
+                                                strokeWidth: 0,
+                                              );
+                                            },
+                                          ),
+                                          belowBarData: BarAreaData(
+                                            show: true,
+                                            color: Colors.green.withOpacity(
+                                                isDarkMode ? 0.15 : 0.1),
+                                          ),
+                                        ),
+                                      ],
+                                      lineTouchData: LineTouchData(
+                                        enabled: true,
+                                        touchTooltipData: LineTouchTooltipData(
+                                          getTooltipColor:
+                                              (LineBarSpot touchedSpot) =>
+                                                  isDarkMode
+                                                      ? Colors.grey.shade800
+                                                      : Colors.white,
+                                          getTooltipItems:
+                                              (List<LineBarSpot> touchedSpots) {
+                                            return touchedSpots
+                                                .map((LineBarSpot touchedSpot) {
+                                              final historyData =
+                                                  _getHistoryDataForSpot(
+                                                      touchedSpot);
+                                              final failedRequests = historyData
+                                                  .where((d) => !d.status)
+                                                  .toList();
+
+                                              // Calculate actual time for this point
+                                              final now = DateTime.now();
+                                              final pointTime = now.subtract(
+                                                  Duration(
+                                                      minutes:
+                                                          ((1 - touchedSpot.x) *
+                                                                  60)
+                                                              .round()));
+
+                                              return LineTooltipItem(
+                                                'Avg: ${touchedSpot.y.round()}ms\n'
+                                                '${DateFormat('HH:mm').format(pointTime)}'
+                                                '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
+                                                GoogleFonts.robotoMono(
+                                                  color: isDarkMode
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                ),
+                                              );
+                                            }).toList();
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                          )
                         ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    // Chart with fixed height and padding
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SizedBox(
-                        height: 216,
-                        child: LineChart(
-                          LineChartData(
-                            gridData: FlGridData(
-                              show: true,
-                              drawVerticalLine: true,
-                              horizontalInterval: interval,
-                              verticalInterval: 4,
-                              getDrawingHorizontalLine: (value) {
-                                return FlLine(
-                                  color: isDarkMode
-                                      ? Colors.grey.shade800
-                                      : Colors.grey.shade300,
-                                  strokeWidth: 1,
-                                );
-                              },
-                              getDrawingVerticalLine: (value) {
-                                return FlLine(
-                                  color: isDarkMode
-                                      ? Colors.grey.shade800
-                                      : Colors.grey.shade300,
-                                  strokeWidth: 1,
-                                );
-                              },
-                            ),
-                            titlesData: FlTitlesData(
-                              show: true,
-                              rightTitles: const AxisTitles(
-                                sideTitles: SideTitles(showTitles: false),
-                              ),
-                              topTitles: const AxisTitles(
-                                sideTitles: SideTitles(showTitles: false),
-                              ),
-                              bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: 30,
-                                  interval: 0.2,
-                                  getTitlesWidget: (value, meta) {
-                                    final now = DateTime.now();
-                                    final minutesAgo =
-                                        ((1 - value) * 60).round();
-                                    final pointTime = now.subtract(
-                                        Duration(minutes: minutesAgo));
-
-                                    return Text(
-                                      DateFormat('HH:mm').format(pointTime),
-                                      style: GoogleFonts.robotoMono(
-                                        color: isDarkMode
-                                            ? Colors.white70
-                                            : Colors.black87,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              leftTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  interval: interval,
-                                  reservedSize: 42,
-                                  getTitlesWidget: (value, meta) {
-                                    return Text(
-                                      value.toInt().toString(),
-                                      style: GoogleFonts.robotoMono(
-                                        color: isDarkMode
-                                            ? Colors.white70
-                                            : Colors.black87,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            borderData: FlBorderData(
-                              show: true,
-                              border: Border.all(
-                                color: isDarkMode
-                                    ? Colors.white24
-                                    : Colors.black12,
-                              ),
-                            ),
-                            minX: 0,
-                            maxX: 1,
-                            minY: 0,
-                            maxY: defaultMaxY,
-                            lineBarsData: [
-                              LineChartBarData(
-                                spots: spots,
-                                isCurved: true,
-                                color: Colors.green,
-                                barWidth: 2,
-                                isStrokeCapRound: true,
-                                dotData: FlDotData(
-                                  show: true,
-                                  getDotPainter:
-                                      (spot, percent, barData, index) {
-                                    final historyData =
-                                        _getHistoryDataForSpot(spot);
-                                    final hasFailed =
-                                        historyData.any((d) => !d.status);
-
-                                    if (hasFailed) {
-                                      return FlDotCirclePainter(
-                                        radius: 3,
-                                        color: Colors.red,
-                                        strokeWidth: 0,
-                                      );
-                                    }
-
-                                    return FlDotCirclePainter(
-                                      radius: 0,
-                                      color: Colors.transparent,
-                                      strokeWidth: 0,
-                                    );
-                                  },
-                                ),
-                                belowBarData: BarAreaData(
-                                  show: true,
-                                  color: Colors.green
-                                      .withOpacity(isDarkMode ? 0.15 : 0.1),
-                                ),
-                              ),
-                            ],
-                            lineTouchData: LineTouchData(
-                              enabled: true,
-                              touchTooltipData: LineTouchTooltipData(
-                                getTooltipColor: (LineBarSpot touchedSpot) =>
-                                    isDarkMode
-                                        ? Colors.grey.shade800
-                                        : Colors.white,
-                                getTooltipItems:
-                                    (List<LineBarSpot> touchedSpots) {
-                                  return touchedSpots
-                                      .map((LineBarSpot touchedSpot) {
-                                    final historyData =
-                                        _getHistoryDataForSpot(touchedSpot);
-                                    final failedRequests = historyData
-                                        .where((d) => !d.status)
-                                        .toList();
-
-                                    // Calculate actual time for this point
-                                    final now = DateTime.now();
-                                    final pointTime = now.subtract(Duration(
-                                        minutes: ((1 - touchedSpot.x) * 60)
-                                            .round()));
-
-                                    return LineTooltipItem(
-                                      'Avg: ${touchedSpot.y.round()}ms\n'
-                                      '${DateFormat('HH:mm').format(pointTime)}'
-                                      '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
-                                      GoogleFonts.robotoMono(
-                                        color: isDarkMode
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                    );
-                                  }).toList();
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -582,21 +642,60 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
             ? Colors.orange
             : Colors.red;
 
+    final Map<String, int> periodToDays = {
+      'Last 24 Hours': 1,
+      'Last 7 Days': 7,
+      'Last 30 Days': 30,
+      'Last 3 Months': 90,
+      'Last 6 Months': 180,
+    };
+
     return ListTile(
       title: Text(
         period,
-        style: GoogleFonts.robotoMono(
-          fontWeight: FontWeight.w500,
-        ),
+        style: GoogleFonts.robotoMono(fontWeight: FontWeight.w500),
       ),
       trailing: Text(
         '$formattedUptime%',
-        style: GoogleFonts.robotoMono(
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
+        style:
+            GoogleFonts.robotoMono(fontWeight: FontWeight.bold, color: color),
       ),
       dense: true,
+      onTap: () async {
+        setState(() {
+          _selectedPeriod = period;
+          _isLoadingChart = true;
+        });
+
+        try {
+          if (period == 'Last Hour') {
+            await _refreshData();
+          } else {
+            final days = periodToDays[period] ?? 1;
+            final historyData = await _fetchHistoricalData(days);
+            if (mounted) {
+              setState(() {
+                _currentMonitor?.monitorStatusDashboard.historyData =
+                    historyData;
+              });
+            }
+          }
+        } catch (e) {
+          print('Error fetching history: $e');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to load historical data'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } finally {
+          if (mounted) {
+            setState(() => _isLoadingChart = false);
+          }
+        }
+      },
     );
   }
 
