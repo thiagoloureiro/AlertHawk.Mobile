@@ -652,8 +652,8 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
       'Last 24 Hours': 1,
       'Last 7 Days': 7,
       'Last 30 Days': 30,
-      'Last 3 Months': 90,
-      'Last 6 Months': 180,
+      'Last 3 Months': 180,
+      'Last 6 Months': 360,
     };
 
     return ListTile(
