@@ -5,6 +5,9 @@ import '../config/app_config.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../screens/qr_scanner_screen.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -26,11 +29,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final TextEditingController _azureClientIdController =
       TextEditingController();
   bool _isLoading = false;
+  bool _isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
+    _checkLoginStatus();
   }
 
   @override
@@ -145,6 +150,113 @@ class _SettingsScreenState extends State<SettingsScreen> {
         const SnackBar(content: Text('Settings loaded from QR code')),
       );
     }
+  }
+
+  Future<bool> _isUserLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey('auth_token');
+  }
+
+  Future<void> _deleteUser() async {
+    // Show confirmation dialog
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Delete Account',
+          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Are you sure you want to delete your account? This action cannot be undone.',
+          style: GoogleFonts.robotoMono(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.robotoMono(),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(
+              'Delete',
+              style: GoogleFonts.robotoMono(),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('auth_token');
+
+        if (token == null) {
+          throw Exception('Not authenticated');
+        }
+
+        final response = await http.delete(
+          Uri.parse('${AppConfig.authApiUrl}/api/User/delete'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          // Clear all auth-related data
+          await prefs.remove('auth_token');
+          await prefs.remove('user_email');
+          await prefs.remove('deviceToken');
+
+          if (mounted) {
+            // Show success message and navigate to login
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Account deleted successfully'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            // Navigate to login screen and clear navigation stack
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/login',
+              (route) => false,
+            );
+          }
+        } else {
+          throw Exception('Failed to delete account');
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to delete account'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    }
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isLoggedIn = prefs.containsKey('auth_token');
+    });
   }
 
   @override
@@ -341,6 +453,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
+                if (_isLoggedIn) ...[
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _deleteUser,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      minimumSize: const Size(double.infinity, 0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    icon: const Icon(Icons.delete_forever),
+                    label: Text(
+                      'Delete My Account',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

@@ -339,6 +339,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 _showEnvironmentSelector();
                 break;
               case 'logout':
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.remove('auth_token');
+                await prefs.remove('user_email');
+                await prefs.remove('deviceToken');
                 await AuthService(
                   await SharedPreferences.getInstance(),
                   navigatorKey,
