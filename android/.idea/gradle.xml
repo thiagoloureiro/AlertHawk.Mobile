@@ -20,13 +20,6 @@
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.2/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/mobile_scanner-6.0.2/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.15/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/pushy_flutter-2.0.28/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.0/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/webview_flutter_android-4.2.0/android" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="/opt/homebrew/Caskroom/flutter/3.24.5/flutter/packages/flutter_tools/gradle" />
