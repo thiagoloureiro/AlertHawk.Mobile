@@ -5,8 +5,6 @@ import '../config/app_config.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../screens/qr_scanner_screen.dart';
-import 'dart:io';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class SettingsScreen extends StatefulWidget {

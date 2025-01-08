@@ -46,6 +46,7 @@ dependencies:
   url_launcher: ^6.3.1
   mobile_scanner: ^6.0.2
   pushy_flutter: ^2.0.28
+  package_info_plus: ^8.1.2
 
 dependency_overrides:
   js:  

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import '../config/app_config.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import '../games/snake_game.dart';
@@ -21,23 +20,12 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   void initState() {
     super.initState();
-    _version = _fetchVersion();
+    _version = _getAppVersion();
   }
 
-  Future<String> _fetchVersion() async {
-    try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.monitoringApiUrl}/api/version'),
-      );
-
-      if (response.statusCode == 200) {
-        return response.body;
-      } else {
-        return 'Unable to fetch version';
-      }
-    } catch (e) {
-      return 'Error fetching version';
-    }
+  Future<String> _getAppVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    return packageInfo.version;
   }
 
   Future<void> _launchUrl(String url) async {
