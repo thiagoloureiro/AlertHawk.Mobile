@@ -169,9 +169,10 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
 
     // Determine sampling factor based on days
     int samplingFactor = 30; // default
-    if (days >= 30) samplingFactor = 60; // 1 month
-    if (days >= 90) samplingFactor = 100; // 3 months
-    if (days >= 180) samplingFactor = 200; // 6 months
+    if (days >= 7) samplingFactor = 60; // 1
+    if (days >= 30) samplingFactor = 300; // 1 month
+    if (days >= 90) samplingFactor = 1000; // 3 months
+    if (days >= 180) samplingFactor = 2000; // 6 months
 
     final response = await http.get(
       Uri.parse(
@@ -650,10 +651,10 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
 
     final Map<String, int> periodToDays = {
       'Last 24 Hours': 1,
-      'Last 7 Days': 50,
-      'Last 30 Days': 100,
-      'Last 3 Months': 200,
-      'Last 6 Months': 400,
+      'Last 7 Days': 7,
+      'Last 30 Days': 30,
+      'Last 3 Months': 90,
+      'Last 6 Months': 180,
     };
 
     return ListTile(
