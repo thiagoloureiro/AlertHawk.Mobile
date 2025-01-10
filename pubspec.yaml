@@ -48,6 +48,8 @@ dependencies:
   pushy_flutter: ^2.0.28
   package_info_plus: ^8.1.2
   flutter_native_splash: ^2.4.4
+  sign_in_with_apple: ^6.1.4
+  jwt_decoder: ^2.0.1
 
 dependency_overrides:
   js:  

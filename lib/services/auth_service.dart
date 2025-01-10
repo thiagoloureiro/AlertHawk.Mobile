@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aad_oauth/aad_oauth.dart';
 import 'package:aad_oauth/model/config.dart';
 import '../config/app_config.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthService {
   final SharedPreferences _prefs;
@@ -135,6 +137,47 @@ class AuthService {
       );
     } catch (e) {
       print('Failed to update device token: $e');
+    }
+  }
+
+  Future<bool> loginWithApple() async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      if (credential.identityToken != null) {
+        final Map<String, dynamic> decodedToken =
+            JwtDecoder.decode(credential.identityToken!);
+        final String? email = decodedToken['email'];
+        print(email);
+
+        final apiResponse = await http.post(
+          Uri.parse('${AppConfig.authApiUrl}/api/auth/azure'),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            'apikey': AppConfig.authApiKey,
+            'email': email,
+          }),
+        );
+
+        if (apiResponse.statusCode == 200) {
+          final apiToken = json.decode(apiResponse.body)['token'];
+          await _prefs.setString('auth_token', apiToken);
+          await _prefs.setString('user_email', email!);
+          await _updateDeviceToken();
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      print('Apple login error: $e');
+      return false;
     }
   }
 }
