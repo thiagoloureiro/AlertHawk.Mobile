@@ -109,8 +109,103 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 24),
+                        TextFormField(
+                          controller: _usernameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Username',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value?.isEmpty ?? true)
+                              return 'Please enter username';
+                            return null;
+                          },
+                        ),
                         const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: const InputDecoration(
+                            labelText: 'Password',
+                            border: OutlineInputBorder(),
+                          ),
+                          obscureText: true,
+                          validator: (value) {
+                            if (value?.isEmpty ?? true)
+                              return 'Please enter password';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: _isLoading ? null : _handleLogin,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: isDarkMode
+                                ? Colors.blue[700]
+                                : Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
+                                  ),
+                                )
+                              : Text(
+                                  'Login',
+                                  style: GoogleFonts.robotoMono(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton(
+                              onPressed: () => _showRegisterDialog(),
+                              child: Text(
+                                'Register',
+                                style: GoogleFonts.robotoMono(
+                                  color: isDarkMode
+                                      ? Colors.blue[300]
+                                      : Theme.of(context).primaryColor,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => _showForgotPasswordDialog(),
+                              child: Text(
+                                'Forgot Password?',
+                                style: GoogleFonts.robotoMono(
+                                  color: isDarkMode
+                                      ? Colors.blue[300]
+                                      : Theme.of(context).primaryColor,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const Divider(),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Or continue with',
+                          style: GoogleFonts.robotoMono(
+                            color: isDarkMode ? Colors.white70 : Colors.black54,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: _isLoading ? null : _handleMSALLogin,
@@ -122,19 +217,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
+                              side: isDarkMode
+                                  ? const BorderSide(color: Colors.white30)
+                                  : BorderSide.none,
                             ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const FaIcon(FontAwesomeIcons.microsoft,
-                                  size: 20),
+                                  size: 20, color: Colors.white),
                               const SizedBox(width: 8),
                               Text(
-                                'Login with Microsoft',
+                                'Sign in with Microsoft',
                                 style: GoogleFonts.robotoMono(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
