@@ -296,24 +296,34 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: Environment.values.map((env) {
-              return ListTile(
-                title: Text(
-                  env.name,
-                  style: GoogleFonts.robotoMono(),
-                ),
-                leading: Radio<Environment>(
-                  value: env,
-                  groupValue: _selectedEnvironment,
-                  onChanged: (Environment? value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedEnvironment = value;
-                        _monitorStatus = _fetchMonitorStatus();
-                        _monitorGroups = _fetchMonitorGroups();
-                      });
-                      Navigator.of(context).pop();
-                    }
-                  },
+              return InkWell(
+                onTap: () {
+                  setState(() {
+                    _selectedEnvironment = env;
+                    _monitorStatus = _fetchMonitorStatus();
+                    _monitorGroups = _fetchMonitorGroups();
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: ListTile(
+                  title: Text(
+                    env.name,
+                    style: GoogleFonts.robotoMono(),
+                  ),
+                  leading: Radio<Environment>(
+                    value: env,
+                    groupValue: _selectedEnvironment,
+                    onChanged: (Environment? value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedEnvironment = value;
+                          _monitorStatus = _fetchMonitorStatus();
+                          _monitorGroups = _fetchMonitorGroups();
+                        });
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
                 ),
               );
             }).toList(),
