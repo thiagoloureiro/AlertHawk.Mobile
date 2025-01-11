@@ -64,13 +64,13 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(4.0),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 2),
                   // Logo
                   Center(
                     child: Image.asset(
@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 120,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 0),
                   // Login Form
                   Container(
                     padding: const EdgeInsets.all(24),
@@ -103,38 +103,48 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text(
                           'Login',
                           style: GoogleFonts.robotoMono(
-                            fontSize: 24,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: isDarkMode ? Colors.white : Colors.blue[800],
                           ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        TextFormField(
-                          controller: _usernameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Username',
-                            border: OutlineInputBorder(),
+                        Container(
+                          height: 48,
+                          child: TextFormField(
+                            controller: _usernameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Username',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                            ),
+                            validator: (value) {
+                              if (value?.isEmpty ?? true)
+                                return 'Please enter username';
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value?.isEmpty ?? true)
-                              return 'Please enter username';
-                            return null;
-                          },
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _passwordController,
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                            border: OutlineInputBorder(),
+                        const SizedBox(height: 12),
+                        Container(
+                          height: 48,
+                          child: TextFormField(
+                            controller: _passwordController,
+                            decoration: const InputDecoration(
+                              labelText: 'Password',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                            ),
+                            obscureText: true,
+                            validator: (value) {
+                              if (value?.isEmpty ?? true)
+                                return 'Please enter password';
+                              return null;
+                            },
                           ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value?.isEmpty ?? true)
-                              return 'Please enter password';
-                            return null;
-                          },
                         ),
                         const SizedBox(height: 8),
                         const SizedBox(height: 24),
@@ -172,6 +182,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             TextButton(
                               onPressed: () => _showRegisterDialog(),
+                              style: TextButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                               child: Text(
                                 'Register',
                                 style: GoogleFonts.robotoMono(
@@ -184,6 +200,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             TextButton(
                               onPressed: () => _showForgotPasswordDialog(),
+                              style: TextButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                               child: Text(
                                 'Forgot Password?',
                                 style: GoogleFonts.robotoMono(
@@ -196,9 +218,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 10),
                         const Divider(),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 10),
                         Text(
                           'Or continue with',
                           style: GoogleFonts.robotoMono(
