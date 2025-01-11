@@ -642,13 +642,6 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   }
 
   Widget _buildUptimeListTile(String period, double uptime) {
-    final formattedUptime = uptime.toStringAsFixed(2);
-    final color = uptime >= 99.9
-        ? Colors.green
-        : uptime >= 95
-            ? Colors.orange
-            : Colors.red;
-
     final Map<String, int> periodToDays = {
       'Last 24 Hours': 1,
       'Last 7 Days': 7,
@@ -657,52 +650,71 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
       'Last 6 Months': 180,
     };
 
-    return ListTile(
-      title: Text(
-        period,
-        style: GoogleFonts.robotoMono(fontWeight: FontWeight.w500),
-      ),
-      trailing: Text(
-        '$formattedUptime%',
-        style:
-            GoogleFonts.robotoMono(fontWeight: FontWeight.bold, color: color),
-      ),
-      dense: true,
-      onTap: () async {
-        setState(() {
-          _selectedPeriod = period;
-          _isLoadingChart = true;
-        });
+    final formattedUptime = uptime.toStringAsFixed(2);
+    final color = uptime >= 99.9
+        ? Colors.green
+        : uptime >= 95
+            ? Colors.orange
+            : Colors.red;
 
-        try {
-          if (period == 'Last Hour') {
-            await _refreshData();
-          } else {
-            final days = periodToDays[period] ?? 1;
-            final historyData = await _fetchHistoricalData(days);
+    final isSelected = _selectedPeriod == period;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      color: isSelected
+          ? (isDarkMode
+              ? Colors.blue.withOpacity(0.2)
+              : Colors.blue.withOpacity(0.1))
+          : Colors.transparent,
+      child: ListTile(
+        title: Text(
+          period,
+          style: GoogleFonts.robotoMono(fontWeight: FontWeight.w500),
+        ),
+        trailing: Text(
+          '$formattedUptime%',
+          style: GoogleFonts.robotoMono(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        dense: true,
+        onTap: () async {
+          setState(() {
+            _selectedPeriod = period;
+            _isLoadingChart = true;
+          });
+
+          try {
+            if (period == 'Last Hour') {
+              await _refreshData();
+            } else {
+              final days = periodToDays[period] ?? 1;
+              final historyData = await _fetchHistoricalData(days);
+              if (mounted) {
+                setState(() {
+                  _currentMonitor?.monitorStatusDashboard.historyData =
+                      historyData;
+                });
+              }
+            }
+          } catch (e) {
+            print('Error fetching history: $e');
             if (mounted) {
-              setState(() {
-                _currentMonitor?.monitorStatusDashboard.historyData =
-                    historyData;
-              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Failed to load historical data'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          } finally {
+            if (mounted) {
+              setState(() => _isLoadingChart = false);
             }
           }
-        } catch (e) {
-          print('Error fetching history: $e');
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Failed to load historical data'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        } finally {
-          if (mounted) {
-            setState(() => _isLoadingChart = false);
-          }
-        }
-      },
+        },
+      ),
     );
   }
 

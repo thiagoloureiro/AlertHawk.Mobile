@@ -410,13 +410,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ],
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'about',
               child: Row(
                 children: [
                   Icon(Icons.info_outline),
                   SizedBox(width: 8),
-                  Text('About'),
+                  Text(
+                    'About',
+                    style: GoogleFonts.robotoMono(),
+                  ),
                 ],
               ),
             ),
@@ -433,13 +436,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ],
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'logout',
               child: Row(
                 children: [
                   Icon(Icons.logout),
                   SizedBox(width: 8),
-                  Text('Logout'),
+                  Text(
+                    'Logout',
+                    style: GoogleFonts.robotoMono(),
+                  ),
                 ],
               ),
             ),

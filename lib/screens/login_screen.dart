@@ -24,12 +24,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _repeatPasswordController = TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _emailController.dispose();
+    _repeatPasswordController.dispose();
     super.dispose();
   }
 
@@ -110,16 +114,58 @@ class _LoginScreenState extends State<LoginScreen> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        Container(
+                        SizedBox(
                           height: 48,
                           child: TextFormField(
                             controller: _usernameController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Username',
-                              border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(
+                              labelStyle: GoogleFonts.robotoMono(
+                                color: isDarkMode
+                                    ? Colors.blue[200]
+                                    : Colors.blue[400],
+                              ),
+                              prefixIcon: Icon(
+                                Icons.person_outline,
+                                color: isDarkMode
+                                    ? Colors.blue[200]
+                                    : Colors.blue[400],
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: isDarkMode
+                                      ? Colors.blue[200]!
+                                      : Colors.blue[400]!,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: isDarkMode
+                                      ? Colors.blue[200]!
+                                      : Colors.blue[400]!,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: isDarkMode
+                                      ? Colors.blue[200]!
+                                      : Colors.blue[400]!,
+                                  width: 2,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 8),
+                              filled: true,
+                              fillColor: isDarkMode
+                                  ? Colors.blue.withOpacity(0.05)
+                                  : Colors.blue.withOpacity(0.03),
+                              errorStyle: GoogleFonts.robotoMono(height: 0.5),
+                              isDense: true,
                             ),
+                            style: GoogleFonts.robotoMono(),
                             validator: (value) {
                               if (value?.isEmpty ?? true)
                                 return 'Please enter username';
@@ -128,16 +174,58 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Container(
+                        SizedBox(
                           height: 48,
                           child: TextFormField(
                             controller: _passwordController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Password',
-                              border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(
+                              labelStyle: GoogleFonts.robotoMono(
+                                color: isDarkMode
+                                    ? Colors.blue[200]
+                                    : Colors.blue[400],
+                              ),
+                              prefixIcon: Icon(
+                                Icons.lock_outline,
+                                color: isDarkMode
+                                    ? Colors.blue[200]
+                                    : Colors.blue[400],
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: isDarkMode
+                                      ? Colors.blue[200]!
+                                      : Colors.blue[400]!,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: isDarkMode
+                                      ? Colors.blue[200]!
+                                      : Colors.blue[400]!,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: isDarkMode
+                                      ? Colors.blue[200]!
+                                      : Colors.blue[400]!,
+                                  width: 2,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 8),
+                              filled: true,
+                              fillColor: isDarkMode
+                                  ? Colors.blue.withOpacity(0.05)
+                                  : Colors.blue.withOpacity(0.03),
+                              errorStyle: GoogleFonts.robotoMono(height: 0.5),
+                              isDense: true,
                             ),
+                            style: GoogleFonts.robotoMono(),
                             obscureText: true,
                             validator: (value) {
                               if (value?.isEmpty ?? true)
@@ -192,7 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 'Register',
                                 style: GoogleFonts.robotoMono(
                                   color: isDarkMode
-                                      ? Colors.blue[300]
+                                      ? Colors.blue[200]
                                       : Theme.of(context).primaryColor,
                                   fontSize: 14,
                                 ),
@@ -210,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 'Forgot Password?',
                                 style: GoogleFonts.robotoMono(
                                   color: isDarkMode
-                                      ? Colors.blue[300]
+                                      ? Colors.blue[200]
                                       : Theme.of(context).primaryColor,
                                   fontSize: 14,
                                 ),
@@ -387,141 +475,180 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showRegisterDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final formKey = GlobalKey<FormState>();
-    final usernameController = TextEditingController();
-    final passwordController = TextEditingController();
-    final repeatPasswordController = TextEditingController();
-    final emailController = TextEditingController();
     bool isLoading = false;
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text('Register', style: GoogleFonts.robotoMono()),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: usernameController,
-                    decoration: const InputDecoration(labelText: 'Name'),
-                    validator: (value) {
-                      if (value?.isEmpty ?? true)
-                        return 'Please enter your name';
-                      if ((value?.length ?? 0) < 3)
-                        return 'Name must be at least 3 characters';
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: emailController,
-                    decoration:
-                        const InputDecoration(labelText: 'Email Address'),
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) return 'Please enter email';
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(value!)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: passwordController,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true)
-                        return 'Please enter password';
-                      if ((value?.length ?? 0) < 6)
-                        return 'Password must be at least 6 characters';
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: repeatPasswordController,
-                    decoration:
-                        const InputDecoration(labelText: 'Repeat Password'),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true)
-                        return 'Please repeat password';
-                      if ((value?.length ?? 0) < 6)
-                        return 'Password must be at least 6 characters';
-                      if (value != passwordController.text)
-                        return 'Passwords do not match';
-                      return null;
-                    },
-                  ),
-                ],
+          title: Text(
+            'Register',
+            style: GoogleFonts.robotoMono(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildStyledField(
+                      controller: _usernameController,
+                      label: 'Name',
+                      icon: Icons.person_outline,
+                      isDarkMode:
+                          Theme.of(context).brightness == Brightness.dark,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true)
+                          return 'Please enter your name';
+                        if ((value?.length ?? 0) < 3)
+                          return 'Name must be at least 3 characters';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildStyledField(
+                      controller: _emailController,
+                      label: 'Email Address',
+                      icon: Icons.email_outlined,
+                      isDarkMode:
+                          Theme.of(context).brightness == Brightness.dark,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) return 'Please enter email';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value!)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildStyledField(
+                      controller: _passwordController,
+                      label: 'Password',
+                      icon: Icons.lock_outline,
+                      isDarkMode:
+                          Theme.of(context).brightness == Brightness.dark,
+                      isPassword: true,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true)
+                          return 'Please enter password';
+                        if ((value?.length ?? 0) < 6)
+                          return 'Password must be at least 6 characters';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildStyledField(
+                      controller: _repeatPasswordController,
+                      label: 'Repeat Password',
+                      icon: Icons.lock_outline,
+                      isDarkMode:
+                          Theme.of(context).brightness == Brightness.dark,
+                      isPassword: true,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true)
+                          return 'Please repeat password';
+                        if (value != _passwordController.text)
+                          return 'Passwords do not match';
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: GoogleFonts.robotoMono()),
-            ),
-            ElevatedButton(
-              onPressed: isLoading
-                  ? null
-                  : () async {
-                      if (formKey.currentState?.validate() ?? false) {
-                        setState(() => isLoading = true);
-                        try {
-                          final response = await http.post(
-                            Uri.parse(
-                                '${AppConfig.authApiUrl}/api/user/create'),
-                            headers: {'Content-Type': 'application/json'},
-                            body: jsonEncode({
-                              'username': usernameController.text,
-                              'password': passwordController.text,
-                              'repeatPassword': repeatPasswordController.text,
-                              'userEmail': emailController.text,
-                            }),
-                          );
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Cancel', style: GoogleFonts.robotoMono()),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: isLoading
+                        ? null
+                        : () async {
+                            if (formKey.currentState?.validate() ?? false) {
+                              setState(() => isLoading = true);
+                              try {
+                                final response = await http.post(
+                                  Uri.parse(
+                                      '${AppConfig.authApiUrl}/api/user/create'),
+                                  headers: {'Content-Type': 'application/json'},
+                                  body: jsonEncode({
+                                    'username': _usernameController.text,
+                                    'password': _passwordController.text,
+                                    'repeatPassword':
+                                        _repeatPasswordController.text,
+                                    'userEmail': _emailController.text,
+                                  }),
+                                );
 
-                          if (response.statusCode == 200) {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Registration successful!'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          } else {
-                            final error = jsonDecode(response.body);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    error['content'] ?? 'Registration failed'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          print(e.toString());
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Network error occurred'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        } finally {
-                          setState(() => isLoading = false);
-                        }
-                      }
-                    },
-              child: isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text('Register', style: GoogleFonts.robotoMono()),
+                                if (response.statusCode == 200) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Registration successful!'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } else {
+                                  final error = jsonDecode(response.body);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(error['content'] ??
+                                          'Registration failed'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                print(e.toString());
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Network error occurred'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              } finally {
+                                setState(() => isLoading = false);
+                              }
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDarkMode
+                          ? Colors.blue[700]
+                          : Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            'Register',
+                            style: GoogleFonts.robotoMono(
+                                fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -529,83 +656,177 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // Helper method for styled form fields
+  Widget _buildStyledField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required bool isDarkMode,
+    bool isPassword = false,
+    String? Function(String?)? validator,
+  }) {
+    return SizedBox(
+      height: 48,
+      child: TextFormField(
+        controller: controller,
+        obscureText: isPassword,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.robotoMono(
+            color: isDarkMode ? Colors.blue[200] : Colors.blue[400],
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: isDarkMode ? Colors.blue[200] : Colors.blue[400],
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: isDarkMode ? Colors.blue[200]! : Colors.blue[400]!,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: isDarkMode ? Colors.blue[200]! : Colors.blue[400]!,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: isDarkMode ? Colors.blue[200]! : Colors.blue[400]!,
+              width: 2,
+            ),
+          ),
+          filled: true,
+          fillColor: isDarkMode
+              ? Colors.blue.withOpacity(0.05)
+              : Colors.blue.withOpacity(0.03),
+          errorStyle: GoogleFonts.robotoMono(height: 0.5),
+          isDense: true,
+        ),
+        style: GoogleFonts.robotoMono(),
+        validator: validator,
+      ),
+    );
+  }
+
   void _showForgotPasswordDialog() {
     final formKey = GlobalKey<FormState>();
     final emailController = TextEditingController();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     bool isLoading = false;
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text('Forgot Password', style: GoogleFonts.robotoMono()),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email Address'),
-              validator: (value) {
-                if (value?.isEmpty ?? true) return 'Please enter email';
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                    .hasMatch(value!)) {
-                  return 'Please enter a valid email';
-                }
-                return null;
-              },
-            ),
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Forgot Password',
+          style: GoogleFonts.robotoMono(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: GoogleFonts.robotoMono()),
-            ),
-            ElevatedButton(
-              onPressed: isLoading
-                  ? null
-                  : () async {
-                      if (formKey.currentState?.validate() ?? false) {
-                        setState(() => isLoading = true);
-                        try {
-                          final response = await http.post(
-                            Uri.parse(
-                                '${AppConfig.authApiUrl}/api/user/resetpassword/${emailController.text}'),
-                          );
-
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                response.statusCode == 200
-                                    ? 'Password reset email sent!'
-                                    : 'Failed to reset password',
-                              ),
-                              backgroundColor: response.statusCode == 200
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Network error occurred'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        } finally {
-                          setState(() => isLoading = false);
-                        }
-                      }
-                    },
-              child: isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text('Reset Password', style: GoogleFonts.robotoMono()),
-            ),
-          ],
+          textAlign: TextAlign.center,
         ),
+        contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+        content: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 4),
+              Form(
+                key: formKey,
+                child: _buildStyledField(
+                  controller: emailController,
+                  label: 'Email Address',
+                  icon: Icons.email_outlined,
+                  isDarkMode: isDarkMode,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'Please enter email';
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value!)) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.robotoMono(
+                    color: isDarkMode ? Colors.blue[200] : Colors.blue[400],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        if (formKey.currentState?.validate() ?? false) {
+                          setState(() => isLoading = true);
+                          try {
+                            final response = await http.post(
+                              Uri.parse(
+                                  '${AppConfig.authApiUrl}/api/user/resetpassword/${emailController.text}'),
+                            );
+
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  response.statusCode == 200
+                                      ? 'Password reset email sent!'
+                                      : 'Failed to reset password',
+                                ),
+                                backgroundColor: response.statusCode == 200
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Network error occurred'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          } finally {
+                            setState(() => isLoading = false);
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDarkMode
+                      ? Colors.blue[700]
+                      : Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                ),
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        'Reset Password',
+                        style:
+                            GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                      ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
