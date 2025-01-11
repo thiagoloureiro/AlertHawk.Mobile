@@ -69,7 +69,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/logoapp.png"
+  image_path: "assets/alerthawk.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
 
 # For information on the generic Dart part of this file, see the
@@ -143,7 +143,7 @@ flutter_native_splash:
   # of your splash screen to a solid color.  Use background_image to set the background of your
   # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
   # size of the app. Only one parameter can be used, color and background_image cannot both be set.
-  color: "#ffffff"
+  color: "#000000"
   #background_image: "assets/background.png"
 
   # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
@@ -151,7 +151,7 @@ flutter_native_splash:
 
   # The image parameter allows you to specify an image used in the splash screen.  It must be a
   # png file and should be sized for 4x pixel density.
-  image: assets/logoapp.png
+  image: assets/alerthawk.png
 
   # The branding property allows you to specify an image used as branding in the splash screen.
   # It must be a png file. It is supported for Android, iOS and the Web.  For Android 12,
@@ -167,9 +167,9 @@ flutter_native_splash:
   # parameters from above.  If there is no parameter above, the app will use the light mode values.
   # If the image_dark parameter is specified, color_dark or background_image_dark must be specified.
   # color_dark and background_image_dark cannot both be set.
-  color_dark: "#ffffff"
+  color_dark: "#000000"
   #background_image_dark: "assets/dark-background.png"
-  image_dark: assets/logoapp.png
+  image_dark: assets/alerthawk.png
   #branding_dark: assets/dart_dark.png
 
   # Android 12 handles the splash screen differently than previous versions.  Please visit
@@ -183,13 +183,13 @@ flutter_native_splash:
   # 640 pixels in diameter.
   # App icon without an icon background: This should be 1152×1152 pixels, and fit within a circle
   # 768 pixels in diameter.
-    image: assets/logoapp.png
+    image: assets/alerthawk.png
 
   # Splash screen background color.
-    color: "#ffffff"
+    color: "#000000"
 
   # App icon background color.
-    icon_background_color: "#ffffff"
+    icon_background_color: "#000000"
 
   # The branding property allows you to specify an image used as branding in the splash screen.
   #branding: assets/dart.png
