@@ -385,44 +385,52 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               title: Text('Select Groups', style: GoogleFonts.robotoMono()),
               content: Container(
                 width: MediaQuery.of(context).size.width * 0.9,
-                height: 300, // Fixed height of 300 pixels
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: () => setState(() {
-                              for (var group in groups) {
-                                group.isSelected = true;
-                              }
-                            }),
-                            child: Text('Select All',
-                                style: GoogleFonts.robotoMono()),
-                          ),
-                          TextButton(
-                            onPressed: () => setState(() {
-                              for (var group in groups) {
-                                group.isSelected = false;
-                              }
-                            }),
-                            child: Text('Clear All',
-                                style: GoogleFonts.robotoMono()),
-                          ),
-                        ],
-                      ),
-                      const Divider(),
-                      ...groups.map((group) => CheckboxListTile(
-                            title: Text(group.name,
-                                style: GoogleFonts.robotoMono()),
-                            value: group.isSelected,
-                            onChanged: (value) => setState(() {
-                              group.isSelected = value ?? false;
-                            }),
-                          )),
-                    ],
+                height: 300,
+                child: Scrollbar(
+                  thickness: 8,
+                  radius: const Radius.circular(4),
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton(
+                              onPressed: () => setState(() {
+                                for (var group in groups) {
+                                  group.isSelected = true;
+                                }
+                              }),
+                              child: Text('Select All',
+                                  style: GoogleFonts.robotoMono()),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: TextButton(
+                                onPressed: () => setState(() {
+                                  for (var group in groups) {
+                                    group.isSelected = false;
+                                  }
+                                }),
+                                child: Text('Clear All',
+                                    style: GoogleFonts.robotoMono()),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(),
+                        ...groups.map((group) => CheckboxListTile(
+                              title: Text(group.name,
+                                  style: GoogleFonts.robotoMono()),
+                              value: group.isSelected,
+                              onChanged: (value) => setState(() {
+                                group.isSelected = value ?? false;
+                              }),
+                            )),
+                      ],
+                    ),
                   ),
                 ),
               ),
