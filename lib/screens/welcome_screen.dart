@@ -20,6 +20,7 @@ import '../config/app_config.dart';
 import 'agents_screen.dart';
 import 'package:flutter_new_badger/flutter_new_badger.dart';
 import '../models/monitor_group_selection.dart';
+import 'dart:io';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -341,12 +342,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Future<bool> _hasUnreadAlerts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasNotificationFlag =
-        prefs.getString('notification')?.isNotEmpty ?? false;
-    final badgeCount = await FlutterNewBadger.getBadge() ?? 0;
+    if (Platform.isIOS) {
+      final prefs = await SharedPreferences.getInstance();
+      final hasNotificationFlag =
+          prefs.getString('notification')?.isNotEmpty ?? false;
+      final badgeCount = await FlutterNewBadger.getBadge() ?? 0;
 
-    return hasNotificationFlag || badgeCount > 0;
+      return hasNotificationFlag || badgeCount > 0;
+    }
+    return false;
   }
 
   Future<void> _showGroupSelectionDialog() async {
