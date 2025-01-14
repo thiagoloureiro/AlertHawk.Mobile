@@ -621,8 +621,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           ],
         ),
-        title: FutureBuilder<MonitorStatus>(
-          future: _monitorStatus,
+        title: FutureBuilder<List<MonitorGroup>>(
+          future: _monitorGroups,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
@@ -642,50 +642,79 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               );
             }
 
-            final status = snapshot.data!;
-            return Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '↑${status.monitorUp}',
-                    style: GoogleFonts.robotoMono(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                  const SizedBox(width: 24),
-                  Text(
-                    '↓${status.monitorDown}',
-                    style: GoogleFonts.robotoMono(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                  ),
-                  const SizedBox(width: 24),
-                  Row(
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return FutureBuilder<List<MonitorGroup>>(
+              future: _filterGroups(snapshot.data!),
+              builder: (context, filteredSnapshot) {
+                if (!filteredSnapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                // Count monitors by status
+                int upCount = 0;
+                int downCount = 0;
+                int pausedCount = 0;
+
+                for (var group in filteredSnapshot.data!) {
+                  for (var monitor in group.monitors) {
+                    if (monitor.paused) {
+                      pausedCount++;
+                    } else if (monitor.status) {
+                      upCount++;
+                    } else {
+                      downCount++;
+                    }
+                  }
+                }
+
+                return Center(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '⏸',
+                        '↑$upCount',
                         style: GoogleFonts.robotoMono(
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange,
+                          color: Colors.green,
                         ),
                       ),
-                      const SizedBox(width: 2),
+                      const SizedBox(width: 24),
                       Text(
-                        '${status.monitorPaused}',
+                        '↓$downCount',
                         style: GoogleFonts.robotoMono(
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange,
+                          color: Colors.red,
                         ),
+                      ),
+                      const SizedBox(width: 24),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '⏸',
+                            style: GoogleFonts.robotoMono(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '$pausedCount',
+                            style: GoogleFonts.robotoMono(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                );
+              },
             );
           },
         ),
