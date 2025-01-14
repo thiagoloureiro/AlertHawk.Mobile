@@ -31,7 +31,7 @@ Future<bool> isEmulator() async {
     print(iosInfo.isPhysicalDevice);
     return iosInfo.isPhysicalDevice == false;
   }
-  return false; // Default fallback for unsupported platforms
+  return true; // Default fallback for unsupported platforms
 }
 
 Future<void> _updateDeviceToken() async {

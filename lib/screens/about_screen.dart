@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import '../games/snake_game.dart';
+import '../screens/debug_screen.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -55,10 +56,27 @@ class _AboutScreenState extends State<AboutScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 48),
-              Image.asset(
-                'assets/logo.png',
-                width: 150,
-                height: 150,
+              GestureDetector(
+                onTap: () {
+                  _tapCount++;
+                  _tapTimer?.cancel();
+                  _tapTimer = Timer(const Duration(seconds: 2), () {
+                    _tapCount = 0;
+                  });
+
+                  if (_tapCount >= 6) {
+                    _tapCount = 0;
+                    _tapTimer?.cancel();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const DebugScreen()),
+                    );
+                  }
+                },
+                child: Image.asset(
+                  'assets/logo.png',
+                  width: 150,
+                  height: 150,
+                ),
               ),
               const SizedBox(height: 16),
               GestureDetector(
