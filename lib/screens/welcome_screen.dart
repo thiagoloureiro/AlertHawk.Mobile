@@ -19,6 +19,7 @@ import 'alerts_screen.dart';
 import '../config/app_config.dart';
 import 'agents_screen.dart';
 import 'package:flutter_new_badger/flutter_new_badger.dart';
+import '../models/monitor_group_selection.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -181,8 +182,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildFilters() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -221,19 +220,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: DropdownButton<String>(
                   value: _statusFilter,
                   isExpanded: true,
-                  style: GoogleFonts.robotoMono(
-                    color: isDarkMode ? Colors.white : Colors.black,
-                  ),
-                  dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
                   items: ['All', 'Online', 'Offline'].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(
-                        value,
-                        style: GoogleFonts.robotoMono(
-                          color: isDarkMode ? Colors.white : Colors.black,
-                        ),
-                      ),
+                      child: Text(value, style: GoogleFonts.robotoMono()),
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
@@ -247,17 +237,33 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: _showGroupSelectionDialog,
+            tooltip: 'Filter Groups',
+          ),
         ],
       ),
     );
   }
 
-  List<MonitorGroup> _filterGroups(List<MonitorGroup> groups) {
-    // First sort the groups alphabetically by name
-    final sortedGroups = List<MonitorGroup>.from(groups)
-      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  Future<List<MonitorGroup>> _filterGroups(List<MonitorGroup> groups) async {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedGroups = prefs.getStringList('selected_groups') ?? [];
 
-    return sortedGroups
+    // First filter by selected groups if any are selected
+    var filteredGroups = selectedGroups.isEmpty
+        ? groups
+        : groups
+            .where((group) => selectedGroups.contains(group.id.toString()))
+            .toList();
+
+    // Then sort the groups alphabetically by name
+    filteredGroups
+        .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+    return filteredGroups
         .map((group) {
           return MonitorGroup(
             id: group.id,
@@ -341,6 +347,136 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final badgeCount = await FlutterNewBadger.getBadge() ?? 0;
 
     return hasNotificationFlag || badgeCount > 0;
+  }
+
+  Future<void> _showGroupSelectionDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    // Get saved selections
+    final savedSelections = prefs.getStringList('selected_groups') ?? [];
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '${AppConfig.monitoringApiUrl}/api/MonitorGroup/monitorGroupListByUser'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (!context.mounted) return;
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final groups = jsonData
+            .map((json) => MonitorGroupSelection.fromJson(json))
+            .toList();
+
+        // Set initial selection state from saved preferences
+        for (var group in groups) {
+          group.isSelected = savedSelections.contains(group.id.toString());
+        }
+
+        await showDialog(
+          context: context,
+          builder: (context) => StatefulBuilder(
+            builder: (context, setState) => AlertDialog(
+              title: Text('Select Groups', style: GoogleFonts.robotoMono()),
+              content: Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: 300, // Fixed height of 300 pixels
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () => setState(() {
+                              for (var group in groups) {
+                                group.isSelected = true;
+                              }
+                            }),
+                            child: Text('Select All',
+                                style: GoogleFonts.robotoMono()),
+                          ),
+                          TextButton(
+                            onPressed: () => setState(() {
+                              for (var group in groups) {
+                                group.isSelected = false;
+                              }
+                            }),
+                            child: Text('Clear All',
+                                style: GoogleFonts.robotoMono()),
+                          ),
+                        ],
+                      ),
+                      const Divider(),
+                      ...groups.map((group) => CheckboxListTile(
+                            title: Text(group.name,
+                                style: GoogleFonts.robotoMono()),
+                            value: group.isSelected,
+                            onChanged: (value) => setState(() {
+                              group.isSelected = value ?? false;
+                            }),
+                          )),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel', style: GoogleFonts.robotoMono()),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final selectedIds = groups
+                        .where((g) => g.isSelected)
+                        .map((g) => g.id.toString())
+                        .toList();
+
+                    if (selectedIds.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Warning: Please select at least one group to view monitors.',
+                            style: GoogleFonts.robotoMono(),
+                          ),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+
+                    await prefs.setStringList('selected_groups', selectedIds);
+                    Navigator.pop(context);
+
+                    if (mounted) {
+                      // Rebuild the entire screen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const WelcomeScreen()),
+                      );
+                    }
+                  },
+                  child: Text('Apply', style: GoogleFonts.robotoMono()),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading groups: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -591,59 +727,57 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                     if (snapshot.hasError) {
                       return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Error loading monitors',
-                              style: GoogleFonts.robotoMono(color: Colors.red),
-                            ),
-                            const SizedBox(height: 16),
-                            IconButton(
-                              icon: const Icon(Icons.refresh),
-                              onPressed: () {
-                                setState(() {
-                                  _monitorGroups = _fetchMonitorGroups();
-                                  _monitorStatus = _fetchMonitorStatus();
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    final filteredGroups = _filterGroups(snapshot.data!);
-
-                    if (filteredGroups.isEmpty) {
-                      return Center(
                         child: Text(
-                          'No monitors found',
+                          'Error loading monitors',
                           style: GoogleFonts.robotoMono(),
                         ),
                       );
                     }
 
-                    return ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: filteredGroups.length,
-                      itemBuilder: (context, index) {
-                        final group = filteredGroups[index];
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                group.name,
-                                style: GoogleFonts.robotoMono(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    return FutureBuilder<List<MonitorGroup>>(
+                      future: _filterGroups(snapshot.data!),
+                      builder: (context, filteredSnapshot) {
+                        if (!filteredSnapshot.hasData) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+
+                        final filteredGroups = filteredSnapshot.data!;
+                        if (filteredGroups.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No monitors found',
+                              style: GoogleFonts.robotoMono(),
                             ),
-                            ...group.monitors.map(_buildMonitorCard),
-                          ],
+                          );
+                        }
+
+                        return ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: filteredGroups.length,
+                          itemBuilder: (context, index) {
+                            final group = filteredGroups[index];
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(
+                                    group.name,
+                                    style: GoogleFonts.robotoMono(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                ...group.monitors.map(_buildMonitorCard),
+                              ],
+                            );
+                          },
                         );
                       },
                     );
