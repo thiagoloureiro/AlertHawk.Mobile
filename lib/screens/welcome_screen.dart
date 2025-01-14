@@ -18,6 +18,7 @@ import 'monitor_detail_screen.dart';
 import 'alerts_screen.dart';
 import '../config/app_config.dart';
 import 'agents_screen.dart';
+import 'package:flutter_new_badger/flutter_new_badger.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -333,6 +334,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
+  Future<bool> _hasUnreadAlerts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasNotificationFlag =
+        prefs.getString('notification')?.isNotEmpty ?? false;
+    final badgeCount = await FlutterNewBadger.getBadge() ?? 0;
+
+    return hasNotificationFlag || badgeCount > 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -364,9 +374,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 }
                 break;
               case 'alerts':
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AlertsScreen()),
-                );
+                // Clear notification flag and badge count
+                Pushy.clearBadge(); // Still clear the visual badge
+
+                if (context.mounted) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const AlertsScreen()),
+                  );
+                }
                 break;
               case 'agents':
                 Navigator.of(context).push(
@@ -396,15 +411,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
             PopupMenuItem(
               value: 'alerts',
-              child: Row(
-                children: [
-                  const Icon(Icons.notifications_outlined),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Alerts',
-                    style: GoogleFonts.robotoMono(),
-                  ),
-                ],
+              child: FutureBuilder<bool>(
+                future: _hasUnreadAlerts(),
+                builder: (context, snapshot) {
+                  final hasAlerts = snapshot.data ?? false;
+                  return Row(
+                    children: [
+                      Icon(
+                        Icons.notifications_outlined,
+                        color: hasAlerts ? Colors.red : null,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Alerts',
+                        style: GoogleFonts.robotoMono(),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
             PopupMenuItem(

@@ -78,19 +78,27 @@ Future<void> main() async {
       Pushy.clearBadge();
 
       // Optional: Handle background notifications
-      Pushy.setNotificationListener((Map<String, dynamic> data) {
-        // Print notification payload data
+      Pushy.setNotificationListener((Map<String, dynamic> data) async {
+        // Store notification count
+        final prefs = await SharedPreferences.getInstance();
+        int currentCount = prefs.getInt('badge_count') ?? 0;
+        await prefs.setInt('badge_count', currentCount + 1);
 
         // Display notification as alert
         String message = data['message'] ?? 'No message';
         Pushy.notify("AlertHawk", message, data);
 
+        prefs.setString('notification', message);
+
         // Clear iOS app badge number
         Pushy.clearBadge();
       });
 
+      Pushy.toggleInAppBanner(true);
+
       // Optional: Handle notification clicks
       Pushy.setNotificationClickListener((Map<String, dynamic> data) {
+        print("listener");
         // Your custom notification click handling here
         // Clear iOS app badge number
         Pushy.clearBadge();
