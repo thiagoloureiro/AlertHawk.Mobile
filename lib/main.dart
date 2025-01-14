@@ -9,9 +9,54 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/app_config.dart';
 import 'package:flutter/services.dart';
 import 'package:pushy_flutter/pushy_flutter.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 // Global navigator key for MSAL authentication
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+Future<bool> isEmulator() async {
+  final deviceInfo = DeviceInfoPlugin();
+
+  if (Platform.isAndroid) {
+    // Android
+    final androidInfo = await deviceInfo.androidInfo;
+    print(androidInfo.isPhysicalDevice);
+    return androidInfo.isPhysicalDevice == false;
+  } else if (Platform.isIOS) {
+    // iOS
+    final iosInfo = await deviceInfo.iosInfo;
+    print(iosInfo.isPhysicalDevice);
+    return iosInfo.isPhysicalDevice == false;
+  }
+  return false; // Default fallback for unsupported platforms
+}
+
+Future<void> _updateDeviceToken() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final deviceToken = prefs.getString('deviceToken');
+    final token = prefs.getString('auth_token');
+
+    if (deviceToken == null || token == null) {
+      return;
+    }
+    await http.post(
+      Uri.parse('${AppConfig.authApiUrl}/api/User/UpdateUserDeviceToken'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode({
+        'deviceToken': deviceToken,
+      }),
+    );
+  } catch (e) {
+    print('Failed to update device token: $e');
+  }
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,44 +64,41 @@ Future<void> main() async {
   await AppConfig.initialize();
   final prefs = await SharedPreferences.getInstance();
 
-  // Initialize Pushy
-  try {
-    // Register the device for push notifications
-    String deviceToken = await Pushy.register();
-    await prefs.setString('deviceToken', deviceToken);
-    // Print token to console/logcat
-    print('Device token: $deviceToken');
+  if (!await isEmulator()) {
+    // Initialize Pushy
+    try {
+      // Register the device for push notifications
+      String deviceToken = await Pushy.register();
+      await prefs.setString('deviceToken', deviceToken);
 
-    // Start the Pushy service
-    Pushy.listen();
+      // Start the Pushy service
+      Pushy.listen();
 
-    // Clear iOS app badge number when app is launched
-    Pushy.clearBadge();
-
-    // Optional: Handle background notifications
-    Pushy.setNotificationListener((Map<String, dynamic> data) {
-      // Print notification payload data
-      print('Received notification: $data');
-
-      // Display notification as alert
-      String message = data['message'] ?? 'No message';
-      Pushy.notify("AlertHawk", message, data);
-
-      // Clear iOS app badge number
+      // Clear iOS app badge number when app is launched
       Pushy.clearBadge();
-    });
 
-    // Optional: Handle notification clicks
-    Pushy.setNotificationClickListener((Map<String, dynamic> data) {
-      // Print notification payload data
-      print('Notification clicked: $data');
+      // Optional: Handle background notifications
+      Pushy.setNotificationListener((Map<String, dynamic> data) {
+        // Print notification payload data
 
-      // Your custom notification click handling here
-      // Clear iOS app badge number
-      Pushy.clearBadge();
-    });
-  } on PlatformException catch (error) {
-    print('Failed to register for push notifications: $error');
+        // Display notification as alert
+        String message = data['message'] ?? 'No message';
+        Pushy.notify("AlertHawk", message, data);
+
+        // Clear iOS app badge number
+        Pushy.clearBadge();
+      });
+
+      // Optional: Handle notification clicks
+      Pushy.setNotificationClickListener((Map<String, dynamic> data) {
+        // Your custom notification click handling here
+        // Clear iOS app badge number
+        Pushy.clearBadge();
+      });
+      await _updateDeviceToken();
+    } on PlatformException catch (error) {
+      print('Failed to register for push notifications: $error');
+    }
   }
 
   runApp(

@@ -125,6 +125,9 @@ class AuthService {
       final deviceToken = _prefs.getString('deviceToken');
       final token = _prefs.getString('auth_token');
 
+      if (deviceToken == null || token == null) {
+        return;
+      }
       await http.post(
         Uri.parse('${AppConfig.authApiUrl}/api/User/UpdateUserDeviceToken'),
         headers: {
