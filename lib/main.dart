@@ -23,12 +23,10 @@ Future<bool> isEmulator() async {
   if (Platform.isAndroid) {
     // Android
     final androidInfo = await deviceInfo.androidInfo;
-    print(androidInfo.isPhysicalDevice);
     return androidInfo.isPhysicalDevice == false;
   } else if (Platform.isIOS) {
     // iOS
     final iosInfo = await deviceInfo.iosInfo;
-    print(iosInfo.isPhysicalDevice);
     return iosInfo.isPhysicalDevice == false;
   }
   return true; // Default fallback for unsupported platforms

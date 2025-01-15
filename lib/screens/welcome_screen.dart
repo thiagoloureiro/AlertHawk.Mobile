@@ -198,7 +198,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 });
               },
               decoration: InputDecoration(
-                hintText: 'Search monitors...',
+                hintText: 'Search...',
                 hintStyle: GoogleFonts.robotoMono(),
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
@@ -209,10 +209,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 5),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 5),
               decoration: BoxDecoration(
                 border: Border.all(color: Theme.of(context).dividerColor),
                 borderRadius: BorderRadius.circular(8),
@@ -238,7 +238,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _showGroupSelectionDialog,

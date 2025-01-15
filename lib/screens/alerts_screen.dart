@@ -125,7 +125,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         });
                       },
                       decoration: InputDecoration(
-                        hintText: 'Search by name...',
+                        hintText: 'Search...',
                         hintStyle: GoogleFonts.robotoMono(),
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
