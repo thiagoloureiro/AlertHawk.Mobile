@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:pushy_flutter/pushy_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../models/monitor_status.dart';
 import '../models/monitor_group.dart';
 import '../services/auth_service.dart';
 import 'about_screen.dart';
@@ -30,7 +29,6 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  late Future<MonitorStatus> _monitorStatus;
   late Future<List<MonitorGroup>> _monitorGroups;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -40,7 +38,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    _monitorStatus = _fetchMonitorStatus();
     _monitorGroups = _fetchMonitorGroups();
 
     // Clear iOS app badge number when welcome_page is loaded
@@ -72,33 +69,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         try {
           return MonitorGroup.fromJson(json);
         } catch (e) {
-          print('Error parsing group: $e');
-          print('Group JSON: $json');
           rethrow;
         }
       }).toList();
     } else {
       throw Exception('Failed to load monitor groups');
-    }
-  }
-
-  Future<MonitorStatus> _fetchMonitorStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-
-    final response = await http.get(
-      Uri.parse(
-          '${AppConfig.monitoringApiUrl}/api/Monitor/monitorStatusDashboard/${_selectedEnvironment.id}'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return MonitorStatus.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load monitor status');
     }
   }
 
@@ -189,51 +164,57 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         children: [
           Expanded(
             flex: 2,
-            child: TextField(
-              controller: _searchController,
-              style: GoogleFonts.robotoMono(),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                hintStyle: GoogleFonts.robotoMono(),
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              height: 48,
+              child: TextField(
+                controller: _searchController,
+                style: GoogleFonts.robotoMono(),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  hintStyle: GoogleFonts.robotoMono(),
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             ),
           ),
           const SizedBox(width: 5),
           Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              decoration: BoxDecoration(
-                border: Border.all(color: Theme.of(context).dividerColor),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _statusFilter,
-                  isExpanded: true,
-                  items: ['All', 'Online', 'Offline'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value, style: GoogleFonts.robotoMono()),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _statusFilter = newValue;
-                      });
-                    }
-                  },
+            child: SizedBox(
+              height: 48,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _statusFilter,
+                    isExpanded: true,
+                    items: ['All', 'Online', 'Offline'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value, style: GoogleFonts.robotoMono()),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          _statusFilter = newValue;
+                        });
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
@@ -308,7 +289,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 onTap: () {
                   setState(() {
                     _selectedEnvironment = env;
-                    _monitorStatus = _fetchMonitorStatus();
                     _monitorGroups = _fetchMonitorGroups();
                   });
                   Navigator.of(context).pop();
@@ -325,7 +305,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       if (value != null) {
                         setState(() {
                           _selectedEnvironment = value;
-                          _monitorStatus = _fetchMonitorStatus();
                           _monitorGroups = _fetchMonitorGroups();
                         });
                         Navigator.of(context).pop();
@@ -752,7 +731,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           onRefresh: () async {
             setState(() {
               _monitorGroups = _fetchMonitorGroups();
-              _monitorStatus = _fetchMonitorStatus();
             });
           },
           child: Column(

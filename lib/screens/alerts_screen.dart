@@ -76,6 +76,86 @@ class _AlertsScreenState extends State<AlertsScreen> {
         .toList();
   }
 
+  Widget _buildFilters() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: SizedBox(
+              height: 48,
+              child: TextField(
+                controller: _searchController,
+                style: GoogleFonts.robotoMono(),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  hintStyle: GoogleFonts.robotoMono(),
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 5),
+          Expanded(
+            child: SizedBox(
+              height: 48,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<int>(
+                    value: _selectedDays,
+                    isExpanded: true,
+                    style: GoogleFonts.robotoMono(
+                      color: isDarkMode ? Colors.white : Colors.black,
+                    ),
+                    dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+                    items: _dayOptions.map((days) {
+                      return DropdownMenuItem<int>(
+                        value: days,
+                        child: Text(
+                          '$days days',
+                          style: GoogleFonts.robotoMono(
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (int? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          _selectedDays = newValue;
+                          _alerts = _fetchAlerts();
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -109,76 +189,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
         },
         child: Column(
           children: [
-            // Search and filter section
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: _searchController,
-                      style: GoogleFonts.robotoMono(),
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Search...',
-                        hintStyle: GoogleFonts.robotoMono(),
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        border:
-                            Border.all(color: Theme.of(context).dividerColor),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<int>(
-                          value: _selectedDays,
-                          isExpanded: true,
-                          style: GoogleFonts.robotoMono(
-                            color: isDarkMode ? Colors.white : Colors.black,
-                          ),
-                          dropdownColor:
-                              isDarkMode ? Colors.grey[800] : Colors.white,
-                          items: _dayOptions.map((days) {
-                            return DropdownMenuItem<int>(
-                              value: days,
-                              child: Text(
-                                '$days days',
-                                style: GoogleFonts.robotoMono(
-                                  color:
-                                      isDarkMode ? Colors.white : Colors.black,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (int? newValue) {
-                            if (newValue != null) {
-                              setState(() {
-                                _selectedDays = newValue;
-                                _alerts = _fetchAlerts();
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildFilters(),
             // Alerts list
             Expanded(
               child: RefreshIndicator(

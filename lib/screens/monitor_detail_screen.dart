@@ -699,7 +699,6 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
               }
             }
           } catch (e) {
-            print('Error fetching history: $e');
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

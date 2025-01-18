@@ -88,7 +88,6 @@ class AuthService {
       }
       return false;
     } catch (e) {
-      print('MSAL login error: $e');
       await _oauth.logout();
       return false;
     }
@@ -138,9 +137,7 @@ class AuthService {
           'deviceToken': deviceToken,
         }),
       );
-    } catch (e) {
-      print('Failed to update device token: $e');
-    }
+    } catch (e) {}
   }
 
   Future<bool> loginWithApple() async {
@@ -156,7 +153,6 @@ class AuthService {
         final Map<String, dynamic> decodedToken =
             JwtDecoder.decode(credential.identityToken!);
         final String? email = decodedToken['email'];
-        print(email);
 
         final apiResponse = await http.post(
           Uri.parse('${AppConfig.authApiUrl}/api/auth/azure'),
@@ -179,7 +175,6 @@ class AuthService {
       }
       return false;
     } catch (e) {
-      print('Apple login error: $e');
       return false;
     }
   }

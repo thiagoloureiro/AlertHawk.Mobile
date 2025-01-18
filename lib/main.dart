@@ -51,9 +51,7 @@ Future<void> _updateDeviceToken() async {
         'deviceToken': deviceToken,
       }),
     );
-  } catch (e) {
-    print('Failed to update device token: $e');
-  }
+  } catch (e) {}
 }
 
 Future<void> main() async {
@@ -96,15 +94,12 @@ Future<void> main() async {
 
       // Optional: Handle notification clicks
       Pushy.setNotificationClickListener((Map<String, dynamic> data) {
-        print("listener");
         // Your custom notification click handling here
         // Clear iOS app badge number
         Pushy.clearBadge();
       });
       await _updateDeviceToken();
-    } on PlatformException catch (error) {
-      print('Failed to register for push notifications: $error');
-    }
+    } on PlatformException {}
   }
 
   runApp(

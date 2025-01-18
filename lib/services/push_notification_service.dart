@@ -31,7 +31,6 @@ class PushNotificationService {
         }),
       );
     } catch (e) {
-      print('Failed to register device: $e');
       rethrow;
     }
   }
@@ -51,7 +50,6 @@ class PushNotificationService {
         await _prefs.remove(_pushyTokenKey);
       }
     } catch (e) {
-      print('Failed to unregister device: $e');
       rethrow;
     }
   }

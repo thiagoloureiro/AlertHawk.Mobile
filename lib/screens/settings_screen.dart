@@ -150,11 +150,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<bool> _isUserLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.containsKey('auth_token');
-  }
-
   Future<void> _deleteUser() async {
     // Show confirmation dialog
     final bool? confirm = await showDialog<bool>(
