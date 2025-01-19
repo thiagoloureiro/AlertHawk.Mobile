@@ -29,8 +29,8 @@ android {
         targetSdk = flutter.targetSdkVersion
        // versionCode = flutter.versionCode
         //versionName = flutter.versionName
-        versionCode 31 // Increment this number
-        versionName "1.0.3" // Match the `x.y.z` from pubspec.yaml
+        versionCode 32 // Increment this number
+        versionName "1.0.4" // Match the `x.y.z` from pubspec.yaml
     }
 
     buildTypes {

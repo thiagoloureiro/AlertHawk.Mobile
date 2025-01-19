@@ -361,100 +361,35 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           group.isSelected = savedSelections.contains(group.id.toString());
         }
 
+        // Sort the groups alphabetically
+        final sortedGroups = groups.toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
+
         await showDialog(
           context: context,
           builder: (context) => StatefulBuilder(
             builder: (context, setState) => AlertDialog(
               title: Text('Select Groups', style: GoogleFonts.robotoMono()),
-              content: Container(
-                width: MediaQuery.of(context).size.width * 0.9,
-                height: 300,
-                child: Scrollbar(
-                  thickness: 8,
-                  radius: const Radius.circular(4),
-                  thumbVisibility: true,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            TextButton(
-                              onPressed: () => setState(() {
-                                for (var group in groups) {
-                                  group.isSelected = true;
-                                }
-                              }),
-                              child: Text('Select All',
-                                  style: GoogleFonts.robotoMono()),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: TextButton(
-                                onPressed: () => setState(() {
-                                  for (var group in groups) {
-                                    group.isSelected = false;
-                                  }
-                                }),
-                                child: Text('Clear All',
-                                    style: GoogleFonts.robotoMono()),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Divider(),
-                        ...groups.map((group) => CheckboxListTile(
-                              title: Text(group.name,
-                                  style: GoogleFonts.robotoMono()),
-                              value: group.isSelected,
-                              onChanged: (value) => setState(() {
-                                group.isSelected = value ?? false;
-                              }),
-                            )),
-                      ],
-                    ),
-                  ),
+              content: SizedBox(
+                height: 300, // Set a fixed height for the dialog
+                child: ListView(
+                  children: sortedGroups.map((group) {
+                    return CheckboxListTile(
+                      title: Text(group.name, style: GoogleFonts.robotoMono()),
+                      value: group.isSelected,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          group.isSelected = value ?? false;
+                        });
+                      },
+                    );
+                  }).toList(),
                 ),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel', style: GoogleFonts.robotoMono()),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final selectedIds = groups
-                        .where((g) => g.isSelected)
-                        .map((g) => g.id.toString())
-                        .toList();
-
-                    if (selectedIds.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Warning: Please select at least one group to view monitors.',
-                            style: GoogleFonts.robotoMono(),
-                          ),
-                          backgroundColor: Colors.orange,
-                        ),
-                      );
-                      return;
-                    }
-
-                    await prefs.setStringList('selected_groups', selectedIds);
-                    Navigator.pop(context);
-
-                    if (mounted) {
-                      // Rebuild the entire screen
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const WelcomeScreen()),
-                      );
-                    }
-                  },
-                  child: Text('Apply', style: GoogleFonts.robotoMono()),
+                  child: Text('Close', style: GoogleFonts.robotoMono()),
                 ),
               ],
             ),
