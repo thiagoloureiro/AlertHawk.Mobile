@@ -332,10 +332,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return false;
   }
 
-  Future<void> _showGroupSelectionDialog() async {
+  void _showGroupSelectionDialog() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-    // Get saved selections
     final savedSelections = prefs.getStringList('selected_groups') ?? [];
 
     try {
@@ -367,29 +366,78 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
         await showDialog(
           context: context,
-          builder: (context) => StatefulBuilder(
-            builder: (context, setState) => AlertDialog(
+          builder: (dialogContext) => StatefulBuilder(
+            builder: (context, setDialogState) => AlertDialog(
               title: Text('Select Groups', style: GoogleFonts.robotoMono()),
-              content: SizedBox(
-                height: 300, // Set a fixed height for the dialog
-                child: ListView(
-                  children: sortedGroups.map((group) {
-                    return CheckboxListTile(
-                      title: Text(group.name, style: GoogleFonts.robotoMono()),
-                      value: group.isSelected,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          group.isSelected = value ?? false;
-                        });
-                      },
-                    );
-                  }).toList(),
+              content: Container(
+                width: 400,
+                height: 400,
+                child: Scrollbar(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                setDialogState(() {
+                                  for (var group in sortedGroups) {
+                                    group.isSelected = false;
+                                  }
+                                });
+                              },
+                              child: Text('Clear All',
+                                  style: GoogleFonts.robotoMono()),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setDialogState(() {
+                                  for (var group in sortedGroups) {
+                                    group.isSelected = true;
+                                  }
+                                });
+                              },
+                              child: Text('Select All',
+                                  style: GoogleFonts.robotoMono()),
+                            ),
+                          ],
+                        ),
+                        ...sortedGroups.map((group) {
+                          return CheckboxListTile(
+                            title: Text(group.name,
+                                style: GoogleFonts.robotoMono()),
+                            value: group.isSelected,
+                            onChanged: (bool? value) {
+                              setDialogState(() {
+                                group.isSelected = value ?? false;
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Close', style: GoogleFonts.robotoMono()),
+                  onPressed: () {
+                    final selectedGroupIds = sortedGroups
+                        .where((group) => group.isSelected)
+                        .map((group) => group.id.toString())
+                        .toList();
+                    prefs.setStringList('selected_groups', selectedGroupIds);
+
+                    Navigator.pop(dialogContext);
+
+                    // Use the outer setState to refresh the main screen
+                    setState(() {
+                      _monitorGroups = _fetchMonitorGroups();
+                    });
+                  },
+                  child: Text('Save', style: GoogleFonts.robotoMono()),
                 ),
               ],
             ),
