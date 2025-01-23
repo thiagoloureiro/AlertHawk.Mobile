@@ -158,6 +158,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildFilters() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -201,10 +203,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   child: DropdownButton<String>(
                     value: _statusFilter,
                     isExpanded: true,
+                    style: GoogleFonts.robotoMono(
+                      color: isDarkMode ? Colors.white : Colors.black,
+                    ),
+                    dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
                     items: ['All', 'Online', 'Offline'].map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
-                        child: Text(value, style: GoogleFonts.robotoMono()),
+                        child: Text(
+                          value,
+                          style: GoogleFonts.robotoMono(
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ),
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
@@ -447,7 +458,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading groups: $e')),
+          SnackBar(
+              content: Text(
+                  'Error loading groups, check your internet connection.')),
         );
       }
     }
