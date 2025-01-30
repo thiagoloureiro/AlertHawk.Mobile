@@ -66,11 +66,29 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
 
   Future<void> _refreshData() async {
     try {
-      final monitor = await _fetchMonitorDetails();
-      setState(() {
-        _monitorDetails = Future.value(monitor);
-        _currentMonitor = monitor;
-      });
+      if (_selectedPeriod == 'Last Hour') {
+        final monitor = await _fetchMonitorDetails();
+        setState(() {
+          _monitorDetails = Future.value(monitor);
+          _currentMonitor = monitor;
+        });
+      } else {
+        final days = {
+              'Last 24 Hours': 1,
+              'Last 7 Days': 7,
+              'Last 30 Days': 30,
+              'Last 3 Months': 90,
+              'Last 6 Months': 180,
+            }[_selectedPeriod] ??
+            1;
+
+        final historyData = await _fetchHistoricalData(days);
+        if (mounted) {
+          setState(() {
+            _currentMonitor?.monitorStatusDashboard.historyData = historyData;
+          });
+        }
+      }
     } catch (e) {
       setState(() {
         _monitorDetails = Future.error(e);
