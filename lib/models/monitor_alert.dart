@@ -7,6 +7,7 @@ class MonitorAlert {
   final String monitorName;
   final int environment;
   final String urlToCheck;
+  final int periodOffline;
 
   MonitorAlert({
     required this.id,
@@ -17,6 +18,7 @@ class MonitorAlert {
     required this.monitorName,
     required this.environment,
     required this.urlToCheck,
+    required this.periodOffline,
   });
 
   DateTime get localTimeStamp {
@@ -35,6 +37,7 @@ class MonitorAlert {
       monitorName: json['monitorName'],
       environment: json['environment'],
       urlToCheck: json['urlToCheck'],
+      periodOffline: json['periodOffline'] ?? 0,
     );
   }
 }

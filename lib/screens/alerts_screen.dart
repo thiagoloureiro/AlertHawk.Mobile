@@ -274,6 +274,14 @@ class _AlertsScreenState extends State<AlertsScreen> {
                                     fontSize: 12,
                                   ),
                                 ),
+                                if (!alert.status && alert.periodOffline > 0)
+                                  Text(
+                                    'Offline for: ${alert.periodOffline} minutes',
+                                    style: GoogleFonts.robotoMono(
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                    ),
+                                  ),
                                 Text(
                                   alert.message,
                                   style: GoogleFonts.robotoMono(
