@@ -26,12 +26,87 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   Monitor? _currentMonitor;
   String _selectedPeriod = 'Last Hour';
   bool _isLoadingChart = false;
+  Map<String, dynamic>? _k8sData;
+  Map<String, dynamic>? _tcpData;
 
   @override
   void initState() {
     super.initState();
     _currentMonitor = widget.monitor;
     _monitorDetails = _fetchMonitorDetails();
+    
+    // Fetch specific data based on monitor type
+    if (widget.monitor.monitorTypeId == 4) {
+      _fetchK8sData(widget.monitor.id);
+    } else if (widget.monitor.monitorTypeId == 3) {
+      _fetchTcpData(widget.monitor.id);
+    }
+  }
+
+  Future<void> _fetchTcpData(int monitorId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      final response = await http.get(
+        Uri.parse(
+            '${AppConfig.monitoringApiUrl}/api/Monitor/getMonitorTcpByMonitorId/$monitorId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (mounted) {
+          setState(() {
+            _tcpData = data;
+          });
+        }
+      } else {
+        throw Exception('Failed to load TCP data');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading TCP data: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _fetchK8sData(int monitorId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      final response = await http.get(
+        Uri.parse(
+            '${AppConfig.monitoringApiUrl}/api/Monitor/getMonitorK8sByMonitorId/$monitorId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (mounted) {
+          setState(() {
+            _k8sData = data;
+          });
+        }
+      } else {
+        throw Exception('Failed to load Kubernetes data');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading Kubernetes data: $e')),
+        );
+      }
+    }
   }
 
   Future<Monitor> _fetchMonitorDetails() async {
@@ -66,6 +141,11 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
 
   Future<void> _refreshData() async {
     try {
+      // Refresh Kubernetes data if this is a K8s monitor
+      if (widget.monitor.monitorTypeId == 4) {
+        await _fetchK8sData(widget.monitor.id);
+      }
+      
       if (_selectedPeriod == 'Last Hour') {
         final monitor = await _fetchMonitorDetails();
         setState(() {
@@ -297,7 +377,12 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                       child: Row(
                         children: [
                           Text(
-                            monitor.monitorTcp != null ? 'Host: ' : 'URL: ',
+                            // Show different label based on monitor type
+                            monitor.monitorTypeId == 4 
+                                ? 'Cluster: ' 
+                                : monitor.monitorTypeId == 3
+                                    ? 'Host: ' 
+                                    : 'URL: ',
                             style: GoogleFonts.robotoMono(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -305,7 +390,13 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                           ),
                           Expanded(
                             child: SelectableText(
-                              monitor.checkTarget,
+                              // For Kubernetes monitors, show cluster name if available
+                              monitor.monitorTypeId == 4 && _k8sData != null
+                                  ? _k8sData!['clusterName'] ?? monitor.checkTarget
+                                  // For TCP monitors, show ip:port if available
+                                  : monitor.monitorTypeId == 3 && _tcpData != null
+                                      ? "${_tcpData!['ip']}:${_tcpData!['port']}"
+                                      : monitor.checkTarget,
                               style: GoogleFonts.robotoMono(
                                 fontSize: 14,
                                 color: Theme.of(context).colorScheme.primary,
@@ -315,121 +406,243 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    // Chart section
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Response Time (ms) - $_selectedPeriod',
-                            style: GoogleFonts.robotoMono(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                    
+                    // Display TCP-specific information if this is a TCP monitor
+                    if (monitor.monitorTypeId == 3 && _tcpData != null) ...[
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'TCP Connection Details',
+                                  style: GoogleFonts.robotoMono(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                _buildTcpDetailRow('IP Address', _tcpData!['ip'] ?? 'N/A'),
+                                _buildTcpDetailRow('Port', _tcpData!['port']?.toString() ?? 'N/A'),
+                                _buildTcpDetailRow('Timeout', '${_tcpData!['timeout'] ?? 'N/A'} seconds'),
+                                _buildTcpDetailRow('Retries', _tcpData!['retries']?.toString() ?? 'N/A'),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            height: 216,
-                            child: _isLoadingChart
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : LineChart(
-                                    LineChartData(
-                                      gridData: FlGridData(
-                                        show: true,
-                                        drawVerticalLine: true,
-                                        horizontalInterval: interval,
-                                        verticalInterval: 4,
-                                        getDrawingHorizontalLine: (value) {
-                                          return FlLine(
-                                            color: isDarkMode
-                                                ? Colors.grey.shade800
-                                                : Colors.grey.shade300,
-                                            strokeWidth: 1,
-                                          );
-                                        },
-                                        getDrawingVerticalLine: (value) {
-                                          return FlLine(
-                                            color: isDarkMode
-                                                ? Colors.grey.shade800
-                                                : Colors.grey.shade300,
-                                            strokeWidth: 1,
-                                          );
-                                        },
+                        ),
+                      ),
+                    ],
+                    
+                    // Display Kubernetes node status if this is a K8s monitor
+                    if (monitor.monitorTypeId == 4 && _k8sData != null) ...[
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Kubernetes Nodes',
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Card(
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: (_k8sData!['monitorK8sNodes'] as List?)?.length ?? 0,
+                            separatorBuilder: (context, index) => const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final node = (_k8sData!['monitorK8sNodes'] as List)[index];
+                              final bool isReady = node['ready'] ?? false;
+                              
+                              return ExpansionTile(
+                                title: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.dns,
+                                      color: isReady ? Colors.green : Colors.red,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        node['nodeName'] ?? 'Unknown Node',
+                                        style: GoogleFonts.robotoMono(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      titlesData: FlTitlesData(
-                                        show: true,
-                                        rightTitles: const AxisTitles(
-                                          sideTitles:
-                                              SideTitles(showTitles: false),
+                                    ),
+                                  ],
+                                ),
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        _buildNodeStatusRow('Ready', node['ready'] ?? false),
+                                        _buildNodeStatusRow('Memory Pressure', !(node['memoryPressure'] ?? true)),
+                                        _buildNodeStatusRow('Disk Pressure', !(node['diskPressure'] ?? true)),
+                                        _buildNodeStatusRow('PID Pressure', !(node['pidPressure'] ?? true)),
+                                        _buildNodeStatusRow('Kubelet', !(node['kubeletProblem'] ?? true)),
+                                        _buildNodeStatusRow('Container Runtime', !(node['containerRuntimeProblem'] ?? true)),
+                                        _buildNodeStatusRow('Kernel Deadlock', !(node['kernelDeadlock'] ?? true)),
+                                        _buildNodeStatusRow('Filesystem', !(node['filesystemCorruptionProblem'] ?? true)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                    
+                    const SizedBox(height: 16),
+                    // Chart section - Only show for HTTP monitors (type 1)
+                    if (monitor.monitorTypeId == 1) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Response Time (ms) - $_selectedPeriod',
+                              style: GoogleFonts.robotoMono(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              height: 216,
+                              child: _isLoadingChart
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : LineChart(
+                                      LineChartData(
+                                        gridData: FlGridData(
+                                          show: true,
+                                          drawVerticalLine: true,
+                                          horizontalInterval: interval,
+                                          verticalInterval: 4,
+                                          getDrawingHorizontalLine: (value) {
+                                            return FlLine(
+                                              color: isDarkMode
+                                                  ? Colors.grey.shade800
+                                                  : Colors.grey.shade300,
+                                              strokeWidth: 1,
+                                            );
+                                          },
+                                          getDrawingVerticalLine: (value) {
+                                            return FlLine(
+                                              color: isDarkMode
+                                                  ? Colors.grey.shade800
+                                                  : Colors.grey.shade300,
+                                              strokeWidth: 1,
+                                            );
+                                          },
                                         ),
-                                        topTitles: const AxisTitles(
-                                          sideTitles:
-                                              SideTitles(showTitles: false),
-                                        ),
-                                        bottomTitles: AxisTitles(
-                                          sideTitles: SideTitles(
-                                            showTitles: true,
-                                            reservedSize: 35,
-                                            interval:
-                                                _selectedPeriod == 'Last Hour'
-                                                    ? 0.2
-                                                    : 0.25,
-                                            getTitlesWidget: (value, meta) {
-                                              if (_selectedPeriod ==
-                                                  'Last Hour') {
-                                                final now = DateTime.now();
-                                                final minutesAgo =
-                                                    ((1 - value) * 60).round();
-                                                final pointTime = now.subtract(
-                                                    Duration(
-                                                        minutes: minutesAgo));
-                                                return Text(
-                                                  DateFormat('HH:mm')
-                                                      .format(pointTime),
-                                                  style: GoogleFonts.robotoMono(
-                                                    fontSize: 13,
-                                                    color: isDarkMode
-                                                        ? Colors.white70
-                                                        : Colors.black87,
-                                                  ),
-                                                );
-                                              } else {
-                                                if (_currentMonitor
-                                                        ?.monitorStatusDashboard
-                                                        .historyData
-                                                        .isEmpty ??
-                                                    true) {
-                                                  return const Text('');
+                                        titlesData: FlTitlesData(
+                                          show: true,
+                                          rightTitles: const AxisTitles(
+                                            sideTitles:
+                                                SideTitles(showTitles: false),
+                                          ),
+                                          topTitles: const AxisTitles(
+                                            sideTitles:
+                                                SideTitles(showTitles: false),
+                                          ),
+                                          bottomTitles: AxisTitles(
+                                            sideTitles: SideTitles(
+                                              showTitles: true,
+                                              reservedSize: 35,
+                                              interval:
+                                                  _selectedPeriod == 'Last Hour'
+                                                      ? 0.2
+                                                      : 0.25,
+                                              getTitlesWidget: (value, meta) {
+                                                if (_selectedPeriod ==
+                                                    'Last Hour') {
+                                                  final now = DateTime.now();
+                                                  final minutesAgo =
+                                                      ((1 - value) * 60).round();
+                                                  final pointTime = now.subtract(
+                                                      Duration(
+                                                          minutes: minutesAgo));
+                                                  return Text(
+                                                    DateFormat('HH:mm')
+                                                        .format(pointTime),
+                                                    style: GoogleFonts.robotoMono(
+                                                      fontSize: 13,
+                                                      color: isDarkMode
+                                                          ? Colors.white70
+                                                          : Colors.black87,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  if (_currentMonitor
+                                                          ?.monitorStatusDashboard
+                                                          .historyData
+                                                          .isEmpty ??
+                                                      true) {
+                                                    return const Text('');
+                                                  }
+                                                  final data = _currentMonitor!
+                                                      .monitorStatusDashboard
+                                                      .historyData;
+                                                  final startTime =
+                                                      data.first.localTimeStamp;
+                                                  final endTime =
+                                                      data.last.localTimeStamp;
+                                                  final pointTime =
+                                                      startTime.add(Duration(
+                                                    milliseconds: (value *
+                                                            endTime
+                                                                .difference(
+                                                                    startTime)
+                                                                .inMilliseconds)
+                                                        .round(),
+                                                  ));
+
+                                                  // Different format based on period length
+                                                  String format =
+                                                      _selectedPeriod ==
+                                                              'Last 24 Hours'
+                                                          ? 'HH:mm'
+                                                          : 'MM/dd';
+                                                  return Text(
+                                                    DateFormat(format)
+                                                        .format(pointTime),
+                                                    style: GoogleFonts.robotoMono(
+                                                      fontSize: 13,
+                                                      color: isDarkMode
+                                                          ? Colors.white70
+                                                          : Colors.black87,
+                                                    ),
+                                                  );
                                                 }
-                                                final data = _currentMonitor!
-                                                    .monitorStatusDashboard
-                                                    .historyData;
-                                                final startTime =
-                                                    data.first.localTimeStamp;
-                                                final endTime =
-                                                    data.last.localTimeStamp;
-                                                final pointTime =
-                                                    startTime.add(Duration(
-                                                  milliseconds: (value *
-                                                          endTime
-                                                              .difference(
-                                                                  startTime)
-                                                              .inMilliseconds)
-                                                      .round(),
-                                                ));
-
-                                                // Different format based on period length
-                                                String format =
-                                                    _selectedPeriod ==
-                                                            'Last 24 Hours'
-                                                        ? 'HH:mm'
-                                                        : 'MM/dd';
+                                              },
+                                            ),
+                                          ),
+                                          leftTitles: AxisTitles(
+                                            sideTitles: SideTitles(
+                                              showTitles: true,
+                                              interval: interval,
+                                              reservedSize: 42,
+                                              getTitlesWidget: (value, meta) {
                                                 return Text(
-                                                  DateFormat(format)
-                                                      .format(pointTime),
+                                                  value.toInt().toString(),
                                                   style: GoogleFonts.robotoMono(
                                                     fontSize: 13,
                                                     color: isDarkMode
@@ -437,129 +650,111 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                         : Colors.black87,
                                                   ),
                                                 );
-                                              }
-                                            },
+                                              },
+                                            ),
                                           ),
                                         ),
-                                        leftTitles: AxisTitles(
-                                          sideTitles: SideTitles(
-                                            showTitles: true,
-                                            interval: interval,
-                                            reservedSize: 42,
-                                            getTitlesWidget: (value, meta) {
-                                              return Text(
-                                                value.toInt().toString(),
-                                                style: GoogleFonts.robotoMono(
-                                                  fontSize: 13,
-                                                  color: isDarkMode
-                                                      ? Colors.white70
-                                                      : Colors.black87,
-                                                ),
-                                              );
-                                            },
+                                        borderData: FlBorderData(
+                                          show: true,
+                                          border: Border.all(
+                                            color: isDarkMode
+                                                ? Colors.white24
+                                                : Colors.black12,
                                           ),
                                         ),
-                                      ),
-                                      borderData: FlBorderData(
-                                        show: true,
-                                        border: Border.all(
-                                          color: isDarkMode
-                                              ? Colors.white24
-                                              : Colors.black12,
-                                        ),
-                                      ),
-                                      minX: 0,
-                                      maxX: 1,
-                                      minY: 0,
-                                      maxY: defaultMaxY,
-                                      clipData: FlClipData.all(),
-                                      lineBarsData: [
-                                        LineChartBarData(
-                                          spots: spots,
-                                          isCurved: true,
-                                          color: Colors.green,
-                                          barWidth: 2,
-                                          isStrokeCapRound: true,
-                                          dotData: FlDotData(
-                                            show: true,
-                                            getDotPainter: (spot, percent,
-                                                barData, index) {
-                                              final historyData =
-                                                  _getHistoryDataForSpot(spot);
-                                              final hasFailed = historyData
-                                                  .any((d) => !d.status);
+                                        minX: 0,
+                                        maxX: 1,
+                                        minY: 0,
+                                        maxY: defaultMaxY,
+                                        clipData: FlClipData.all(),
+                                        lineBarsData: [
+                                          LineChartBarData(
+                                            spots: spots,
+                                            isCurved: true,
+                                            color: Colors.green,
+                                            barWidth: 2,
+                                            isStrokeCapRound: true,
+                                            dotData: FlDotData(
+                                              show: true,
+                                              getDotPainter: (spot, percent,
+                                                  barData, index) {
+                                                final historyData =
+                                                    _getHistoryDataForSpot(spot);
+                                                final hasFailed = historyData
+                                                    .any((d) => !d.status);
 
-                                              if (hasFailed) {
+                                                if (hasFailed) {
+                                                  return FlDotCirclePainter(
+                                                    radius: 3,
+                                                    color: Colors.red,
+                                                    strokeWidth: 0,
+                                                  );
+                                                }
+
                                                 return FlDotCirclePainter(
-                                                  radius: 3,
-                                                  color: Colors.red,
+                                                  radius: 0,
+                                                  color: Colors.transparent,
                                                   strokeWidth: 0,
                                                 );
-                                              }
+                                              },
+                                            ),
+                                            belowBarData: BarAreaData(
+                                              show: true,
+                                              color: Colors.green.withOpacity(
+                                                  isDarkMode ? 0.15 : 0.1),
+                                            ),
+                                          ),
+                                        ],
+                                        lineTouchData: LineTouchData(
+                                          enabled: true,
+                                          touchTooltipData: LineTouchTooltipData(
+                                            getTooltipColor:
+                                                (LineBarSpot touchedSpot) =>
+                                                    isDarkMode
+                                                        ? Colors.grey.shade800
+                                                        : Colors.white,
+                                            getTooltipItems:
+                                                (List<LineBarSpot> touchedSpots) {
+                                              return touchedSpots
+                                                  .map((LineBarSpot touchedSpot) {
+                                                final historyData =
+                                                    _getHistoryDataForSpot(
+                                                        touchedSpot);
+                                                final failedRequests = historyData
+                                                    .where((d) => !d.status)
+                                                    .toList();
 
-                                              return FlDotCirclePainter(
-                                                radius: 0,
-                                                color: Colors.transparent,
-                                                strokeWidth: 0,
-                                              );
+                                                // Calculate actual time for this point
+                                                final now = DateTime.now();
+                                                final pointTime = now.subtract(
+                                                    Duration(
+                                                        minutes:
+                                                            ((1 - touchedSpot.x) *
+                                                                    60)
+                                                                .round()));
+
+                                                return LineTooltipItem(
+                                                  'Avg: ${touchedSpot.y.round()}ms\n'
+                                                  '${DateFormat('HH:mm').format(pointTime)}'
+                                                  '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
+                                                  GoogleFonts.robotoMono(
+                                                    color: isDarkMode
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                                  ),
+                                                );
+                                              }).toList();
                                             },
                                           ),
-                                          belowBarData: BarAreaData(
-                                            show: true,
-                                            color: Colors.green.withOpacity(
-                                                isDarkMode ? 0.15 : 0.1),
-                                          ),
-                                        ),
-                                      ],
-                                      lineTouchData: LineTouchData(
-                                        enabled: true,
-                                        touchTooltipData: LineTouchTooltipData(
-                                          getTooltipColor:
-                                              (LineBarSpot touchedSpot) =>
-                                                  isDarkMode
-                                                      ? Colors.grey.shade800
-                                                      : Colors.white,
-                                          getTooltipItems:
-                                              (List<LineBarSpot> touchedSpots) {
-                                            return touchedSpots
-                                                .map((LineBarSpot touchedSpot) {
-                                              final historyData =
-                                                  _getHistoryDataForSpot(
-                                                      touchedSpot);
-                                              final failedRequests = historyData
-                                                  .where((d) => !d.status)
-                                                  .toList();
-
-                                              // Calculate actual time for this point
-                                              final now = DateTime.now();
-                                              final pointTime = now.subtract(
-                                                  Duration(
-                                                      minutes:
-                                                          ((1 - touchedSpot.x) *
-                                                                  60)
-                                                              .round()));
-
-                                              return LineTooltipItem(
-                                                'Avg: ${touchedSpot.y.round()}ms\n'
-                                                '${DateFormat('HH:mm').format(pointTime)}'
-                                                '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
-                                                GoogleFonts.robotoMono(
-                                                  color: isDarkMode
-                                                      ? Colors.white
-                                                      : Colors.black,
-                                                ),
-                                              );
-                                            }).toList();
-                                          },
                                         ),
                                       ),
                                     ),
-                                  ),
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
+                    ],
                     // Statistics section
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -770,6 +965,70 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
         ),
       ),
       dense: true,
+    );
+  }
+
+  // Helper method to build Kubernetes node status rows
+  Widget _buildNodeStatusRow(String label, bool isHealthy) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.robotoMono(
+              fontSize: 13,
+            ),
+          ),
+          Row(
+            children: [
+              Icon(
+                isHealthy ? Icons.check_circle : Icons.error,
+                color: isHealthy ? Colors.green : Colors.red,
+                size: 16,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                isHealthy ? 'Healthy' : 'Issue Detected',
+                style: GoogleFonts.robotoMono(
+                  fontSize: 13,
+                  color: isHealthy ? Colors.green : Colors.red,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // Helper method to build TCP detail rows
+  Widget _buildTcpDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.robotoMono(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.robotoMono(
+              fontSize: 13,
+              color: label == 'Last Status' 
+                  ? (value == 'Connected' ? Colors.green : Colors.red)
+                  : null,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -78,6 +78,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildMonitorCard(Monitor monitor) {
+    // Get the appropriate icon based on monitor type
+    IconData monitorIcon;
+    switch (monitor.monitorTypeId) {
+      case 1:
+        monitorIcon = Icons.public; // HTTP - changed to globe icon
+        break;
+      case 3:
+        monitorIcon = Icons.lan; // TCP
+        break;
+      case 4:
+        monitorIcon = Icons.dns; // Kubernetes
+        break;
+      default:
+        monitorIcon = Icons.monitor; // Default icon
+    }
+
+    // Determine the color based on status
+    Color iconColor = monitor.paused
+        ? Colors.grey
+        : monitor.status
+            ? Colors.green
+            : Colors.red;
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -144,13 +167,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ],
           ),
           leading: Icon(
-            Icons.circle,
-            color: monitor.paused
-                ? Colors.grey
-                : monitor.status
-                    ? Colors.green
-                    : Colors.red,
-            size: 12,
+            monitorIcon,
+            color: iconColor,
+            size: 24,
           ),
         ),
       ),
