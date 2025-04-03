@@ -80,26 +80,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _buildMonitorCard(Monitor monitor) {
     // Get the appropriate icon based on monitor type
     IconData monitorIcon;
+    String monitorType;
+    String? targetInfo;  // Make it nullable since we won't show it for TCP and K8s
+
     switch (monitor.monitorTypeId) {
       case 1:
-        monitorIcon = Icons.public; // HTTP - changed to globe icon
+        monitorIcon = Icons.public;
+        monitorType = 'HTTP';
+        targetInfo = monitor.checkTarget;
         break;
       case 3:
-        monitorIcon = Icons.lan; // TCP
+        monitorIcon = Icons.lan;
+        monitorType = 'TCP';
+        // Remove target info for TCP monitors
+        targetInfo = null;
         break;
       case 4:
-        monitorIcon = Icons.dns; // Kubernetes
+        monitorIcon = Icons.dns;
+        monitorType = 'K8s';
+        // Remove target info for Kubernetes monitors
+        targetInfo = null;
         break;
       default:
-        monitorIcon = Icons.monitor; // Default icon
+        monitorIcon = Icons.monitor;
+        monitorType = 'Unknown';
+        targetInfo = monitor.checkTarget;
     }
-
-    // Determine the color based on status
-    Color iconColor = monitor.paused
-        ? Colors.grey
-        : monitor.status
-            ? Colors.green
-            : Colors.red;
 
     return Card(
       elevation: 2,
@@ -112,66 +118,110 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           );
         },
-        child: ListTile(
-          title: Text(
-            monitor.name,
-            style: GoogleFonts.robotoMono(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          subtitle: Row(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '1h: ${monitor.monitorStatusDashboard.uptime1Hr}%',
-                style: GoogleFonts.robotoMono(
-                  fontSize: 12,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
+              Row(
+                children: [
+                  Icon(
+                    monitorIcon,
+                    color: monitor.paused
+                        ? Colors.grey
+                        : monitor.status
+                            ? Colors.green
+                            : Colors.red,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      monitor.name,
+                      style: GoogleFonts.robotoMono(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      monitorType,
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                ' | ',
-                style: GoogleFonts.robotoMono(
-                  fontSize: 12,
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.color
-                      ?.withOpacity(0.5),
+              if (targetInfo != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  targetInfo,
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 13,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                '24h: ${monitor.monitorStatusDashboard.uptime24Hrs}%',
-                style: GoogleFonts.robotoMono(
-                  fontSize: 12,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
-              ),
-              Text(
-                ' | ',
-                style: GoogleFonts.robotoMono(
-                  fontSize: 12,
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.color
-                      ?.withOpacity(0.5),
-                ),
-              ),
-              Text(
-                '7d: ${monitor.monitorStatusDashboard.uptime7Days}%',
-                style: GoogleFonts.robotoMono(
-                  fontSize: 12,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
+              ],
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildUptimeChip('1h', monitor.monitorStatusDashboard.uptime1Hr),
+                  _buildUptimeChip('24h', monitor.monitorStatusDashboard.uptime24Hrs),
+                  _buildUptimeChip('7d', monitor.monitorStatusDashboard.uptime7Days),
+                ],
               ),
             ],
           ),
-          leading: Icon(
-            monitorIcon,
-            color: iconColor,
-            size: 24,
-          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildUptimeChip(String label, double uptime) {
+    final color = uptime >= 99.9
+        ? Colors.green
+        : uptime >= 95
+            ? Colors.orange
+            : Colors.red;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.robotoMono(
+              fontSize: 12,
+              color: color,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${uptime.toStringAsFixed(1)}%',
+            style: GoogleFonts.robotoMono(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }

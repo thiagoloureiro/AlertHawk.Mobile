@@ -826,18 +826,21 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                 'Last 6 Months',
                                 widget.monitor.monitorStatusDashboard
                                     .uptime6Months),
-                            const Divider(height: 1),
-                            _buildStatListTile(
-                              'SSL Certificate Expiry',
-                              '${widget.monitor.monitorStatusDashboard.certExpDays} days',
-                              widget.monitor.monitorStatusDashboard.certExpDays,
-                            ),
-                            const Divider(height: 1),
-                            _buildStatListTile(
-                              'Average Response Time',
-                              '${widget.monitor.monitorStatusDashboard.responseTime.toStringAsFixed(1)}ms',
-                              null,
-                            ),
+                            // Only show SSL and Response Time for HTTP monitors
+                            if (widget.monitor.monitorTypeId == 1) ...[
+                              const Divider(height: 1),
+                              _buildStatListTile(
+                                'SSL Certificate Expiry',
+                                '${widget.monitor.monitorStatusDashboard.certExpDays} days',
+                                widget.monitor.monitorStatusDashboard.certExpDays,
+                              ),
+                              const Divider(height: 1),
+                              _buildStatListTile(
+                                'Average Response Time',
+                                '${widget.monitor.monitorStatusDashboard.responseTime.toStringAsFixed(1)}ms',
+                                null,
+                              ),
+                            ],
                           ],
                         ),
                       ),

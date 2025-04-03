@@ -1,0 +1,1 @@
+/Users/thiagoloureiro/Projects/AlertHawk.Mobile/build/app/intermediates/cxx/RelWithDebInfo/6d6c1u2f/obj/arm64-v8a

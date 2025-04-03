@@ -1,0 +1,2 @@
+/Users/thiagoloureiro/Projects/AlertHawk.Mobile/android/app/.cxx/RelWithDebInfo/6d6c1u2f/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/thiagoloureiro/Projects/AlertHawk.Mobile/android/app/.cxx/RelWithDebInfo/6d6c1u2f/armeabi-v7a/CMakeFiles/rebuild_cache.dir

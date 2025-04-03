@@ -167,8 +167,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             style: GoogleFonts.robotoMono(),
                             validator: (value) {
-                              if (value?.isEmpty ?? true)
+                              if (value?.isEmpty ?? true) {
                                 return 'Please enter username';
+                              }
                               return null;
                             },
                           ),
@@ -228,8 +229,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: GoogleFonts.robotoMono(),
                             obscureText: true,
                             validator: (value) {
-                              if (value?.isEmpty ?? true)
+                              if (value?.isEmpty ?? true) {
                                 return 'Please enter password';
+                              }
                               return null;
                             },
                           ),
@@ -492,7 +494,7 @@ class _LoginScreenState extends State<LoginScreen> {
             textAlign: TextAlign.center,
           ),
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          content: Container(
+          content: SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,
             child: Form(
               key: formKey,
@@ -507,10 +509,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       isDarkMode:
                           Theme.of(context).brightness == Brightness.dark,
                       validator: (value) {
-                        if (value?.isEmpty ?? true)
+                        if (value?.isEmpty ?? true) {
                           return 'Please enter your name';
-                        if ((value?.length ?? 0) < 3)
+                        }
+                        if ((value?.length ?? 0) < 3) {
                           return 'Name must be at least 3 characters';
+                        }
                         return null;
                       },
                     ),
@@ -539,10 +543,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           Theme.of(context).brightness == Brightness.dark,
                       isPassword: true,
                       validator: (value) {
-                        if (value?.isEmpty ?? true)
+                        if (value?.isEmpty ?? true) {
                           return 'Please enter password';
-                        if ((value?.length ?? 0) < 6)
+                        }
+                        if ((value?.length ?? 0) < 6) {
                           return 'Password must be at least 6 characters';
+                        }
                         return null;
                       },
                     ),
@@ -555,10 +561,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           Theme.of(context).brightness == Brightness.dark,
                       isPassword: true,
                       validator: (value) {
-                        if (value?.isEmpty ?? true)
+                        if (value?.isEmpty ?? true) {
                           return 'Please repeat password';
-                        if (value != _passwordController.text)
+                        }
+                        if (value != _passwordController.text) {
                           return 'Passwords do not match';
+                        }
                         return null;
                       },
                     ),
@@ -728,7 +736,7 @@ class _LoginScreenState extends State<LoginScreen> {
           textAlign: TextAlign.center,
         ),
         contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-        content: Container(
+        content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.8,
           child: Column(
             mainAxisSize: MainAxisSize.min,
