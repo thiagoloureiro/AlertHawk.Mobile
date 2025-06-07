@@ -20,24 +20,23 @@
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-11.3.3/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_native_splash-2.4.5/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-11.4.0/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_native_splash-2.4.6/android" />
             <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_new_badger-1.1.1/android" />
             <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.4/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/mobile_scanner-6.0.7/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/mobile_scanner-7.0.1/android" />
             <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-8.3.0/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.16/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/pushy_flutter-2.0.30/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.8/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sign_in_with_apple-6.1.4/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.15/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/webview_flutter_android-4.3.3/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.17/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/pushy_flutter-2.0.33/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.10/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sign_in_with_apple-7.0.1/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.16/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/webview_flutter_android-4.7.0/android" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="/opt/homebrew/Caskroom/flutter/3.27.4/flutter/packages/flutter_tools/gradle" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

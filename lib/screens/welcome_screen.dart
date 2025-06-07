@@ -81,7 +81,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     // Get the appropriate icon based on monitor type
     IconData monitorIcon;
     String monitorType;
-    String? targetInfo;  // Make it nullable since we won't show it for TCP and K8s
+    String?
+        targetInfo; // Make it nullable since we won't show it for TCP and K8s
 
     switch (monitor.monitorTypeId) {
       case 1:
@@ -145,7 +146,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
@@ -176,9 +178,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildUptimeChip('1h', monitor.monitorStatusDashboard.uptime1Hr),
-                  _buildUptimeChip('24h', monitor.monitorStatusDashboard.uptime24Hrs),
-                  _buildUptimeChip('7d', monitor.monitorStatusDashboard.uptime7Days),
+                  _buildUptimeChip(
+                      '1h', monitor.monitorStatusDashboard.uptime1Hr),
+                  _buildUptimeChip(
+                      '24h', monitor.monitorStatusDashboard.uptime24Hrs),
+                  _buildUptimeChip(
+                      '7d', monitor.monitorStatusDashboard.uptime7Days),
                 ],
               ),
             ],
@@ -449,7 +454,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           builder: (dialogContext) => StatefulBuilder(
             builder: (context, setDialogState) => AlertDialog(
               title: Text('Select Groups', style: GoogleFonts.robotoMono()),
-              content: Container(
+              content: SizedBox(
                 width: 400,
                 height: 400,
                 child: Scrollbar(
@@ -495,7 +500,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               });
                             },
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),
