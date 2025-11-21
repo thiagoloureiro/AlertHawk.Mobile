@@ -21,8 +21,6 @@ class MetricsService {
       },
     );
 
-    print(response.statusCode);
-
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
       return jsonList.map((item) => item.toString()).toList();

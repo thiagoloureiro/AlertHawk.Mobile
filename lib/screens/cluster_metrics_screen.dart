@@ -21,7 +21,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
   bool _isLoadingClusters = false;
   bool _isLoadingMetrics = false;
   String? _errorMessage;
-  int _selectedHours = 24;
+  int _selectedHours = 1;
 
   @override
   void initState() {
@@ -89,41 +89,136 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 
-  List<FlSpot> _getCpuChartData() {
-    if (_metrics.isEmpty) return [];
-
-    final sortedMetrics = List<NodeMetric>.from(_metrics)
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
-    return sortedMetrics.asMap().entries.map((entry) {
-      final index = entry.key.toDouble();
-      final metric = entry.value;
-      return FlSpot(index, metric.cpuUsagePercent);
-    }).toList();
+  // Get unique node names
+  List<String> _getNodeNames() {
+    final Set<String> nodeNames = {};
+    for (var metric in _metrics) {
+      nodeNames.add(metric.nodeName);
+    }
+    return nodeNames.toList()..sort();
   }
 
-  List<FlSpot> _getMemoryChartData() {
+  // Get CPU chart data for a specific node
+  List<FlSpot> _getCpuChartDataForNode(String nodeName) {
     if (_metrics.isEmpty) return [];
 
-    final sortedMetrics = List<NodeMetric>.from(_metrics)
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    // Filter metrics for this node
+    final nodeMetrics = _metrics
+        .where((m) => m.nodeName == nodeName)
+        .toList();
 
-    return sortedMetrics.asMap().entries.map((entry) {
-      final index = entry.key.toDouble();
-      final metric = entry.value;
-      return FlSpot(index, metric.memoryUsagePercent);
-    }).toList();
+    // Group by timestamp (minute level)
+    final Map<DateTime, double> aggregated = {};
+    for (var metric in nodeMetrics) {
+      final key = DateTime(
+        metric.timestamp.year,
+        metric.timestamp.month,
+        metric.timestamp.day,
+        metric.timestamp.hour,
+        metric.timestamp.minute,
+      );
+      // For same timestamp, take the latest value
+      if (!aggregated.containsKey(key)) {
+        aggregated[key] = metric.cpuUsagePercent;
+      } else {
+        aggregated[key] = aggregated[key]! > metric.cpuUsagePercent
+            ? aggregated[key]!
+            : metric.cpuUsagePercent;
+      }
+    }
+
+    // Get all unique timestamps for x-axis alignment
+    final allTimestamps = _getAllUniqueTimestamps();
+
+    return allTimestamps.asMap().entries
+        .map((entry) {
+          final timestamp = entry.value;
+          final cpuPercent = aggregated[timestamp];
+          if (cpuPercent == null || cpuPercent == 0.0) return null;
+          return FlSpot(entry.key.toDouble(), cpuPercent);
+        })
+        .where((spot) => spot != null)
+        .cast<FlSpot>()
+        .toList();
   }
 
-  List<String> _getTimeLabels() {
+  // Get Memory chart data for a specific node
+  List<FlSpot> _getMemoryChartDataForNode(String nodeName) {
     if (_metrics.isEmpty) return [];
 
-    final sortedMetrics = List<NodeMetric>.from(_metrics)
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    // Filter metrics for this node
+    final nodeMetrics = _metrics
+        .where((m) => m.nodeName == nodeName)
+        .toList();
 
-    return sortedMetrics.map((metric) {
-      return DateFormat('HH:mm').format(metric.timestamp);
-    }).toList();
+    // Group by timestamp (minute level)
+    final Map<DateTime, double> aggregated = {};
+    for (var metric in nodeMetrics) {
+      final key = DateTime(
+        metric.timestamp.year,
+        metric.timestamp.month,
+        metric.timestamp.day,
+        metric.timestamp.hour,
+        metric.timestamp.minute,
+      );
+      // For same timestamp, take the latest value
+      if (!aggregated.containsKey(key)) {
+        aggregated[key] = metric.memoryUsagePercent;
+      } else {
+        aggregated[key] = aggregated[key]! > metric.memoryUsagePercent
+            ? aggregated[key]!
+            : metric.memoryUsagePercent;
+      }
+    }
+
+    // Get all unique timestamps for x-axis alignment
+    final allTimestamps = _getAllUniqueTimestamps();
+
+    return allTimestamps.asMap().entries
+        .map((entry) {
+          final timestamp = entry.value;
+          final memoryPercent = aggregated[timestamp];
+          if (memoryPercent == null || memoryPercent == 0.0) return null;
+          return FlSpot(entry.key.toDouble(), memoryPercent);
+        })
+        .where((spot) => spot != null)
+        .cast<FlSpot>()
+        .toList();
+  }
+
+  // Get all unique timestamps (minute level) for x-axis alignment
+  List<DateTime> _getAllUniqueTimestamps() {
+    final Set<DateTime> timestamps = {};
+    for (var metric in _metrics) {
+      final key = DateTime(
+        metric.timestamp.year,
+        metric.timestamp.month,
+        metric.timestamp.day,
+        metric.timestamp.hour,
+        metric.timestamp.minute,
+      );
+      timestamps.add(key);
+    }
+    final sorted = timestamps.toList()..sort();
+    return sorted;
+  }
+
+  // Color palette for different nodes
+  static const List<Color> _nodeColors = [
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.red,
+    Colors.teal,
+    Colors.pink,
+    Colors.amber,
+    Colors.cyan,
+    Colors.indigo,
+  ];
+
+  Color _getNodeColor(int index) {
+    return _nodeColors[index % _nodeColors.length];
   }
 
   Map<String, List<NodeMetric>> _groupByNode() {
@@ -314,113 +409,54 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                           const SizedBox(height: 8),
                           SizedBox(
                             height: 250,
-                            child: LineChart(
-                              LineChartData(
-                                gridData: FlGridData(
-                                  show: true,
-                                  drawVerticalLine: true,
-                                  horizontalInterval: 25,
-                                  getDrawingHorizontalLine: (value) {
-                                    return FlLine(
-                                      color: isDarkMode
-                                          ? Colors.grey.shade800
-                                          : Colors.grey.shade300,
-                                      strokeWidth: 1,
-                                    );
-                                  },
-                                ),
-                                titlesData: FlTitlesData(
-                                  show: true,
-                                  rightTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
-                                  ),
-                                  topTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
-                                  ),
-                                  bottomTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: 30,
-                                      interval: _metrics.length > 10
-                                          ? _metrics.length / 5
-                                          : 1,
-                                      getTitlesWidget: (value, meta) {
-                                        final index = value.toInt();
-                                        if (index >= 0 &&
-                                            index < _metrics.length) {
-                                          final sortedMetrics =
-                                              List<NodeMetric>.from(_metrics)
-                                                ..sort((a, b) => a.timestamp
-                                                    .compareTo(b.timestamp));
-                                          return Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 8.0),
-                                            child: Text(
-                                              DateFormat('HH:mm').format(
-                                                  sortedMetrics[index]
-                                                      .timestamp),
-                                              style: GoogleFonts.robotoMono(
-                                                fontSize: 10,
-                                                color: isDarkMode
-                                                    ? Colors.grey.shade400
-                                                    : Colors.grey.shade700,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        return const Text('');
-                                      },
-                                    ),
-                                  ),
-                                  leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: 50,
-                                      interval: 25,
-                                      getTitlesWidget: (value, meta) {
-                                        return Text(
-                                          '${value.toInt()}%',
-                                          style: GoogleFonts.robotoMono(
-                                            fontSize: 10,
-                                            color: isDarkMode
-                                                ? Colors.grey.shade400
-                                                : Colors.grey.shade700,
+                            child: _buildCpuChart(isDarkMode),
+                          ),
+                          const SizedBox(height: 8),
+                          // Legend with multiple rows
+                          Builder(
+                            builder: (context) {
+                              final nodeNames = _getNodeNames();
+                              // Calculate items per row to ensure at least 4 rows
+                              final itemsPerRow = (nodeNames.length / 4).ceil();
+                              final screenWidth = MediaQuery.of(context).size.width;
+                              final availableWidth = screenWidth - 64; // Account for padding
+                              final itemWidth = (availableWidth / itemsPerRow).clamp(120.0, 200.0);
+                              
+                              return Wrap(
+                                spacing: 12,
+                                runSpacing: 8,
+                                children: nodeNames.asMap().entries.map((entry) {
+                                  final nodeName = entry.value;
+                                  final color = _getNodeColor(entry.key);
+                                  return SizedBox(
+                                    width: itemWidth,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 12,
+                                          height: 12,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            shape: BoxShape.circle,
                                           ),
-                                        );
-                                      },
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            nodeName,
+                                            style: GoogleFonts.robotoMono(
+                                              fontSize: 10,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ),
-                                borderData: FlBorderData(
-                                  show: true,
-                                  border: Border.all(
-                                    color: isDarkMode
-                                        ? Colors.grey.shade800
-                                        : Colors.grey.shade300,
-                                  ),
-                                ),
-                                minX: 0,
-                                maxX: _metrics.length > 0
-                                    ? (_metrics.length - 1).toDouble()
-                                    : 1,
-                                minY: 0,
-                                maxY: 100,
-                                lineBarsData: [
-                                  LineChartBarData(
-                                    spots: _getCpuChartData(),
-                                    isCurved: true,
-                                    color: Colors.blue,
-                                    barWidth: 2,
-                                    isStrokeCapRound: true,
-                                    dotData: const FlDotData(show: false),
-                                    belowBarData: BarAreaData(
-                                      show: true,
-                                      color: Colors.blue.withOpacity(0.1),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                                  );
+                                }).toList(),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -444,113 +480,54 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                           const SizedBox(height: 8),
                           SizedBox(
                             height: 250,
-                            child: LineChart(
-                              LineChartData(
-                                gridData: FlGridData(
-                                  show: true,
-                                  drawVerticalLine: true,
-                                  horizontalInterval: 25,
-                                  getDrawingHorizontalLine: (value) {
-                                    return FlLine(
-                                      color: isDarkMode
-                                          ? Colors.grey.shade800
-                                          : Colors.grey.shade300,
-                                      strokeWidth: 1,
-                                    );
-                                  },
-                                ),
-                                titlesData: FlTitlesData(
-                                  show: true,
-                                  rightTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
-                                  ),
-                                  topTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
-                                  ),
-                                  bottomTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: 30,
-                                      interval: _metrics.length > 10
-                                          ? _metrics.length / 5
-                                          : 1,
-                                      getTitlesWidget: (value, meta) {
-                                        final index = value.toInt();
-                                        if (index >= 0 &&
-                                            index < _metrics.length) {
-                                          final sortedMetrics =
-                                              List<NodeMetric>.from(_metrics)
-                                                ..sort((a, b) => a.timestamp
-                                                    .compareTo(b.timestamp));
-                                          return Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 8.0),
-                                            child: Text(
-                                              DateFormat('HH:mm').format(
-                                                  sortedMetrics[index]
-                                                      .timestamp),
-                                              style: GoogleFonts.robotoMono(
-                                                fontSize: 10,
-                                                color: isDarkMode
-                                                    ? Colors.grey.shade400
-                                                    : Colors.grey.shade700,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        return const Text('');
-                                      },
-                                    ),
-                                  ),
-                                  leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: 50,
-                                      interval: 25,
-                                      getTitlesWidget: (value, meta) {
-                                        return Text(
-                                          '${value.toInt()}%',
-                                          style: GoogleFonts.robotoMono(
-                                            fontSize: 10,
-                                            color: isDarkMode
-                                                ? Colors.grey.shade400
-                                                : Colors.grey.shade700,
+                            child: _buildMemoryChart(isDarkMode),
+                          ),
+                          const SizedBox(height: 8),
+                          // Legend with multiple rows
+                          Builder(
+                            builder: (context) {
+                              final nodeNames = _getNodeNames();
+                              // Calculate items per row to ensure at least 4 rows
+                              final itemsPerRow = (nodeNames.length / 4).ceil();
+                              final screenWidth = MediaQuery.of(context).size.width;
+                              final availableWidth = screenWidth - 64; // Account for padding
+                              final itemWidth = (availableWidth / itemsPerRow).clamp(120.0, 200.0);
+                              
+                              return Wrap(
+                                spacing: 12,
+                                runSpacing: 8,
+                                children: nodeNames.asMap().entries.map((entry) {
+                                  final nodeName = entry.value;
+                                  final color = _getNodeColor(entry.key);
+                                  return SizedBox(
+                                    width: itemWidth,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 12,
+                                          height: 12,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            shape: BoxShape.circle,
                                           ),
-                                        );
-                                      },
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            nodeName,
+                                            style: GoogleFonts.robotoMono(
+                                              fontSize: 10,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ),
-                                borderData: FlBorderData(
-                                  show: true,
-                                  border: Border.all(
-                                    color: isDarkMode
-                                        ? Colors.grey.shade800
-                                        : Colors.grey.shade300,
-                                  ),
-                                ),
-                                minX: 0,
-                                maxX: _metrics.length > 0
-                                    ? (_metrics.length - 1).toDouble()
-                                    : 1,
-                                minY: 0,
-                                maxY: 100,
-                                lineBarsData: [
-                                  LineChartBarData(
-                                    spots: _getMemoryChartData(),
-                                    isCurved: true,
-                                    color: Colors.green,
-                                    barWidth: 2,
-                                    isStrokeCapRound: true,
-                                    dotData: const FlDotData(show: false),
-                                    belowBarData: BarAreaData(
-                                      show: true,
-                                      color: Colors.green.withOpacity(0.1),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                                  );
+                                }).toList(),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -711,6 +688,270 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCpuChart(bool isDarkMode) {
+    final nodeNames = _getNodeNames();
+    if (nodeNames.isEmpty || _metrics.isEmpty) {
+      return Center(
+        child: Text(
+          'No data available',
+          style: GoogleFonts.robotoMono(),
+        ),
+      );
+    }
+
+    final allTimestamps = _getAllUniqueTimestamps();
+    final dataLength = allTimestamps.length;
+
+    return LineChart(
+      LineChartData(
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          horizontalInterval: 20,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: isDarkMode
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade300,
+              strokeWidth: 1,
+            );
+          },
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              interval: dataLength > 10 ? dataLength / 5 : 1,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index >= 0 && index < allTimestamps.length) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      DateFormat('HH:mm').format(allTimestamps[index]),
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 10,
+                        color: isDarkMode
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade700,
+                      ),
+                    ),
+                  );
+                }
+                return const Text('');
+              },
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 50,
+              interval: 20,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                  '${value.toStringAsFixed(2)}%',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 10,
+                    color: isDarkMode
+                        ? Colors.grey.shade400
+                        : Colors.grey.shade700,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(
+            color: isDarkMode
+                ? Colors.grey.shade800
+                : Colors.grey.shade300,
+          ),
+        ),
+        minX: 0,
+        maxX: dataLength > 0 ? (dataLength - 1).toDouble() : 1,
+        minY: 0,
+        maxY: 100,
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipItems: (List<LineBarSpot> touchedSpots) {
+              return touchedSpots.map((LineBarSpot touchedSpot) {
+                final nodeIndex = touchedSpot.barIndex;
+                final nodeName = nodeNames[nodeIndex];
+                final nodeColor = _getNodeColor(nodeIndex);
+                return LineTooltipItem(
+                  '$nodeName: ${touchedSpot.y.toStringAsFixed(2)}%',
+                  GoogleFonts.robotoMono(
+                    fontSize: 12,
+                    color: nodeColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ),
+        lineBarsData: nodeNames.asMap().entries.map((entry) {
+          final nodeName = entry.value;
+          final color = _getNodeColor(entry.key);
+          final data = _getCpuChartDataForNode(nodeName);
+          return LineChartBarData(
+            spots: data,
+            isCurved: true,
+            color: color,
+            barWidth: 2,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: false,
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildMemoryChart(bool isDarkMode) {
+    final nodeNames = _getNodeNames();
+    if (nodeNames.isEmpty || _metrics.isEmpty) {
+      return Center(
+        child: Text(
+          'No data available',
+          style: GoogleFonts.robotoMono(),
+        ),
+      );
+    }
+
+    final allTimestamps = _getAllUniqueTimestamps();
+    final dataLength = allTimestamps.length;
+
+    return LineChart(
+      LineChartData(
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          horizontalInterval: 20,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: isDarkMode
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade300,
+              strokeWidth: 1,
+            );
+          },
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              interval: dataLength > 10 ? dataLength / 5 : 1,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index >= 0 && index < allTimestamps.length) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      DateFormat('HH:mm').format(allTimestamps[index]),
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 10,
+                        color: isDarkMode
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade700,
+                      ),
+                    ),
+                  );
+                }
+                return const Text('');
+              },
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 50,
+              interval: 20,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                  '${value.toStringAsFixed(2)}%',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 10,
+                    color: isDarkMode
+                        ? Colors.grey.shade400
+                        : Colors.grey.shade700,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(
+            color: isDarkMode
+                ? Colors.grey.shade800
+                : Colors.grey.shade300,
+          ),
+        ),
+        minX: 0,
+        maxX: dataLength > 0 ? (dataLength - 1).toDouble() : 1,
+        minY: 0,
+        maxY: 100,
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipItems: (List<LineBarSpot> touchedSpots) {
+              return touchedSpots.map((LineBarSpot touchedSpot) {
+                final nodeIndex = touchedSpot.barIndex;
+                final nodeName = nodeNames[nodeIndex];
+                final nodeColor = _getNodeColor(nodeIndex);
+                return LineTooltipItem(
+                  '$nodeName: ${touchedSpot.y.toStringAsFixed(2)}%',
+                  GoogleFonts.robotoMono(
+                    fontSize: 12,
+                    color: nodeColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ),
+        lineBarsData: nodeNames.asMap().entries.map((entry) {
+          final nodeName = entry.value;
+          final color = _getNodeColor(entry.key);
+          final data = _getMemoryChartDataForNode(nodeName);
+          return LineChartBarData(
+            spots: data,
+            isCurved: true,
+            color: color,
+            barWidth: 2,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: false,
+            ),
+          );
+        }).toList(),
       ),
     );
   }
