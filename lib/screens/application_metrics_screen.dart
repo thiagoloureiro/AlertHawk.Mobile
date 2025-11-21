@@ -476,11 +476,16 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     // Get all unique timestamps for x-axis alignment
     final allTimestamps = _getAllUniqueTimestamps();
     
-    return allTimestamps.asMap().entries.map((entry) {
-      final timestamp = entry.value;
-      final cpuValue = aggregated[timestamp] ?? 0.0;
-      return FlSpot(entry.key.toDouble(), cpuValue);
-    }).toList();
+    return allTimestamps.asMap().entries
+        .map((entry) {
+          final timestamp = entry.value;
+          final cpuValue = aggregated[timestamp];
+          if (cpuValue == null || cpuValue == 0.0) return null;
+          return FlSpot(entry.key.toDouble(), cpuValue);
+        })
+        .where((spot) => spot != null)
+        .cast<FlSpot>()
+        .toList();
   }
 
   // Get Memory chart data for a specific pod/container
@@ -516,12 +521,17 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     // Get all unique timestamps for x-axis alignment
     final allTimestamps = _getAllUniqueTimestamps();
     
-    return allTimestamps.asMap().entries.map((entry) {
-      final timestamp = entry.value;
-      final memoryBytes = aggregated[timestamp] ?? 0;
-      final memoryMB = memoryBytes / (1024 * 1024);
-      return FlSpot(entry.key.toDouble(), memoryMB);
-    }).toList();
+    return allTimestamps.asMap().entries
+        .map((entry) {
+          final timestamp = entry.value;
+          final memoryBytes = aggregated[timestamp];
+          if (memoryBytes == null || memoryBytes == 0) return null;
+          final memoryMB = memoryBytes / (1024 * 1024);
+          return FlSpot(entry.key.toDouble(), memoryMB);
+        })
+        .where((spot) => spot != null)
+        .cast<FlSpot>()
+        .toList();
   }
 
   // Get all unique timestamps (minute level) for x-axis alignment
