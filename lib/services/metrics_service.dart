@@ -11,9 +11,7 @@ class MetricsService {
     final token = prefs.getString('auth_token');
 
     final baseUrl = AppConfig.metricsApiUrl;
-    final uri = Uri.parse(baseUrl).replace(
-      path: '/api/metrics/clusters',
-    );
+    final uri = Uri.parse('$baseUrl/api/metrics/clusters');
 
     final response = await http.get(
       uri,
@@ -22,6 +20,8 @@ class MetricsService {
         if (token != null) 'Authorization': 'Bearer $token',
       },
     );
+
+    print(response.statusCode);
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
@@ -40,14 +40,14 @@ class MetricsService {
     final token = prefs.getString('auth_token');
 
     final baseUrl = AppConfig.metricsApiUrl;
-    final uri = Uri.parse(baseUrl).replace(
-      path: '/api/metrics/node',
+    final uri = Uri.parse('$baseUrl/api/metrics/node').replace(
       queryParameters: {
         'hours': hours.toString(),
         'limit': limit.toString(),
         'clusterName': clusterName,
       },
     );
+
 
     final response = await http.get(
       uri,
@@ -72,12 +72,12 @@ class MetricsService {
     final token = prefs.getString('auth_token');
 
     final baseUrl = AppConfig.metricsApiUrl;
-    final uri = Uri.parse(baseUrl).replace(
-      path: '/api/metrics/namespaces',
+    final uri = Uri.parse('$baseUrl/api/metrics/namespaces').replace(
       queryParameters: {
         'clusterName': clusterName,
       },
     );
+
 
     final response = await http.get(
       uri,
@@ -105,8 +105,7 @@ class MetricsService {
     final token = prefs.getString('auth_token');
 
     final baseUrl = AppConfig.metricsApiUrl;
-    final uri = Uri.parse(baseUrl).replace(
-      path: '/api/Metrics/namespace',
+    final uri = Uri.parse('$baseUrl/api/Metrics/namespace').replace(
       queryParameters: {
         'hours': hours.toString(),
         'limit': limit.toString(),
