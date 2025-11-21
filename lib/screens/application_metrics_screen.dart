@@ -1225,6 +1225,25 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
         maxX: dataLength > 0 ? (dataLength - 1).toDouble() : 1,
         minY: 0,
         maxY: maxCpu > 0 ? maxCpu * 1.1 : 1,
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipItems: (List<LineBarSpot> touchedSpots) {
+              return touchedSpots.map((LineBarSpot touchedSpot) {
+                final podIndex = touchedSpot.barIndex;
+                final podKey = podKeys[podIndex];
+                final podColor = _getPodColor(podIndex);
+                return LineTooltipItem(
+                  '$podKey: ${touchedSpot.y.toStringAsFixed(2)}',
+                  GoogleFonts.robotoMono(
+                    fontSize: 12,
+                    color: podColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ),
         lineBarsData: podKeys.asMap().entries.map((entry) {
           final podKey = entry.value;
           final color = _getPodColor(entry.key);
@@ -1348,6 +1367,25 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
         maxX: dataLength > 0 ? (dataLength - 1).toDouble() : 1,
         minY: 0,
         maxY: maxMemoryMB > 0 ? maxMemoryMB * 1.1 : 100,
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipItems: (List<LineBarSpot> touchedSpots) {
+              return touchedSpots.map((LineBarSpot touchedSpot) {
+                final podIndex = touchedSpot.barIndex;
+                final podKey = podKeys[podIndex];
+                final podColor = _getPodColor(podIndex);
+                return LineTooltipItem(
+                  '$podKey: ${touchedSpot.y.toStringAsFixed(2)} MB',
+                  GoogleFonts.robotoMono(
+                    fontSize: 12,
+                    color: podColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ),
         lineBarsData: podKeys.asMap().entries.map((entry) {
           final podKey = entry.value;
           final color = _getPodColor(entry.key);
