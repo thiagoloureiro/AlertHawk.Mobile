@@ -11,15 +11,14 @@ PODS:
   - mobile_scanner (7.0.0):
     - Flutter
     - FlutterMacOS
+  - objective_c (0.0.1):
+    - Flutter
   - package_info_plus (0.4.5):
     - Flutter
-  - path_provider_foundation (0.0.1):
+  - Pushy (1.0.63)
+  - pushy_flutter (2.0.40):
     - Flutter
-    - FlutterMacOS
-  - Pushy (1.0.59)
-  - pushy_flutter (2.0.33):
-    - Flutter
-    - Pushy (= 1.0.59)
+    - Pushy (= 1.0.63)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -38,8 +37,8 @@ DEPENDENCIES:
   - flutter_new_badger (from `.symlinks/plugins/flutter_new_badger/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
+  - objective_c (from `.symlinks/plugins/objective_c/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - pushy_flutter (from `.symlinks/plugins/pushy_flutter/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
@@ -63,10 +62,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   mobile_scanner:
     :path: ".symlinks/plugins/mobile_scanner/darwin"
+  objective_c:
+    :path: ".symlinks/plugins/objective_c/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
-  path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   pushy_flutter:
     :path: ".symlinks/plugins/pushy_flutter/ios"
   shared_preferences_foundation:
@@ -80,20 +79,20 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   flutter_new_badger: 133aaf93e9a5542bf905c8483d8b83c5ef4946ea
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
+  objective_c: 89e720c30d716b036faf9c9684022048eee1eee2
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
-  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
-  Pushy: 66d81a307ff884be0b9cf1a9d2c4d64332b4d384
-  pushy_flutter: f659ec3f10f06f1a10ca78f1b211789078dcbaf5
-  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  Pushy: fb9f66b5fd10ba5508ad4b08f2abfa4a0ec56eec
+  pushy_flutter: 6a8330c06b6fcb18c039a9190707b2f38e82b789
+  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
-  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
-  webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
+  url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
+  webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
+PODFILE CHECKSUM: 4f1c12611da7338d21589c0b2ecd6bd20b109694
 
 COCOAPODS: 1.16.2
