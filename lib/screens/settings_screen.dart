@@ -21,6 +21,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final TextEditingController _authApiController = TextEditingController();
   late final TextEditingController _notificationApiController =
       TextEditingController();
+  late final TextEditingController _metricsApiController =
+      TextEditingController();
   late final TextEditingController _authKeyController = TextEditingController();
   late final TextEditingController _azureTenantController =
       TextEditingController();
@@ -41,6 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _monitoringApiController.dispose();
     _authApiController.dispose();
     _notificationApiController.dispose();
+    _metricsApiController.dispose();
     _authKeyController.dispose();
     _azureTenantController.dispose();
     _azureClientIdController.dispose();
@@ -57,6 +60,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _notificationApiController.text =
           prefs.getString('notification_api_url') ??
               AppConfig.notificationApiUrl;
+      _metricsApiController.text =
+          prefs.getString('metrics_api_url') ?? AppConfig.metricsApiUrl;
       _authKeyController.text =
           prefs.getString('auth_api_key') ?? AppConfig.authApiKey;
       _azureTenantController.text =
@@ -78,6 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.setString('auth_api_url', _authApiController.text);
       await prefs.setString(
           'notification_api_url', _notificationApiController.text);
+      await prefs.setString('metrics_api_url', _metricsApiController.text);
       await prefs.setString('auth_api_key', _authKeyController.text);
       await prefs.setString('azure_ad_tenant', _azureTenantController.text);
       await prefs.setString(
@@ -139,6 +145,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _authApiController.text = settings['auth_api_url'] ?? '';
         _notificationApiController.text =
             settings['notification_api_url'] ?? '';
+        _metricsApiController.text = settings['metrics_api_url'] ?? '';
         _azureTenantController.text = settings['azure_ad_tenant'] ?? '';
         _azureClientIdController.text = settings['azure_ad_client_id'] ?? '';
         _authKeyController.text = settings['auth_api_key'] ?? '';
@@ -336,6 +343,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter Notification API URL';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _metricsApiController,
+                  decoration: InputDecoration(
+                    labelText: 'Metrics API URL',
+                    labelStyle: GoogleFonts.robotoMono(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  style: GoogleFonts.robotoMono(),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter Metrics API URL';
                     }
                     return null;
                   },
