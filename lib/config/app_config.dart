@@ -37,4 +37,9 @@ class AppConfig {
       _prefs.getString('auth_api_key') ??
       dotenv.env['AUTH_API_KEY'] ??
       'your_auth_api_key';
+
+  static String get metricsApiUrl =>
+      _prefs.getString('metrics_api_url') ??
+      dotenv.env['METRICS_API_URL'] ??
+      'https://metrics.alerthawk.net';
 }

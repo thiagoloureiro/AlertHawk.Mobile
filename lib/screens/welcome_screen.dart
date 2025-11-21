@@ -19,6 +19,8 @@ import '../config/app_config.dart';
 import 'agents_screen.dart';
 import 'package:flutter_new_badger/flutter_new_badger.dart';
 import '../models/monitor_group_selection.dart';
+import 'cluster_metrics_screen.dart';
+import 'application_metrics_screen.dart';
 import 'dart:io';
 
 class WelcomeScreen extends StatefulWidget {
@@ -590,6 +592,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
                 );
                 break;
+              case 'cluster_metrics':
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const ClusterMetricsScreen()),
+                );
+                break;
+              case 'application_metrics':
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const ApplicationMetricsScreen()),
+                );
+                break;
             }
           },
           itemBuilder: (context) => [
@@ -636,6 +650,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Agents',
+                    style: GoogleFonts.robotoMono(),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'cluster_metrics',
+              child: Row(
+                children: [
+                  const Icon(Icons.analytics),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Cluster Metrics',
+                    style: GoogleFonts.robotoMono(),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'application_metrics',
+              child: Row(
+                children: [
+                  const Icon(Icons.apps),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Application Metrics',
                     style: GoogleFonts.robotoMono(),
                   ),
                 ],
