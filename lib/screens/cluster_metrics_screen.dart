@@ -240,7 +240,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
       appBar: AppBar(
         title: Text(
           'Cluster Metrics',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -282,7 +282,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                       children: [
                         Text(
                           'Select Cluster',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -301,20 +301,20 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                                     vertical: 8,
                                   ),
                                 ),
-                                style: GoogleFonts.robotoMono(
+                                style: GoogleFonts.inter(
                                   color: isDarkMode
                                       ? Colors.white
                                       : Colors.black87,
                                 ),
                                 dropdownColor: isDarkMode
-                                    ? Colors.grey[800]
+                                    ? Theme.of(context).colorScheme.surface
                                     : Colors.white,
                                 items: _clusters.map((cluster) {
                                   return DropdownMenuItem<String>(
                                     value: cluster,
                                     child: Text(
                                       cluster,
-                                      style: GoogleFonts.robotoMono(
+                                      style: GoogleFonts.inter(
                                         color: isDarkMode
                                             ? Colors.white
                                             : Colors.black87,
@@ -334,25 +334,25 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                           children: [
                             Text(
                               'Time Range:',
-                              style: GoogleFonts.robotoMono(),
+                              style: GoogleFonts.inter(),
                             ),
                             const SizedBox(width: 8),
                             DropdownButton<int>(
                               value: _selectedHours,
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 color: isDarkMode
                                     ? Colors.white
                                     : Colors.black87,
                               ),
                               dropdownColor: isDarkMode
-                                  ? Colors.grey[800]
+                                  ? Theme.of(context).colorScheme.surface
                                   : Colors.white,
                               items: [1, 6, 12, 24, 48, 72].map((hours) {
                                 return DropdownMenuItem<int>(
                                   value: hours,
                                   child: Text(
                                     '$hours hours',
-                                    style: GoogleFonts.robotoMono(
+                                    style: GoogleFonts.inter(
                                       color: isDarkMode
                                           ? Colors.white
                                           : Colors.black87,
@@ -384,7 +384,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                       child: Text(
                         _errorMessage!,
                         style:
-                            GoogleFonts.robotoMono(color: Colors.red.shade900),
+                            GoogleFonts.inter(color: Colors.red.shade900),
                       ),
                     ),
                   ),
@@ -404,7 +404,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                         children: [
                           Text(
                             'CPU Usage (%)',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -448,7 +448,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                                         Flexible(
                                           child: Text(
                                             nodeName,
-                                            style: GoogleFonts.robotoMono(
+                                            style: GoogleFonts.inter(
                                               fontSize: 10,
                                             ),
                                             overflow: TextOverflow.ellipsis,
@@ -475,7 +475,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                         children: [
                           Text(
                             'Memory Usage (%)',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -519,7 +519,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                                         Flexible(
                                           child: Text(
                                             nodeName,
-                                            style: GoogleFonts.robotoMono(
+                                            style: GoogleFonts.inter(
                                               fontSize: 10,
                                             ),
                                             overflow: TextOverflow.ellipsis,
@@ -546,7 +546,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                         children: [
                           Text(
                             'Node Summary',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -569,7 +569,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                                   children: [
                                     Text(
                                       nodeName,
-                                      style: GoogleFonts.robotoMono(
+                                      style: GoogleFonts.inter(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
                                       ),
@@ -586,14 +586,14 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                                           children: [
                                             Text(
                                               'CPU',
-                                              style: GoogleFonts.robotoMono(
+                                              style: GoogleFonts.inter(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                             Text(
                                               '${latestMetric.cpuUsageCores.toStringAsFixed(2)} / ${latestMetric.cpuCapacityCores.toStringAsFixed(0)} cores (${latestMetric.cpuUsagePercent.toStringAsFixed(1)}%)',
-                                              style: GoogleFonts.robotoMono(
+                                              style: GoogleFonts.inter(
                                                 fontSize: 11,
                                               ),
                                             ),
@@ -637,14 +637,14 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                                           children: [
                                             Text(
                                               'Memory',
-                                              style: GoogleFonts.robotoMono(
+                                              style: GoogleFonts.inter(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                             Text(
                                               '${_formatBytes(latestMetric.memoryUsageBytes)} / ${_formatBytes(latestMetric.memoryCapacityBytes)} (${latestMetric.memoryUsagePercent.toStringAsFixed(1)}%)',
-                                              style: GoogleFonts.robotoMono(
+                                              style: GoogleFonts.inter(
                                                 fontSize: 11,
                                               ),
                                             ),
@@ -701,7 +701,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
       return Center(
         child: Text(
           'No data available',
-          style: GoogleFonts.robotoMono(),
+          style: GoogleFonts.inter(),
         ),
       );
     }
@@ -744,7 +744,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       DateFormat('HH:mm').format(allTimestamps[index]),
-                      style: GoogleFonts.robotoMono(
+                      style: GoogleFonts.inter(
                         fontSize: 10,
                         color: isDarkMode
                             ? Colors.grey.shade400
@@ -765,7 +765,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
               getTitlesWidget: (value, meta) {
                 return Text(
                   '${value.toStringAsFixed(2)}%',
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 10,
                     color: isDarkMode
                         ? Colors.grey.shade400
@@ -797,7 +797,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                 final nodeColor = _getNodeColor(nodeIndex);
                 return LineTooltipItem(
                   '$nodeName: ${touchedSpot.y.toStringAsFixed(2)}%',
-                  GoogleFonts.robotoMono(
+                  GoogleFonts.inter(
                     fontSize: 12,
                     color: nodeColor,
                     fontWeight: FontWeight.bold,
@@ -833,7 +833,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
       return Center(
         child: Text(
           'No data available',
-          style: GoogleFonts.robotoMono(),
+          style: GoogleFonts.inter(),
         ),
       );
     }
@@ -876,7 +876,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       DateFormat('HH:mm').format(allTimestamps[index]),
-                      style: GoogleFonts.robotoMono(
+                      style: GoogleFonts.inter(
                         fontSize: 10,
                         color: isDarkMode
                             ? Colors.grey.shade400
@@ -897,7 +897,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
               getTitlesWidget: (value, meta) {
                 return Text(
                   '${value.toStringAsFixed(2)}%',
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 10,
                     color: isDarkMode
                         ? Colors.grey.shade400
@@ -929,7 +929,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                 final nodeColor = _getNodeColor(nodeIndex);
                 return LineTooltipItem(
                   '$nodeName: ${touchedSpot.y.toStringAsFixed(2)}%',
-                  GoogleFonts.robotoMono(
+                  GoogleFonts.inter(
                     fontSize: 12,
                     color: nodeColor,
                     fontWeight: FontWeight.bold,

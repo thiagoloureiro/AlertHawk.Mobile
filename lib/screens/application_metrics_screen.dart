@@ -171,7 +171,9 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
+          backgroundColor: isDarkMode 
+              ? Theme.of(context).scaffoldBackgroundColor 
+              : Colors.white,
           child: Container(
             constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
             child: Column(
@@ -207,7 +209,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                           children: [
                             Text(
                               podKey,
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -215,7 +217,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                             const SizedBox(height: 4),
                             Text(
                               'Cluster: ${latestMetric.clusterName} | Namespace: ${latestMetric.namespace}',
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 fontSize: 11,
                                 color: isDarkMode
                                     ? Colors.grey.shade400
@@ -244,7 +246,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                         // Current Metrics
                         Text(
                           'Current Metrics',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -272,7 +274,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                         // Statistics
                         Text(
                           'Statistics (${podMetrics.length} data points)',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -289,7 +291,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                         // Time Range
                         Text(
                           'Time Range',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -311,7 +313,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                           const SizedBox(height: 24),
                           Text(
                             'Limits',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -350,7 +352,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
           children: [
             Text(
               label,
-              style: GoogleFonts.robotoMono(
+              style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -359,7 +361,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
               children: [
                 Text(
                   value,
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 12,
                   ),
                 ),
@@ -367,7 +369,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                   const SizedBox(width: 8),
                   Text(
                     percentage,
-                    style: GoogleFonts.robotoMono(
+                    style: GoogleFonts.inter(
                       fontSize: 11,
                       color: progressValue != null && progressValue > 0.8
                           ? Colors.red
@@ -415,7 +417,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.robotoMono(
+            style: GoogleFonts.inter(
               fontSize: 11,
               color: isDarkMode
                   ? Colors.grey.shade400
@@ -424,7 +426,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
           ),
           Text(
             value,
-            style: GoogleFonts.robotoMono(
+            style: GoogleFonts.inter(
               fontSize: 11,
             ),
           ),
@@ -573,7 +575,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
       appBar: AppBar(
         title: Text(
           'Application Metrics',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -618,7 +620,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                       children: [
                         Text(
                           'Select Cluster',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -637,20 +639,20 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                     vertical: 8,
                                   ),
                                 ),
-                                style: GoogleFonts.robotoMono(
+                                style: GoogleFonts.inter(
                                   color: isDarkMode
                                       ? Colors.white
                                       : Colors.black87,
                                 ),
                                 dropdownColor: isDarkMode
-                                    ? Colors.grey[800]
+                                    ? Theme.of(context).colorScheme.surface
                                     : Colors.white,
                                 items: _clusters.map((cluster) {
                                   return DropdownMenuItem<String>(
                                     value: cluster,
                                     child: Text(
                                       cluster,
-                                      style: GoogleFonts.robotoMono(
+                                      style: GoogleFonts.inter(
                                         color: isDarkMode
                                             ? Colors.white
                                             : Colors.black87,
@@ -668,7 +670,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                         const SizedBox(height: 16),
                         Text(
                           'Select Namespace',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -687,20 +689,20 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                     vertical: 8,
                                   ),
                                 ),
-                                style: GoogleFonts.robotoMono(
+                                style: GoogleFonts.inter(
                                   color: isDarkMode
                                       ? Colors.white
                                       : Colors.black87,
                                 ),
                                 dropdownColor: isDarkMode
-                                    ? Colors.grey[800]
+                                    ? Theme.of(context).colorScheme.surface
                                     : Colors.white,
                                 items: _namespaces.map((namespace) {
                                   return DropdownMenuItem<String>(
                                     value: namespace,
                                     child: Text(
                                       namespace,
-                                      style: GoogleFonts.robotoMono(
+                                      style: GoogleFonts.inter(
                                         color: isDarkMode
                                             ? Colors.white
                                             : Colors.black87,
@@ -720,25 +722,25 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                           children: [
                             Text(
                               'Time Range:',
-                              style: GoogleFonts.robotoMono(),
+                              style: GoogleFonts.inter(),
                             ),
                             const SizedBox(width: 8),
                             DropdownButton<int>(
                               value: _selectedHours,
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 color: isDarkMode
                                     ? Colors.white
                                     : Colors.black87,
                               ),
                               dropdownColor: isDarkMode
-                                  ? Colors.grey[800]
+                                  ? Theme.of(context).colorScheme.surface
                                   : Colors.white,
                               items: [1, 6, 12, 24, 48, 72].map((hours) {
                                 return DropdownMenuItem<int>(
                                   value: hours,
                                   child: Text(
                                     '$hours hours',
-                                    style: GoogleFonts.robotoMono(
+                                    style: GoogleFonts.inter(
                                       color: isDarkMode
                                           ? Colors.white
                                           : Colors.black87,
@@ -770,7 +772,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                       child: Text(
                         _errorMessage!,
                         style:
-                            GoogleFonts.robotoMono(color: Colors.red.shade900),
+                            GoogleFonts.inter(color: Colors.red.shade900),
                       ),
                     ),
                   ),
@@ -790,7 +792,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                         children: [
                           Text(
                             'CPU Usage (cores)',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -834,7 +836,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                         Flexible(
                                           child: Text(
                                             podKey,
-                                            style: GoogleFonts.robotoMono(
+                                            style: GoogleFonts.inter(
                                               fontSize: 10,
                                             ),
                                             overflow: TextOverflow.ellipsis,
@@ -861,7 +863,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                         children: [
                           Text(
                             'Memory Usage',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -905,7 +907,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                         Flexible(
                                           child: Text(
                                             podKey,
-                                            style: GoogleFonts.robotoMono(
+                                            style: GoogleFonts.inter(
                                               fontSize: 10,
                                             ),
                                             overflow: TextOverflow.ellipsis,
@@ -932,7 +934,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                         children: [
                           Text(
                             'Pod Summary',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -956,7 +958,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                   flex: 3,
                                   child: Text(
                                     'Pod/Container',
-                                    style: GoogleFonts.robotoMono(
+                                    style: GoogleFonts.inter(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -966,7 +968,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                   flex: 2,
                                   child: Text(
                                     'CPU',
-                                    style: GoogleFonts.robotoMono(
+                                    style: GoogleFonts.inter(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -976,7 +978,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                   flex: 2,
                                   child: Text(
                                     'Memory',
-                                    style: GoogleFonts.robotoMono(
+                                    style: GoogleFonts.inter(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -1050,7 +1052,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                         Expanded(
                                           child: Text(
                                             podKey,
-                                            style: GoogleFonts.robotoMono(
+                                            style: GoogleFonts.inter(
                                               fontSize: 11,
                                             ),
                                             overflow: TextOverflow.ellipsis,
@@ -1068,14 +1070,14 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                       children: [
                                         Text(
                                           '${latestMetric.cpuUsageCores.toStringAsFixed(4)} cores',
-                                          style: GoogleFonts.robotoMono(
+                                          style: GoogleFonts.inter(
                                             fontSize: 11,
                                           ),
                                         ),
                                         if (latestMetric.cpuLimitCores != null)
                                           Text(
                                             '${cpuPercent!.toStringAsFixed(1)}%',
-                                            style: GoogleFonts.robotoMono(
+                                            style: GoogleFonts.inter(
                                               fontSize: 10,
                                               color: cpuPercent > 80
                                                   ? Colors.red
@@ -1094,7 +1096,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                     flex: 2,
                                     child: Text(
                                       _formatBytes(latestMetric.memoryUsageBytes),
-                                      style: GoogleFonts.robotoMono(
+                                      style: GoogleFonts.inter(
                                         fontSize: 11,
                                       ),
                                     ),
@@ -1141,7 +1143,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
       return Center(
         child: Text(
           'No data available',
-          style: GoogleFonts.robotoMono(),
+          style: GoogleFonts.inter(),
         ),
       );
     }
@@ -1194,7 +1196,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       DateFormat('HH:mm').format(allTimestamps[index]),
-                      style: GoogleFonts.robotoMono(
+                      style: GoogleFonts.inter(
                         fontSize: 10,
                         color: isDarkMode
                             ? Colors.grey.shade400
@@ -1215,7 +1217,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
               getTitlesWidget: (value, meta) {
                 return Text(
                   value.toStringAsFixed(3),
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 10,
                     color: isDarkMode
                         ? Colors.grey.shade400
@@ -1247,7 +1249,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                 final podColor = _getPodColor(podIndex);
                 return LineTooltipItem(
                   '$podKey: ${touchedSpot.y.toStringAsFixed(2)}',
-                  GoogleFonts.robotoMono(
+                  GoogleFonts.inter(
                     fontSize: 12,
                     color: podColor,
                     fontWeight: FontWeight.bold,
@@ -1283,7 +1285,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
       return Center(
         child: Text(
           'No data available',
-          style: GoogleFonts.robotoMono(),
+          style: GoogleFonts.inter(),
         ),
       );
     }
@@ -1336,7 +1338,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       DateFormat('HH:mm').format(allTimestamps[index]),
-                      style: GoogleFonts.robotoMono(
+                      style: GoogleFonts.inter(
                         fontSize: 10,
                         color: isDarkMode
                             ? Colors.grey.shade400
@@ -1357,7 +1359,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
               getTitlesWidget: (value, meta) {
                 return Text(
                   '${value.toStringAsFixed(0)} MB',
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 10,
                     color: isDarkMode
                         ? Colors.grey.shade400
@@ -1389,7 +1391,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                 final podColor = _getPodColor(podIndex);
                 return LineTooltipItem(
                   '$podKey: ${touchedSpot.y.toStringAsFixed(2)} MB',
-                  GoogleFonts.robotoMono(
+                  GoogleFonts.inter(
                     fontSize: 12,
                     color: podColor,
                     fontWeight: FontWeight.bold,

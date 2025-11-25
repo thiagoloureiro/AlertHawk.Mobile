@@ -318,7 +318,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
         title: Text(
           widget.monitor.name,
           style:
-              GoogleFonts.robotoMono(fontWeight: FontWeight.bold, fontSize: 18),
+              GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18),
         ),
       ),
       body: RefreshIndicator(
@@ -347,7 +347,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                         children: [
                           Text(
                             'Status: ',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -358,7 +358,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                 : monitor.status
                                     ? 'Online'
                                     : 'Offline',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: monitor.paused
@@ -383,7 +383,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                 : monitor.monitorTypeId == 3
                                     ? 'Host: ' 
                                     : 'URL: ',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -397,7 +397,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                   : monitor.monitorTypeId == 3 && _tcpData != null
                                       ? "${_tcpData!['ip']}:${_tcpData!['port']}"
                                       : monitor.checkTarget,
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 fontSize: 14,
                                 color: Theme.of(context).colorScheme.primary,
                               ),
@@ -420,7 +420,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                               children: [
                                 Text(
                                   'TCP Connection Details',
-                                  style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.inter(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -444,7 +444,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
                           'Kubernetes Nodes',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -475,7 +475,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                     Expanded(
                                       child: Text(
                                         node['nodeName'] ?? 'Unknown Node',
-                                        style: GoogleFonts.robotoMono(
+                                        style: GoogleFonts.inter(
                                           fontWeight: FontWeight.bold,
                                         ),
                                         overflow: TextOverflow.ellipsis,
@@ -518,7 +518,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                           children: [
                             Text(
                               'Response Time (ms) - $_selectedPeriod',
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -583,7 +583,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                   return Text(
                                                     DateFormat('HH:mm')
                                                         .format(pointTime),
-                                                    style: GoogleFonts.robotoMono(
+                                                    style: GoogleFonts.inter(
                                                       fontSize: 13,
                                                       color: isDarkMode
                                                           ? Colors.white70
@@ -624,7 +624,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                   return Text(
                                                     DateFormat(format)
                                                         .format(pointTime),
-                                                    style: GoogleFonts.robotoMono(
+                                                    style: GoogleFonts.inter(
                                                       fontSize: 13,
                                                       color: isDarkMode
                                                           ? Colors.white70
@@ -643,7 +643,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                               getTitlesWidget: (value, meta) {
                                                 return Text(
                                                   value.toInt().toString(),
-                                                  style: GoogleFonts.robotoMono(
+                                                  style: GoogleFonts.inter(
                                                     fontSize: 13,
                                                     color: isDarkMode
                                                         ? Colors.white70
@@ -737,7 +737,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                   'Avg: ${touchedSpot.y.round()}ms\n'
                                                   '${DateFormat('HH:mm').format(pointTime)}'
                                                   '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
-                                                  GoogleFonts.robotoMono(
+                                                  GoogleFonts.inter(
                                                     color: isDarkMode
                                                         ? Colors.white
                                                         : Colors.black,
@@ -763,7 +763,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                         children: [
                           Text(
                             'Uptime Statistics',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -776,7 +776,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                             ),
                             label: Text(
                               'Alerts',
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 color: Colors.red,
                               ),
                             ),
@@ -885,11 +885,11 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
       child: ListTile(
         title: Text(
           period,
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.w500),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
         ),
         trailing: Text(
           '$formattedUptime%',
-          style: GoogleFonts.robotoMono(
+          style: GoogleFonts.inter(
             fontWeight: FontWeight.bold,
             color: color,
           ),
@@ -956,13 +956,13 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     return ListTile(
       title: Text(
         title,
-        style: GoogleFonts.robotoMono(
+        style: GoogleFonts.inter(
           fontWeight: FontWeight.w500,
         ),
       ),
       trailing: Text(
         value,
-        style: GoogleFonts.robotoMono(
+        style: GoogleFonts.inter(
           fontWeight: FontWeight.bold,
           color: valueColor,
         ),
@@ -980,7 +980,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.robotoMono(
+            style: GoogleFonts.inter(
               fontSize: 13,
             ),
           ),
@@ -994,7 +994,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
               const SizedBox(width: 4),
               Text(
                 isHealthy ? 'Healthy' : 'Issue Detected',
-                style: GoogleFonts.robotoMono(
+                style: GoogleFonts.inter(
                   fontSize: 13,
                   color: isHealthy ? Colors.green : Colors.red,
                 ),
@@ -1015,14 +1015,14 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.robotoMono(
+            style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.robotoMono(
+            style: GoogleFonts.inter(
               fontSize: 13,
               color: label == 'Last Status' 
                   ? (value == 'Connected' ? Colors.green : Colors.red)

@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
         centerTitle: true,
         title: Text(
           'AlertHawk',
-          style: GoogleFonts.robotoMono(
+          style: GoogleFonts.inter(
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Text(
                           'Login',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: isDarkMode ? Colors.white : Colors.blue[800],
@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _usernameController,
                             decoration: InputDecoration(
                               labelText: 'Username',
-                              labelStyle: GoogleFonts.robotoMono(
+                              labelStyle: GoogleFonts.inter(
                                 color: isDarkMode
                                     ? Colors.blue[200]
                                     : Colors.blue[400],
@@ -162,10 +162,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               fillColor: isDarkMode
                                   ? Colors.blue.withOpacity(0.05)
                                   : Colors.blue.withOpacity(0.03),
-                              errorStyle: GoogleFonts.robotoMono(height: 0.5),
+                              errorStyle: GoogleFonts.inter(height: 0.5),
                               isDense: true,
                             ),
-                            style: GoogleFonts.robotoMono(),
+                            style: GoogleFonts.inter(),
                             validator: (value) {
                               if (value?.isEmpty ?? true) {
                                 return 'Please enter username';
@@ -181,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _passwordController,
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              labelStyle: GoogleFonts.robotoMono(
+                              labelStyle: GoogleFonts.inter(
                                 color: isDarkMode
                                     ? Colors.blue[200]
                                     : Colors.blue[400],
@@ -223,10 +223,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               fillColor: isDarkMode
                                   ? Colors.blue.withOpacity(0.05)
                                   : Colors.blue.withOpacity(0.03),
-                              errorStyle: GoogleFonts.robotoMono(height: 0.5),
+                              errorStyle: GoogleFonts.inter(height: 0.5),
                               isDense: true,
                             ),
-                            style: GoogleFonts.robotoMono(),
+                            style: GoogleFonts.inter(),
                             obscureText: true,
                             validator: (value) {
                               if (value?.isEmpty ?? true) {
@@ -259,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 )
                               : Text(
                                   'Login',
-                                  style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.inter(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
@@ -280,7 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               child: Text(
                                 'Register',
-                                style: GoogleFonts.robotoMono(
+                                style: GoogleFonts.inter(
                                   color: isDarkMode
                                       ? Colors.blue[200]
                                       : Theme.of(context).primaryColor,
@@ -298,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               child: Text(
                                 'Forgot Password?',
-                                style: GoogleFonts.robotoMono(
+                                style: GoogleFonts.inter(
                                   color: isDarkMode
                                       ? Colors.blue[200]
                                       : Theme.of(context).primaryColor,
@@ -313,7 +313,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 10),
                         Text(
                           'Or continue with',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             color: isDarkMode ? Colors.white70 : Colors.black54,
                           ),
                           textAlign: TextAlign.center,
@@ -342,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(width: 8),
                               Text(
                                 'Sign in with Microsoft',
-                                style: GoogleFonts.robotoMono(
+                                style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -370,7 +370,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(width: 8),
                                 Text(
                                   'Sign in with Apple',
-                                  style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.inter(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -392,7 +392,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     icon: const Icon(Icons.settings),
                     label: Text(
                       'Settings',
-                      style: GoogleFonts.robotoMono(),
+                      style: GoogleFonts.inter(),
                     ),
                     style: TextButton.styleFrom(
                       foregroundColor:
@@ -487,7 +487,7 @@ class _LoginScreenState extends State<LoginScreen> {
         builder: (context, setState) => AlertDialog(
           title: Text(
             'Register',
-            style: GoogleFonts.robotoMono(
+            style: GoogleFonts.inter(
               fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
@@ -583,7 +583,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text('Cancel', style: GoogleFonts.robotoMono()),
+                    child: Text('Cancel', style: GoogleFonts.inter()),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
@@ -650,7 +650,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           )
                         : Text(
                             'Register',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold),
                           ),
                   ),
@@ -679,7 +679,7 @@ class _LoginScreenState extends State<LoginScreen> {
         obscureText: isPassword,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.robotoMono(
+          labelStyle: GoogleFonts.inter(
             color: isDarkMode ? Colors.blue[200] : Colors.blue[400],
           ),
           prefixIcon: Icon(
@@ -709,10 +709,10 @@ class _LoginScreenState extends State<LoginScreen> {
           fillColor: isDarkMode
               ? Colors.blue.withOpacity(0.05)
               : Colors.blue.withOpacity(0.03),
-          errorStyle: GoogleFonts.robotoMono(height: 0.5),
+          errorStyle: GoogleFonts.inter(height: 0.5),
           isDense: true,
         ),
-        style: GoogleFonts.robotoMono(),
+        style: GoogleFonts.inter(),
         validator: validator,
       ),
     );
@@ -729,7 +729,7 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           'Forgot Password',
-          style: GoogleFonts.robotoMono(
+          style: GoogleFonts.inter(
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
@@ -770,7 +770,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   'Cancel',
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     color: isDarkMode ? Colors.blue[200] : Colors.blue[400],
                   ),
                 ),
@@ -828,7 +828,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     : Text(
                         'Reset Password',
                         style:
-                            GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                            GoogleFonts.inter(fontWeight: FontWeight.bold),
                       ),
               ),
             ],

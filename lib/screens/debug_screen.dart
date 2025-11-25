@@ -11,7 +11,7 @@ class DebugScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Debug Info',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
       ),
       body: FutureBuilder<SharedPreferences>(
@@ -50,7 +50,7 @@ class DebugScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.robotoMono(
+          style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -58,7 +58,7 @@ class DebugScreen extends StatelessWidget {
         const SizedBox(height: 8),
         SelectableText(
           value,
-          style: GoogleFonts.robotoMono(fontSize: 14),
+          style: GoogleFonts.inter(fontSize: 14),
         ),
       ],
     );

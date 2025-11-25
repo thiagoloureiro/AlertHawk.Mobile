@@ -41,7 +41,7 @@ class _AboutScreenState extends State<AboutScreen> {
       appBar: AppBar(
         title: Text(
           'About',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -97,7 +97,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 },
                 child: Text(
                   'AlertHawk',
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -109,7 +109,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 builder: (context, snapshot) {
                   return Text(
                     'Version: ${snapshot.data ?? 'Loading...'}',
-                    style: GoogleFonts.robotoMono(fontSize: 16),
+                    style: GoogleFonts.inter(fontSize: 16),
                     textAlign: TextAlign.center,
                   );
                 },
@@ -120,7 +120,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     'https://github.com/thiagoloureiro/AlertHawk.Mobile'),
                 child: Text(
                   'Check project on Github',
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     color: Colors.blue,
                     decoration: TextDecoration.underline,
@@ -134,7 +134,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     'https://github.com/thiagoloureiro/AlertHawk.Mobile/releases'),
                 child: Text(
                   'Release Notes',
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     color: Colors.blue,
                     decoration: TextDecoration.underline,
@@ -147,7 +147,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 onTap: () => _launchUrl('https://alerthawk.net/privacy.html'),
                 child: Text(
                   'Privacy Notice',
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     color: Colors.blue,
                     decoration: TextDecoration.underline,

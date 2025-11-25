@@ -141,7 +141,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Expanded(
                     child: Text(
                       monitor.name,
-                      style: GoogleFonts.robotoMono(
+                      style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
                       ),
@@ -156,7 +156,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     child: Text(
                       monitorType,
-                      style: GoogleFonts.robotoMono(
+                      style: GoogleFonts.inter(
                         fontSize: 12,
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
@@ -168,7 +168,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 const SizedBox(height: 8),
                 Text(
                   targetInfo,
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.inter(
                     fontSize: 13,
                     color: Theme.of(context).textTheme.bodySmall?.color,
                   ),
@@ -214,7 +214,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.robotoMono(
+            style: GoogleFonts.inter(
               fontSize: 12,
               color: color,
             ),
@@ -222,7 +222,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           const SizedBox(width: 4),
           Text(
             '${uptime.toStringAsFixed(1)}%',
-            style: GoogleFonts.robotoMono(
+            style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.bold,
               color: color,
@@ -246,7 +246,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               height: 48,
               child: TextField(
                 controller: _searchController,
-                style: GoogleFonts.robotoMono(),
+                style: GoogleFonts.inter(),
                 onChanged: (value) {
                   setState(() {
                     _searchQuery = value;
@@ -254,7 +254,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Search...',
-                  hintStyle: GoogleFonts.robotoMono(),
+                  hintStyle: GoogleFonts.inter(),
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -279,16 +279,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   child: DropdownButton<String>(
                     value: _statusFilter,
                     isExpanded: true,
-                    style: GoogleFonts.robotoMono(
+                    style: GoogleFonts.inter(
                       color: isDarkMode ? Colors.white : Colors.black,
                     ),
-                    dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+                    dropdownColor: isDarkMode 
+                        ? Theme.of(context).colorScheme.surface 
+                        : Colors.white,
                     items: ['All', 'Online', 'Offline'].map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(
                           value,
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             color: isDarkMode ? Colors.white : Colors.black,
                           ),
                         ),
@@ -365,7 +367,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         return AlertDialog(
           title: Text(
             'Select Environment',
-            style: GoogleFonts.robotoMono(
+            style: GoogleFonts.inter(
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -383,7 +385,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: ListTile(
                   title: Text(
                     env.name,
-                    style: GoogleFonts.robotoMono(),
+                    style: GoogleFonts.inter(),
                   ),
                   leading: Radio<Environment>(
                     value: env,
@@ -455,7 +457,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           context: context,
           builder: (dialogContext) => StatefulBuilder(
             builder: (context, setDialogState) => AlertDialog(
-              title: Text('Select Groups', style: GoogleFonts.robotoMono()),
+              title: Text('Select Groups', style: GoogleFonts.inter()),
               content: SizedBox(
                 width: 400,
                 height: 400,
@@ -476,7 +478,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 });
                               },
                               child: Text('Clear All',
-                                  style: GoogleFonts.robotoMono()),
+                                  style: GoogleFonts.inter()),
                             ),
                             TextButton(
                               onPressed: () {
@@ -487,14 +489,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 });
                               },
                               child: Text('Select All',
-                                  style: GoogleFonts.robotoMono()),
+                                  style: GoogleFonts.inter()),
                             ),
                           ],
                         ),
                         ...sortedGroups.map((group) {
                           return CheckboxListTile(
                             title: Text(group.name,
-                                style: GoogleFonts.robotoMono()),
+                                style: GoogleFonts.inter()),
                             value: group.isSelected,
                             onChanged: (bool? value) {
                               setDialogState(() {
@@ -524,7 +526,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       _monitorGroups = _fetchMonitorGroups();
                     });
                   },
-                  child: Text('Save', style: GoogleFonts.robotoMono()),
+                  child: Text('Save', style: GoogleFonts.inter()),
                 ),
               ],
             ),
@@ -615,7 +617,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     _selectedEnvironment.name,
-                    style: GoogleFonts.robotoMono(),
+                    style: GoogleFonts.inter(),
                   ),
                 ],
               ),
@@ -635,7 +637,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       const SizedBox(width: 8),
                       Text(
                         'Alerts',
-                        style: GoogleFonts.robotoMono(),
+                        style: GoogleFonts.inter(),
                       ),
                     ],
                   );
@@ -650,7 +652,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Agents',
-                    style: GoogleFonts.robotoMono(),
+                    style: GoogleFonts.inter(),
                   ),
                 ],
               ),
@@ -663,7 +665,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Cluster Metrics',
-                    style: GoogleFonts.robotoMono(),
+                    style: GoogleFonts.inter(),
                   ),
                 ],
               ),
@@ -676,7 +678,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Application Metrics',
-                    style: GoogleFonts.robotoMono(),
+                    style: GoogleFonts.inter(),
                   ),
                 ],
               ),
@@ -689,7 +691,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   SizedBox(width: 8),
                   Text(
                     'About',
-                    style: GoogleFonts.robotoMono(),
+                    style: GoogleFonts.inter(),
                   ),
                 ],
               ),
@@ -702,7 +704,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Settings',
-                    style: GoogleFonts.robotoMono(),
+                    style: GoogleFonts.inter(),
                   ),
                 ],
               ),
@@ -715,7 +717,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   SizedBox(width: 8),
                   Text(
                     'Logout',
-                    style: GoogleFonts.robotoMono(),
+                    style: GoogleFonts.inter(),
                   ),
                 ],
               ),
@@ -729,7 +731,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               return Center(
                 child: Text(
                   'Loading...',
-                  style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                 ),
               );
             }
@@ -738,7 +740,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               return Center(
                 child: Text(
                   'Error',
-                  style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                 ),
               );
             }
@@ -778,7 +780,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     children: [
                       Text(
                         '↑$upCount',
-                        style: GoogleFonts.robotoMono(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           color: Colors.green,
                         ),
@@ -786,7 +788,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       const SizedBox(width: 24),
                       Text(
                         '↓$downCount',
-                        style: GoogleFonts.robotoMono(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           color: Colors.red,
                         ),
@@ -797,7 +799,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         children: [
                           Text(
                             '⏸',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               color: Colors.orange,
                             ),
@@ -805,7 +807,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           const SizedBox(width: 2),
                           Text(
                             '$pausedCount',
-                            style: GoogleFonts.robotoMono(
+                            style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               color: Colors.orange,
                             ),
@@ -858,7 +860,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       return Center(
                         child: Text(
                           'Error loading monitors',
-                          style: GoogleFonts.robotoMono(),
+                          style: GoogleFonts.inter(),
                         ),
                       );
                     }
@@ -880,7 +882,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           return Center(
                             child: Text(
                               'No monitors found',
-                              style: GoogleFonts.robotoMono(),
+                              style: GoogleFonts.inter(),
                             ),
                           );
                         }
@@ -897,7 +899,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
                                     group.name,
-                                    style: GoogleFonts.robotoMono(
+                                    style: GoogleFonts.inter(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),

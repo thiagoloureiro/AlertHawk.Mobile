@@ -104,11 +104,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           builder: (context) => AlertDialog(
             title: Text(
               'Settings Updated',
-              style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
             ),
             content: Text(
               'The app will now log out to apply the new settings.',
-              style: GoogleFonts.robotoMono(),
+              style: GoogleFonts.inter(),
             ),
             actions: [
               TextButton(
@@ -122,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
                 child: Text(
                   'OK',
-                  style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -164,18 +164,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           'Delete Account',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
         content: Text(
           'Are you sure you want to delete your account? This action cannot be undone.',
-          style: GoogleFonts.robotoMono(),
+          style: GoogleFonts.inter(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
               'Cancel',
-              style: GoogleFonts.robotoMono(),
+              style: GoogleFonts.inter(),
             ),
           ),
           ElevatedButton(
@@ -186,7 +186,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             child: Text(
               'Delete',
-              style: GoogleFonts.robotoMono(),
+              style: GoogleFonts.inter(),
             ),
           ),
         ],
@@ -267,7 +267,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: Text(
           'Settings',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -298,12 +298,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   controller: _monitoringApiController,
                   decoration: InputDecoration(
                     labelText: 'Monitoring API URL',
-                    labelStyle: GoogleFonts.robotoMono(),
+                    labelStyle: GoogleFonts.inter(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  style: GoogleFonts.robotoMono(),
+                  style: GoogleFonts.inter(),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter Monitoring API URL';
@@ -316,12 +316,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   controller: _authApiController,
                   decoration: InputDecoration(
                     labelText: 'Auth API URL',
-                    labelStyle: GoogleFonts.robotoMono(),
+                    labelStyle: GoogleFonts.inter(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  style: GoogleFonts.robotoMono(),
+                  style: GoogleFonts.inter(),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter Auth API URL';
@@ -334,12 +334,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   controller: _notificationApiController,
                   decoration: InputDecoration(
                     labelText: 'Notification API URL',
-                    labelStyle: GoogleFonts.robotoMono(),
+                    labelStyle: GoogleFonts.inter(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  style: GoogleFonts.robotoMono(),
+                  style: GoogleFonts.inter(),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter Notification API URL';
@@ -352,12 +352,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   controller: _metricsApiController,
                   decoration: InputDecoration(
                     labelText: 'Metrics API URL',
-                    labelStyle: GoogleFonts.robotoMono(),
+                    labelStyle: GoogleFonts.inter(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  style: GoogleFonts.robotoMono(),
+                  style: GoogleFonts.inter(),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter Metrics API URL';
@@ -370,12 +370,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   controller: _authKeyController,
                   decoration: InputDecoration(
                     labelText: 'Auth API Key',
-                    labelStyle: GoogleFonts.robotoMono(),
+                    labelStyle: GoogleFonts.inter(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  style: GoogleFonts.robotoMono(),
+                  style: GoogleFonts.inter(),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter Auth API Key';
@@ -388,12 +388,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   controller: _azureTenantController,
                   decoration: InputDecoration(
                     labelText: 'Azure AD Tenant',
-                    labelStyle: GoogleFonts.robotoMono(),
+                    labelStyle: GoogleFonts.inter(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  style: GoogleFonts.robotoMono(),
+                  style: GoogleFonts.inter(),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter Azure AD Tenant';
@@ -406,12 +406,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   controller: _azureClientIdController,
                   decoration: InputDecoration(
                     labelText: 'Azure AD Client ID',
-                    labelStyle: GoogleFonts.robotoMono(),
+                    labelStyle: GoogleFonts.inter(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  style: GoogleFonts.robotoMono(),
+                  style: GoogleFonts.inter(),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter Azure AD Client ID';
@@ -443,7 +443,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         )
                       : Text(
                           'Save Settings',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -453,8 +453,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _scanQRCode,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        isDarkMode ? Colors.grey[700] : Colors.grey[200],
+                    backgroundColor: isDarkMode 
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest 
+                        : Colors.grey[200],
                     foregroundColor: isDarkMode ? Colors.white : Colors.black87,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     minimumSize: const Size(double.infinity, 0),
@@ -465,7 +466,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   icon: const Icon(Icons.qr_code_scanner),
                   label: Text(
                     'Read QR Code',
-                    style: GoogleFonts.robotoMono(
+                    style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -487,7 +488,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: const Icon(Icons.delete_forever),
                     label: Text(
                       'Delete My Account',
-                      style: GoogleFonts.robotoMono(
+                      style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

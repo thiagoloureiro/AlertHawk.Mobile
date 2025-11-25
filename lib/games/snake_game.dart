@@ -22,7 +22,7 @@ class _SnakeGameState extends State<SnakeGame> {
 
   final int squaresPerRow = 20;
   final int squaresPerCol = 40;
-  final fontStyle = GoogleFonts.robotoMono(color: Colors.white, fontSize: 20.0);
+  final fontStyle = GoogleFonts.inter(color: Colors.white, fontSize: 20.0);
   final randomGen = Random();
 
   var snake = [
@@ -173,7 +173,7 @@ class _SnakeGameState extends State<SnakeGame> {
         backgroundColor: Colors.black,
         title: Text(
           'Snake Game',
-          style: GoogleFonts.robotoMono(color: Colors.white),
+          style: GoogleFonts.inter(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),

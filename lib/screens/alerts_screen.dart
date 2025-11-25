@@ -89,7 +89,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
               height: 48,
               child: TextField(
                 controller: _searchController,
-                style: GoogleFonts.robotoMono(),
+                style: GoogleFonts.inter(),
                 onChanged: (value) {
                   setState(() {
                     _searchQuery = value;
@@ -97,7 +97,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Search...',
-                  hintStyle: GoogleFonts.robotoMono(),
+                  hintStyle: GoogleFonts.inter(),
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -122,16 +122,18 @@ class _AlertsScreenState extends State<AlertsScreen> {
                   child: DropdownButton<int>(
                     value: _selectedDays,
                     isExpanded: true,
-                    style: GoogleFonts.robotoMono(
+                    style: GoogleFonts.inter(
                       color: isDarkMode ? Colors.white : Colors.black,
                     ),
-                    dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+                    dropdownColor: isDarkMode 
+                        ? Theme.of(context).colorScheme.surface 
+                        : Colors.white,
                     items: _dayOptions.map((days) {
                       return DropdownMenuItem<int>(
                         value: days,
                         child: Text(
                           '$days days',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             color: isDarkMode ? Colors.white : Colors.black,
                           ),
                         ),
@@ -162,7 +164,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       appBar: AppBar(
         title: Text(
           'Alerts',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -210,7 +212,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                           children: [
                             Text(
                               'Error loading alerts',
-                              style: GoogleFonts.robotoMono(color: Colors.red),
+                              style: GoogleFonts.inter(color: Colors.red),
                             ),
                             const SizedBox(height: 16),
                             IconButton(
@@ -232,7 +234,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       return Center(
                         child: Text(
                           'No alerts found',
-                          style: GoogleFonts.robotoMono(),
+                          style: GoogleFonts.inter(),
                         ),
                       );
                     }
@@ -254,7 +256,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                           child: ListTile(
                             title: Text(
                               alert.monitorName,
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -264,27 +266,27 @@ class _AlertsScreenState extends State<AlertsScreen> {
                                 Text(
                                   DateFormat('yyyy-MM-dd HH:mm:ss')
                                       .format(alert.localTimeStamp),
-                                  style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.inter(
                                     fontSize: 12,
                                   ),
                                 ),
                                 Text(
                                   'Environment: ${env.name}',
-                                  style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.inter(
                                     fontSize: 12,
                                   ),
                                 ),
                                 if (!alert.status && alert.periodOffline > 0)
                                   Text(
                                     'Offline for: ${alert.periodOffline} minutes',
-                                    style: GoogleFonts.robotoMono(
+                                    style: GoogleFonts.inter(
                                       fontSize: 12,
                                       color: Colors.red,
                                     ),
                                   ),
                                 Text(
                                   alert.message,
-                                  style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.inter(
                                     fontSize: 12,
                                     color: Colors.red,
                                   ),

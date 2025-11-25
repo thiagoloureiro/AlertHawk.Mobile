@@ -49,7 +49,7 @@ class _AgentsScreenState extends State<AgentsScreen> {
       appBar: AppBar(
         title: Text(
           'Agents',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
       ),
       body: RefreshIndicator(
@@ -69,7 +69,7 @@ class _AgentsScreenState extends State<AgentsScreen> {
               return Center(
                 child: Text(
                   'Error loading agents',
-                  style: GoogleFonts.robotoMono(color: Colors.red),
+                  style: GoogleFonts.inter(color: Colors.red),
                 ),
               );
             }
@@ -90,7 +90,7 @@ class _AgentsScreenState extends State<AgentsScreen> {
                       children: [
                         Text(
                           'Summary',
-                          style: GoogleFonts.robotoMono(
+                          style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -101,11 +101,11 @@ class _AgentsScreenState extends State<AgentsScreen> {
                           children: [
                             Text(
                               'Total Agents:',
-                              style: GoogleFonts.robotoMono(),
+                              style: GoogleFonts.inter(),
                             ),
                             Text(
                               '${agents.length}',
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.blue,
                               ),
@@ -118,11 +118,11 @@ class _AgentsScreenState extends State<AgentsScreen> {
                           children: [
                             Text(
                               'Total Monitors:',
-                              style: GoogleFonts.robotoMono(),
+                              style: GoogleFonts.inter(),
                             ),
                             Text(
                               '$totalMonitors',
-                              style: GoogleFonts.robotoMono(
+                              style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.green,
                               ),
@@ -148,7 +148,7 @@ class _AgentsScreenState extends State<AgentsScreen> {
                                 Expanded(
                                   child: Text(
                                     agent.hostname,
-                                    style: GoogleFonts.robotoMono(
+                                    style: GoogleFonts.inter(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -169,11 +169,11 @@ class _AgentsScreenState extends State<AgentsScreen> {
                               children: [
                                 Text(
                                   'Monitors:',
-                                  style: GoogleFonts.robotoMono(),
+                                  style: GoogleFonts.inter(),
                                 ),
                                 Text(
                                   '${agent.listTasks}',
-                                  style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.inter(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.green,
                                   ),
@@ -186,11 +186,11 @@ class _AgentsScreenState extends State<AgentsScreen> {
                               children: [
                                 Text(
                                   'Version:',
-                                  style: GoogleFonts.robotoMono(),
+                                  style: GoogleFonts.inter(),
                                 ),
                                 Text(
                                   agent.version,
-                                  style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.inter(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -202,12 +202,12 @@ class _AgentsScreenState extends State<AgentsScreen> {
                               children: [
                                 Text(
                                   'Region:',
-                                  style: GoogleFonts.robotoMono(),
+                                  style: GoogleFonts.inter(),
                                 ),
                                 Text(
                                   MonitorRegion.fromId(agent.monitorRegion)
                                       .name,
-                                  style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.inter(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.blue,
                                   ),

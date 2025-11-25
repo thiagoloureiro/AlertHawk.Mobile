@@ -55,7 +55,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       appBar: AppBar(
         title: Text(
           'Scan QR Code',
-          style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
         ),
       ),
       body: MobileScanner(
