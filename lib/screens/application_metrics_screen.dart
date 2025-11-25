@@ -298,13 +298,13 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                         _buildStatRow(
                           'First Record',
                           DateFormat('yyyy-MM-dd HH:mm:ss')
-                              .format(sortedMetrics.first.timestamp),
+                              .format(sortedMetrics.first.timestamp.toLocal()),
                           isDarkMode,
                         ),
                         _buildStatRow(
                           'Last Record',
                           DateFormat('yyyy-MM-dd HH:mm:ss')
-                              .format(sortedMetrics.last.timestamp),
+                              .format(sortedMetrics.last.timestamp.toLocal()),
                           isDarkMode,
                         ),
                         if (latestMetric.cpuLimitCores != null) ...[
@@ -449,15 +449,16 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     // Filter metrics for this pod/container
     final podMetrics = _metrics.where((m) => '${m.pod}/${m.container}' == podKey).toList();
     
-    // Group by timestamp (minute level)
+    // Group by timestamp (minute level) - convert to local timezone
     final Map<DateTime, double> aggregated = {};
     for (var metric in podMetrics) {
+      final localTimestamp = metric.timestamp.toLocal();
       final key = DateTime(
-        metric.timestamp.year,
-        metric.timestamp.month,
-        metric.timestamp.day,
-        metric.timestamp.hour,
-        metric.timestamp.minute,
+        localTimestamp.year,
+        localTimestamp.month,
+        localTimestamp.day,
+        localTimestamp.hour,
+        localTimestamp.minute,
       );
       // For same timestamp, take the latest value (or average if multiple)
       if (!aggregated.containsKey(key)) {
@@ -495,15 +496,16 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     // Filter metrics for this pod/container
     final podMetrics = _metrics.where((m) => '${m.pod}/${m.container}' == podKey).toList();
     
-    // Group by timestamp (minute level)
+    // Group by timestamp (minute level) - convert to local timezone
     final Map<DateTime, int> aggregated = {};
     for (var metric in podMetrics) {
+      final localTimestamp = metric.timestamp.toLocal();
       final key = DateTime(
-        metric.timestamp.year,
-        metric.timestamp.month,
-        metric.timestamp.day,
-        metric.timestamp.hour,
-        metric.timestamp.minute,
+        localTimestamp.year,
+        localTimestamp.month,
+        localTimestamp.day,
+        localTimestamp.hour,
+        localTimestamp.minute,
       );
       // For same timestamp, take the latest value
       if (!aggregated.containsKey(key)) {
@@ -534,16 +536,17 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
         .toList();
   }
 
-  // Get all unique timestamps (minute level) for x-axis alignment
+  // Get all unique timestamps (minute level) for x-axis alignment - convert to local timezone
   List<DateTime> _getAllUniqueTimestamps() {
     final Set<DateTime> timestamps = {};
     for (var metric in _metrics) {
+      final localTimestamp = metric.timestamp.toLocal();
       final key = DateTime(
-        metric.timestamp.year,
-        metric.timestamp.month,
-        metric.timestamp.day,
-        metric.timestamp.hour,
-        metric.timestamp.minute,
+        localTimestamp.year,
+        localTimestamp.month,
+        localTimestamp.day,
+        localTimestamp.hour,
+        localTimestamp.minute,
       );
       timestamps.add(key);
     }

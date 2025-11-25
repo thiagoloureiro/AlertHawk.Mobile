@@ -107,15 +107,16 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
         .where((m) => m.nodeName == nodeName)
         .toList();
 
-    // Group by timestamp (minute level)
+    // Group by timestamp (minute level) - convert to local timezone
     final Map<DateTime, double> aggregated = {};
     for (var metric in nodeMetrics) {
+      final localTimestamp = metric.timestamp.toLocal();
       final key = DateTime(
-        metric.timestamp.year,
-        metric.timestamp.month,
-        metric.timestamp.day,
-        metric.timestamp.hour,
-        metric.timestamp.minute,
+        localTimestamp.year,
+        localTimestamp.month,
+        localTimestamp.day,
+        localTimestamp.hour,
+        localTimestamp.minute,
       );
       // For same timestamp, take the latest value
       if (!aggregated.containsKey(key)) {
@@ -151,15 +152,16 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
         .where((m) => m.nodeName == nodeName)
         .toList();
 
-    // Group by timestamp (minute level)
+    // Group by timestamp (minute level) - convert to local timezone
     final Map<DateTime, double> aggregated = {};
     for (var metric in nodeMetrics) {
+      final localTimestamp = metric.timestamp.toLocal();
       final key = DateTime(
-        metric.timestamp.year,
-        metric.timestamp.month,
-        metric.timestamp.day,
-        metric.timestamp.hour,
-        metric.timestamp.minute,
+        localTimestamp.year,
+        localTimestamp.month,
+        localTimestamp.day,
+        localTimestamp.hour,
+        localTimestamp.minute,
       );
       // For same timestamp, take the latest value
       if (!aggregated.containsKey(key)) {
@@ -186,16 +188,17 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
         .toList();
   }
 
-  // Get all unique timestamps (minute level) for x-axis alignment
+  // Get all unique timestamps (minute level) for x-axis alignment - convert to local timezone
   List<DateTime> _getAllUniqueTimestamps() {
     final Set<DateTime> timestamps = {};
     for (var metric in _metrics) {
+      final localTimestamp = metric.timestamp.toLocal();
       final key = DateTime(
-        metric.timestamp.year,
-        metric.timestamp.month,
-        metric.timestamp.day,
-        metric.timestamp.hour,
-        metric.timestamp.minute,
+        localTimestamp.year,
+        localTimestamp.month,
+        localTimestamp.day,
+        localTimestamp.hour,
+        localTimestamp.minute,
       );
       timestamps.add(key);
     }
