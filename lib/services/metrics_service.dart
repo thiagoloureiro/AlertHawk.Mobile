@@ -37,7 +37,7 @@ class MetricsService {
     int limit = 100,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-R    final token = prefs.getString('auth_token');
+    final token = prefs.getString('auth_token');
 
     final baseUrl = AppConfig.metricsApiUrl;
     final uri = Uri.parse('$baseUrl/api/metrics/node').replace(
