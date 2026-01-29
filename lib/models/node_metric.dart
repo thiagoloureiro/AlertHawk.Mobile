@@ -24,8 +24,8 @@ class NodeMetric {
       nodeName: json['nodeName'] as String,
       cpuUsageCores: (json['cpuUsageCores'] as num).toDouble(),
       cpuCapacityCores: (json['cpuCapacityCores'] as num).toDouble(),
-      memoryUsageBytes: json['memoryUsageBytes'] as int,
-      memoryCapacityBytes: json['memoryCapacityBytes'] as int,
+      memoryUsageBytes: (json['memoryUsageBytes'] as num).toInt(),
+      memoryCapacityBytes: (json['memoryCapacityBytes'] as num).toInt(),
     );
   }
 

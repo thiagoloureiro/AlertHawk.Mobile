@@ -30,7 +30,7 @@ class PodMetric {
       cpuLimitCores: json['cpuLimitCores'] != null
           ? (json['cpuLimitCores'] as num).toDouble()
           : null,
-      memoryUsageBytes: json['memoryUsageBytes'] as int,
+      memoryUsageBytes: (json['memoryUsageBytes'] as num).toInt(),
     );
   }
 }

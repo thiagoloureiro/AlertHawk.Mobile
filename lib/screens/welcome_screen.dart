@@ -20,6 +20,7 @@ import 'agents_screen.dart';
 import 'package:flutter_new_badger/flutter_new_badger.dart';
 import '../models/monitor_group_selection.dart';
 import 'cluster_metrics_screen.dart';
+import 'cluster_events_screen.dart';
 import 'application_metrics_screen.dart';
 import 'dart:io';
 
@@ -600,6 +601,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       builder: (_) => const ClusterMetricsScreen()),
                 );
                 break;
+              case 'cluster_events':
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const ClusterEventsScreen()),
+                );
+                break;
               case 'application_metrics':
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -665,6 +672,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Cluster Metrics',
+                    style: GoogleFonts.inter(),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'cluster_events',
+              child: Row(
+                children: [
+                  const Icon(Icons.event_note),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Cluster Events',
                     style: GoogleFonts.inter(),
                   ),
                 ],

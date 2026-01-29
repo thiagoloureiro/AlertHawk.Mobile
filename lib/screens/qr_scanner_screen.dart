@@ -35,9 +35,10 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         'monitoring_api_url': values[0],
         'auth_api_url': values[1],
         'notification_api_url': values[2],
-        'azure_ad_tenant': values[3],
-        'azure_ad_client_id': values[4],
-        'auth_api_key': values[5],
+        'metrics_api_url': values[3],
+        'azure_ad_tenant': values[4],
+        'azure_ad_client_id': values[5],
+        'auth_api_key': values[6],
       };
 
       _hasScanned = true;
