@@ -40,9 +40,10 @@ class MetricsService {
     final token = prefs.getString('auth_token');
 
     final baseUrl = AppConfig.metricsApiUrl;
+    final minutes = hours * 60;
     final uri = Uri.parse('$baseUrl/api/metrics/node').replace(
       queryParameters: {
-        'hours': hours.toString(),
+        'minutes': minutes.toString(),
         'limit': limit.toString(),
         'clusterName': clusterName,
       },
@@ -105,9 +106,10 @@ class MetricsService {
     final token = prefs.getString('auth_token');
 
     final baseUrl = AppConfig.metricsApiUrl;
-    final uri = Uri.parse('$baseUrl/api/Metrics/namespace').replace(
+    final minutes = hours * 60;
+    final uri = Uri.parse('$baseUrl/api/metrics/namespace').replace(
       queryParameters: {
-        'hours': hours.toString(),
+        'minutes': minutes.toString(),
         'limit': limit.toString(),
         'clusterName': clusterName,
         'namespace': namespace,
