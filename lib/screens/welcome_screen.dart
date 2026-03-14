@@ -12,6 +12,7 @@ import '../main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../widgets/theme_selector_modal.dart';
 import '../models/environment.dart';
 import 'monitor_detail_screen.dart';
 import 'alerts_screen.dart';
@@ -22,6 +23,7 @@ import '../models/monitor_group_selection.dart';
 import 'cluster_metrics_screen.dart';
 import 'cluster_events_screen.dart';
 import 'application_metrics_screen.dart';
+import 'volume_metrics_screen.dart';
 import 'dart:io';
 
 class WelcomeScreen extends StatefulWidget {
@@ -613,6 +615,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       builder: (_) => const ApplicationMetricsScreen()),
                 );
                 break;
+              case 'volume_metrics':
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const VolumeMetricsScreen()),
+                );
+                break;
             }
           },
           itemBuilder: (context) => [
@@ -698,6 +706,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Application Metrics',
+                    style: GoogleFonts.inter(),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'volume_metrics',
+              child: Row(
+                children: [
+                  const Icon(Icons.storage),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Volume Metrics',
                     style: GoogleFonts.inter(),
                   ),
                 ],
@@ -844,14 +865,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Consumer<ThemeProvider>(
-              builder: (context, themeProvider, _) => Icon(
-                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-              ),
-            ),
-            onPressed: () {
-              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-            },
+            tooltip: 'Select theme',
+            icon: const Icon(Icons.palette_outlined),
+            onPressed: () => showThemeSelectorModal(context),
           ),
         ],
       ),

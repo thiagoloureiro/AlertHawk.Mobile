@@ -6,6 +6,7 @@ import '../config/app_config.dart';
 import '../models/node_metric.dart';
 import '../models/pod_metric.dart';
 import '../models/cluster_event.dart';
+import '../models/volume_metric.dart';
 
 class MetricsService {
   static Future<List<String>> getClusters() async {
@@ -49,7 +50,6 @@ class MetricsService {
       },
     );
 
-
     final response = await http.get(
       uri,
       headers: {
@@ -78,7 +78,6 @@ class MetricsService {
         'clusterName': clusterName,
       },
     );
-
 
     final response = await http.get(
       uri,
@@ -174,5 +173,36 @@ class MetricsService {
           'Failed to load cluster events: ${response.statusCode} ${response.body.isNotEmpty ? response.body : ""}');
     }
   }
-}
 
+  static Future<List<VolumeMetric>> getPvcMetrics({
+    required String clusterName,
+    int minutes = 1,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final baseUrl = AppConfig.metricsApiUrl;
+    final uri = Uri.parse('$baseUrl/api/metrics/pvc').replace(
+      queryParameters: {
+        'minutes': minutes.toString(),
+        'clusterName': clusterName,
+      },
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = json.decode(response.body);
+      // print json size
+      return jsonList.map((json) => VolumeMetric.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load volume metrics');
+    }
+  }
+}

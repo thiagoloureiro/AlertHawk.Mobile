@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../config/app_config.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../widgets/theme_selector_modal.dart';
 
 class AlertsScreen extends StatefulWidget {
   final int? monitorId;
@@ -172,14 +173,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
         ),
         actions: [
           IconButton(
-            icon: Consumer<ThemeProvider>(
-              builder: (context, themeProvider, _) => Icon(
-                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-              ),
-            ),
-            onPressed: () {
-              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-            },
+            tooltip: 'Select theme',
+            icon: const Icon(Icons.palette_outlined),
+            onPressed: () => showThemeSelectorModal(context),
           ),
         ],
       ),

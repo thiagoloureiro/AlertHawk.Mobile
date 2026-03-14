@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../widgets/theme_selector_modal.dart';
 import '../screens/qr_scanner_screen.dart';
 import 'package:http/http.dart' as http;
 
@@ -275,14 +276,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         actions: [
           IconButton(
-            icon: Consumer<ThemeProvider>(
-              builder: (context, themeProvider, _) => Icon(
-                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-              ),
-            ),
-            onPressed: () {
-              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-            },
+            tooltip: 'Select theme',
+            icon: const Icon(Icons.palette_outlined),
+            onPressed: () => showThemeSelectorModal(context),
           ),
         ],
       ),

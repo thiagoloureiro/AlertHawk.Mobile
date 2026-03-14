@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.20+1
+version: 1.0.21+1
 
 environment:
   sdk: ^3.6.0
@@ -35,22 +35,22 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   http: ^1.6.0  # For API calls
-  shared_preferences: ^2.5.2  # For session management
+  shared_preferences: ^2.5.4  # For session management
   aad_oauth: ^1.0.1  # For Azure AD authentication
-  provider: ^6.1.2  # For state management
-  google_fonts: ^6.2.1  # Add this line for easy font handling
-  font_awesome_flutter: ^10.8.0  # Add this line
-  fl_chart: ^1.0.0
+  provider: ^6.1.5+1  # For state management
+  google_fonts: ^8.0.2  # Add this line for easy font handling
+  font_awesome_flutter: ^11.0.0  # Add this line
+  fl_chart: ^1.1.1
   intl: ^0.20.2
   flutter_dotenv: ^6.0.0
-  url_launcher: ^6.3.1
-  mobile_scanner: ^7.0.1
-  pushy_flutter: ^2.0.40
+  url_launcher: ^6.3.2
+  mobile_scanner: ^7.2.0
+  pushy_flutter: ^2.0.43
   package_info_plus: ^9.0.0
-  flutter_native_splash: ^2.4.5
+  flutter_native_splash: ^2.4.7
   sign_in_with_apple: ^7.0.1
   jwt_decoder: ^2.0.1
-  device_info_plus: ^12.2.0
+  device_info_plus: ^12.3.0
   flutter_new_badger: ^1.1.1
 
 dependency_overrides:

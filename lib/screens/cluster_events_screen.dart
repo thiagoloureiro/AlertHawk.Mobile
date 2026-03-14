@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/theme_provider.dart';
+import '../widgets/theme_selector_modal.dart';
 import '../services/metrics_service.dart';
 import '../models/cluster_event.dart';
 
@@ -177,14 +178,9 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
         ),
         actions: [
           IconButton(
-            icon: Consumer<ThemeProvider>(
-              builder: (context, themeProvider, _) => Icon(
-                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-              ),
-            ),
-            onPressed: () {
-              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-            },
+            tooltip: 'Select theme',
+            icon: const Icon(Icons.palette_outlined),
+            onPressed: () => showThemeSelectorModal(context),
           ),
         ],
       ),
@@ -220,7 +216,7 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                           _isLoadingClusters
                               ? const Center(child: CircularProgressIndicator())
                               : DropdownButtonFormField<String>(
-                                  value: _selectedCluster,
+                                  initialValue: _selectedCluster,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
@@ -271,7 +267,7 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                             ),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String?>(
-                              value: _selectedNamespace,
+                              initialValue: _selectedNamespace,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
