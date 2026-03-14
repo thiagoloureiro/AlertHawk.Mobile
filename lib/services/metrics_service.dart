@@ -7,6 +7,7 @@ import '../models/node_metric.dart';
 import '../models/pod_metric.dart';
 import '../models/cluster_event.dart';
 import '../models/volume_metric.dart';
+import '../models/cluster_node_metric.dart';
 
 class MetricsService {
   static Future<List<String>> getClusters() async {
@@ -30,6 +31,53 @@ class MetricsService {
     } else {
       throw Exception('Failed to load clusters');
     }
+  }
+
+  /// Fetches node metrics for all clusters (dashboard view).
+  /// Tries /api/metrics/node first (same as getNodeMetrics, no cluster filter), then /metrics/api/Metrics/node.
+  static Future<List<ClusterNodeMetric>> getClusterDashboardNodes({
+    int minutes = 1,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    final baseUrl = AppConfig.metricsApiUrl;
+
+    final urisToTry = [
+      Uri.parse('$baseUrl/api/metrics/node').replace(
+        queryParameters: {'minutes': minutes.toString()},
+      ),
+      Uri.parse('$baseUrl/metrics/api/Metrics/node').replace(
+        queryParameters: {'minutes': minutes.toString()},
+      ),
+    ];
+
+    http.Response? lastResponse;
+    for (final uri in urisToTry) {
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+      lastResponse = response;
+      if (response.statusCode != 200) continue;
+      try {
+        final decoded = json.decode(response.body);
+        final List<dynamic> jsonList = decoded is List
+            ? decoded
+            : (decoded is Map ? (decoded['data'] ?? decoded['nodes'] ?? []) : []);
+        return jsonList
+            .map((e) => ClusterNodeMetric.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      } catch (_) {
+        rethrow;
+      }
+    }
+
+    final res = lastResponse!;
+    final msg = '${res.statusCode}: ${res.body.length > 200 ? res.body.substring(0, 200) + "..." : res.body}';
+    throw Exception('Failed to load clusters: $msg');
   }
 
   static Future<List<NodeMetric>> getNodeMetrics({

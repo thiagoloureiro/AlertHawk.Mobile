@@ -291,8 +291,6 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     // Calculate maxY with dynamic intervals
     final maxResponse = _getChartData().isEmpty
         ? 50.0
@@ -313,13 +311,47 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     final interval = calculateInterval(maxResponse);
     final defaultMaxY = (maxResponse / interval).ceil() * interval;
 
+    final theme = Theme.of(context);
+    final statusColor = widget.monitor.paused
+        ? const Color(0xFFF59E0B)
+        : widget.monitor.status
+            ? const Color(0xFF22C55E)
+            : const Color(0xFFEF4444);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.monitor.name,
-          style:
-              GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18),
+        title: Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              margin: const EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(
+                color: statusColor,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: statusColor.withOpacity(0.5),
+                    blurRadius: 6,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Text(
+                widget.monitor.name,
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                  letterSpacing: -0.3,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
+        centerTitle: false,
       ),
       body: RefreshIndicator(
         onRefresh: _refreshData,
@@ -336,74 +368,94 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                 final monitor = snapshot.data!;
                 _currentMonitor = monitor;
                 final spots = _getChartData();
+                final monitorStatusColor = monitor.paused
+                    ? const Color(0xFFF59E0B)
+                    : monitor.status
+                        ? const Color(0xFF22C55E)
+                        : const Color(0xFFEF4444);
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Status
+                    // Status + URL card
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            'Status: ',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            monitor.paused
-                                ? 'Paused'
-                                : monitor.status
-                                    ? 'Online'
-                                    : 'Offline',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: monitor.paused
-                                  ? Colors.grey
-                                  : monitor.status
-                                      ? Colors.green
-                                      : Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // URL/Host
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            // Show different label based on monitor type
-                            monitor.monitorTypeId == 4 
-                                ? 'Cluster: ' 
-                                : monitor.monitorTypeId == 3
-                                    ? 'Host: ' 
-                                    : 'URL: ',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Expanded(
-                            child: SelectableText(
-                              // For Kubernetes monitors, show cluster name if available
-                              monitor.monitorTypeId == 4 && _k8sData != null
-                                  ? _k8sData!['clusterName'] ?? monitor.checkTarget
-                                  // For TCP monitors, show ip:port if available
-                                  : monitor.monitorTypeId == 3 && _tcpData != null
-                                      ? "${_tcpData!['ip']}:${_tcpData!['port']}"
-                                      : monitor.checkTarget,
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: Material(
+                        color: theme.colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: monitorStatusColor.withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          monitor.paused
+                                              ? Icons.pause_circle_rounded
+                                              : monitor.status
+                                                  ? Icons.check_circle_rounded
+                                                  : Icons.cancel_rounded,
+                                          color: monitorStatusColor,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          monitor.paused
+                                              ? 'Paused'
+                                              : monitor.status
+                                                  ? 'Online'
+                                                  : 'Offline',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: monitorStatusColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
+                              const SizedBox(height: 14),
+                              Text(
+                                monitor.monitorTypeId == 4
+                                    ? 'Cluster'
+                                    : monitor.monitorTypeId == 3
+                                        ? 'Host'
+                                        : 'URL',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              SelectableText(
+                                monitor.monitorTypeId == 4 && _k8sData != null
+                                    ? _k8sData!['clusterName'] ?? monitor.checkTarget
+                                    : monitor.monitorTypeId == 3 && _tcpData != null
+                                        ? "${_tcpData!['ip']}:${_tcpData!['port']}"
+                                        : monitor.checkTarget,
+                                style: GoogleFonts.inter(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                     
@@ -411,21 +463,33 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                     if (monitor.monitorTypeId == 3 && _tcpData != null) ...[
                       const SizedBox(height: 16),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Card(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Material(
+                          color: theme.colorScheme.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(16),
                           child: Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'TCP Connection Details',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.lan_rounded,
+                                      size: 20,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'TCP Connection Details',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 14),
                                 _buildTcpDetailRow('IP Address', _tcpData!['ip'] ?? 'N/A'),
                                 _buildTcpDetailRow('Port', _tcpData!['port']?.toString() ?? 'N/A'),
                                 _buildTcpDetailRow('Timeout', '${_tcpData!['timeout'] ?? 'N/A'} seconds'),
@@ -441,64 +505,60 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                     if (monitor.monitorTypeId == 4 && _k8sData != null) ...[
                       const SizedBox(height: 16),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'Kubernetes Nodes',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Card(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Material(
+                          color: theme.colorScheme.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(16),
+                          clipBehavior: Clip.antiAlias,
                           child: ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             itemCount: (_k8sData!['monitorK8sNodes'] as List?)?.length ?? 0,
-                            separatorBuilder: (context, index) => const Divider(height: 1),
+                            separatorBuilder: (context, index) => Divider(
+                              height: 1,
+                              indent: 16,
+                              endIndent: 16,
+                              color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+                            ),
                             itemBuilder: (context, index) {
                               final node = (_k8sData!['monitorK8sNodes'] as List)[index];
                               final bool isReady = node['ready'] ?? false;
-                              
+                              final nodeColor = isReady ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+
                               return ExpansionTile(
-                                title: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.dns,
-                                      color: isReady ? Colors.green : Colors.red,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        node['nodeName'] ?? 'Unknown Node',
-                                        style: GoogleFonts.inter(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
+                                tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                                leading: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: nodeColor.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(Icons.dns_rounded, color: nodeColor, size: 20),
+                                ),
+                                title: Text(
+                                  node['nodeName'] ?? 'Unknown Node',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        _buildNodeStatusRow('Ready', node['ready'] ?? false),
-                                        _buildNodeStatusRow('Memory Pressure', !(node['memoryPressure'] ?? true)),
-                                        _buildNodeStatusRow('Disk Pressure', !(node['diskPressure'] ?? true)),
-                                        _buildNodeStatusRow('PID Pressure', !(node['pidPressure'] ?? true)),
-                                        _buildNodeStatusRow('Kubelet', !(node['kubeletProblem'] ?? true)),
-                                        _buildNodeStatusRow('Container Runtime', !(node['containerRuntimeProblem'] ?? true)),
-                                        _buildNodeStatusRow('Kernel Deadlock', !(node['kernelDeadlock'] ?? true)),
-                                        _buildNodeStatusRow('Filesystem', !(node['filesystemCorruptionProblem'] ?? true)),
-                                      ],
-                                    ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildNodeStatusRow('Ready', node['ready'] ?? false),
+                                      _buildNodeStatusRow('Memory Pressure', !(node['memoryPressure'] ?? true)),
+                                      _buildNodeStatusRow('Disk Pressure', !(node['diskPressure'] ?? true)),
+                                      _buildNodeStatusRow('PID Pressure', !(node['pidPressure'] ?? true)),
+                                      _buildNodeStatusRow('Kubelet', !(node['kubeletProblem'] ?? true)),
+                                      _buildNodeStatusRow('Container Runtime', !(node['containerRuntimeProblem'] ?? true)),
+                                      _buildNodeStatusRow('Kernel Deadlock', !(node['kernelDeadlock'] ?? true)),
+                                      _buildNodeStatusRow('Filesystem', !(node['filesystemCorruptionProblem'] ?? true)),
+                                    ],
                                   ),
                                 ],
                               );
@@ -512,19 +572,34 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                     // Chart section - Only show for HTTP monitors (type 1)
                     if (monitor.monitorTypeId == 1) ...[
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Response Time (ms) - $_selectedPeriod',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.show_chart_rounded,
+                                  size: 20,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Response Time (ms) · $_selectedPeriod',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            SizedBox(
+                            const SizedBox(height: 12),
+                            Material(
+                              color: theme.colorScheme.surfaceContainerLow,
+                              borderRadius: BorderRadius.circular(16),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: SizedBox(
                               height: 216,
                               child: _isLoadingChart
                                   ? const Center(
@@ -538,17 +613,13 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                           verticalInterval: 4,
                                           getDrawingHorizontalLine: (value) {
                                             return FlLine(
-                                              color: isDarkMode
-                                                  ? Colors.grey.shade800
-                                                  : Colors.grey.shade300,
+                                              color: theme.colorScheme.outlineVariant.withOpacity(0.4),
                                               strokeWidth: 1,
                                             );
                                           },
                                           getDrawingVerticalLine: (value) {
                                             return FlLine(
-                                              color: isDarkMode
-                                                  ? Colors.grey.shade800
-                                                  : Colors.grey.shade300,
+                                              color: theme.colorScheme.outlineVariant.withOpacity(0.4),
                                               strokeWidth: 1,
                                             );
                                           },
@@ -585,9 +656,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                         .format(pointTime),
                                                     style: GoogleFonts.inter(
                                                       fontSize: 13,
-                                                      color: isDarkMode
-                                                          ? Colors.white70
-                                                          : Colors.black87,
+                                                      color: theme.colorScheme.onSurfaceVariant,
                                                     ),
                                                   );
                                                 } else {
@@ -626,9 +695,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                         .format(pointTime),
                                                     style: GoogleFonts.inter(
                                                       fontSize: 13,
-                                                      color: isDarkMode
-                                                          ? Colors.white70
-                                                          : Colors.black87,
+                                                      color: theme.colorScheme.onSurfaceVariant,
                                                     ),
                                                   );
                                                 }
@@ -645,9 +712,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                   value.toInt().toString(),
                                                   style: GoogleFonts.inter(
                                                     fontSize: 13,
-                                                    color: isDarkMode
-                                                        ? Colors.white70
-                                                        : Colors.black87,
+                                                    color: theme.colorScheme.onSurfaceVariant,
                                                   ),
                                                 );
                                               },
@@ -657,9 +722,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                         borderData: FlBorderData(
                                           show: true,
                                           border: Border.all(
-                                            color: isDarkMode
-                                                ? Colors.white24
-                                                : Colors.black12,
+                                            color: theme.colorScheme.outlineVariant.withOpacity(0.3),
                                           ),
                                         ),
                                         minX: 0,
@@ -671,8 +734,8 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                           LineChartBarData(
                                             spots: spots,
                                             isCurved: true,
-                                            color: Colors.green,
-                                            barWidth: 2,
+                                            color: const Color(0xFF22C55E),
+                                            barWidth: 2.5,
                                             isStrokeCapRound: true,
                                             dotData: FlDotData(
                                               show: true,
@@ -686,7 +749,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                 if (hasFailed) {
                                                   return FlDotCirclePainter(
                                                     radius: 3,
-                                                    color: Colors.red,
+                                                    color: const Color(0xFFEF4444),
                                                     strokeWidth: 0,
                                                   );
                                                 }
@@ -700,8 +763,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                             ),
                                             belowBarData: BarAreaData(
                                               show: true,
-                                              color: Colors.green.withOpacity(
-                                                  isDarkMode ? 0.15 : 0.1),
+                                              color: const Color(0xFF22C55E).withOpacity(0.12),
                                             ),
                                           ),
                                         ],
@@ -710,9 +772,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                           touchTooltipData: LineTouchTooltipData(
                                             getTooltipColor:
                                                 (LineBarSpot touchedSpot) =>
-                                                    isDarkMode
-                                                        ? Colors.grey.shade800
-                                                        : Colors.white,
+                                                    theme.colorScheme.surfaceContainerHighest,
                                             getTooltipItems:
                                                 (List<LineBarSpot> touchedSpots) {
                                               return touchedSpots
@@ -738,9 +798,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                   '${DateFormat('HH:mm').format(pointTime)}'
                                                   '${failedRequests.isNotEmpty ? '\n${failedRequests.length} Failed Checks' : ''}',
                                                   GoogleFonts.inter(
-                                                    color: isDarkMode
-                                                        ? Colors.white
-                                                        : Colors.black,
+                                                    color: theme.colorScheme.onSurface,
                                                   ),
                                                 );
                                               }).toList();
@@ -749,7 +807,9 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                         ),
                                       ),
                                     ),
-                            )
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -757,84 +817,103 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                     ],
                     // Statistics section
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
-                            'Uptime Statistics',
-                            style: GoogleFonts.inter(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextButton.icon(
-                            onPressed: _openAlerts,
-                            icon: const Icon(
-                              Icons.warning_amber_rounded,
-                              color: Colors.amber,
-                            ),
-                            label: Text(
-                              'Alerts',
-                              style: GoogleFonts.inter(
-                                color: Colors.red,
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.analytics_rounded,
+                                size: 20,
+                                color: theme.colorScheme.primary,
                               ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Uptime Statistics',
+                                style: GoogleFonts.inter(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          FilledButton.tonal(
+                            onPressed: _openAlerts,
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 10),
                             ),
-                            style: TextButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.warning_amber_rounded,
+                                  size: 18,
+                                  color: Color(0xFFF59E0B),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Alerts',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    // Statistics cards with padding at the bottom
+                    const SizedBox(height: 12),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: Card(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      child: Material(
+                        color: theme.colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(16),
                         child: ListView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                           children: [
                             _buildUptimeListTile(
                                 'Last Hour',
                                 widget
                                     .monitor.monitorStatusDashboard.uptime1Hr),
-                            const Divider(height: 1),
+                            _buildListDivider(theme),
                             _buildUptimeListTile(
                                 'Last 24 Hours',
                                 widget.monitor.monitorStatusDashboard
                                     .uptime24Hrs),
-                            const Divider(height: 1),
+                            _buildListDivider(theme),
                             _buildUptimeListTile(
                                 'Last 7 Days',
                                 widget.monitor.monitorStatusDashboard
                                     .uptime7Days),
-                            const Divider(height: 1),
+                            _buildListDivider(theme),
                             _buildUptimeListTile(
                                 'Last 30 Days',
                                 widget.monitor.monitorStatusDashboard
                                     .uptime30Days),
-                            const Divider(height: 1),
+                            _buildListDivider(theme),
                             _buildUptimeListTile(
                                 'Last 3 Months',
                                 widget.monitor.monitorStatusDashboard
                                     .uptime3Months),
-                            const Divider(height: 1),
+                            _buildListDivider(theme),
                             _buildUptimeListTile(
                                 'Last 6 Months',
                                 widget.monitor.monitorStatusDashboard
                                     .uptime6Months),
-                            // Only show SSL and Response Time for HTTP monitors
                             if (widget.monitor.monitorTypeId == 1) ...[
-                              const Divider(height: 1),
+                              _buildListDivider(theme),
                               _buildStatListTile(
                                 'SSL Certificate Expiry',
                                 '${widget.monitor.monitorStatusDashboard.certExpDays} days',
                                 widget.monitor.monitorStatusDashboard.certExpDays,
                               ),
-                              const Divider(height: 1),
+                              _buildListDivider(theme),
                               _buildStatListTile(
                                 'Average Response Time',
                                 '${widget.monitor.monitorStatusDashboard.responseTime.toStringAsFixed(1)}ms',
@@ -857,6 +936,15 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     );
   }
 
+  Widget _buildListDivider(ThemeData theme) {
+    return Divider(
+      height: 1,
+      indent: 16,
+      endIndent: 16,
+      color: theme.colorScheme.outlineVariant.withOpacity(0.4),
+    );
+  }
+
   Widget _buildUptimeListTile(String period, double uptime) {
     final Map<String, int> periodToDays = {
       'Last 24 Hours': 1,
@@ -868,33 +956,42 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
 
     final formattedUptime = uptime.toStringAsFixed(2);
     final color = uptime >= 99.9
-        ? Colors.green
+        ? const Color(0xFF22C55E)
         : uptime >= 95
-            ? Colors.orange
-            : Colors.red;
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFFEF4444);
 
     final isSelected = _selectedPeriod == period;
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
 
-    return Container(
+    return Material(
       color: isSelected
-          ? (isDarkMode
-              ? Colors.blue.withOpacity(0.2)
-              : Colors.blue.withOpacity(0.1))
+          ? theme.colorScheme.primaryContainer.withOpacity(0.4)
           : Colors.transparent,
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         title: Text(
           period,
-          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
-        ),
-        trailing: Text(
-          '$formattedUptime%',
           style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
-            color: color,
+            fontWeight: FontWeight.w500,
+            fontSize: 15,
           ),
         ),
-        dense: true,
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            '$formattedUptime%',
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: color,
+            ),
+          ),
+        ),
         onTap: () async {
           setState(() {
             _selectedPeriod = period;
@@ -937,44 +1034,59 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     Color? valueColor;
 
     if (certDays != null) {
-      // Color coding for SSL certificate expiration
       valueColor = certDays > 30
-          ? Colors.green
+          ? const Color(0xFF22C55E)
           : certDays >= 10
-              ? Colors.orange
-              : Colors.red;
+              ? const Color(0xFFF59E0B)
+              : const Color(0xFFEF4444);
     } else if (title == 'Average Response Time') {
-      // Color coding for response time
       final responseTime = widget.monitor.monitorStatusDashboard.responseTime;
       valueColor = responseTime < 500
-          ? Colors.green
+          ? const Color(0xFF22C55E)
           : responseTime < 1000
-              ? Colors.orange
-              : Colors.red;
+              ? const Color(0xFFF59E0B)
+              : const Color(0xFFEF4444);
     }
 
     return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       title: Text(
         title,
         style: GoogleFonts.inter(
           fontWeight: FontWeight.w500,
+          fontSize: 15,
         ),
       ),
-      trailing: Text(
-        value,
-        style: GoogleFonts.inter(
-          fontWeight: FontWeight.bold,
-          color: valueColor,
-        ),
-      ),
-      dense: true,
+      trailing: valueColor != null
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: valueColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                value,
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: valueColor,
+                ),
+              ),
+            )
+          : Text(
+              value,
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
     );
   }
 
-  // Helper method to build Kubernetes node status rows
   Widget _buildNodeStatusRow(String label, bool isHealthy) {
+    final color = isHealthy ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -982,21 +1094,24 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
             label,
             style: GoogleFonts.inter(
               fontSize: 13,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                isHealthy ? Icons.check_circle : Icons.error,
-                color: isHealthy ? Colors.green : Colors.red,
-                size: 16,
+                isHealthy ? Icons.check_circle_rounded : Icons.error_rounded,
+                color: color,
+                size: 18,
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               Text(
-                isHealthy ? 'Healthy' : 'Issue Detected',
+                isHealthy ? 'Healthy' : 'Issue',
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  color: isHealthy ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.w500,
+                  color: color,
                 ),
               ),
             ],
@@ -1006,10 +1121,16 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     );
   }
   
-  // Helper method to build TCP detail rows
   Widget _buildTcpDetailRow(String label, String value) {
+    final theme = Theme.of(context);
+    Color? valueColor;
+    if (label == 'Last Status') {
+      valueColor = value == 'Connected'
+          ? const Color(0xFF22C55E)
+          : const Color(0xFFEF4444);
+    }
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -1018,16 +1139,15 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w500,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
           Text(
             value,
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: label == 'Last Status' 
-                  ? (value == 'Connected' ? Colors.green : Colors.red)
-                  : null,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
+              color: valueColor ?? theme.colorScheme.onSurface,
             ),
           ),
         ],

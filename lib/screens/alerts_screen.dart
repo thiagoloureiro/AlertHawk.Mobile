@@ -8,8 +8,6 @@ import '../models/monitor_alert.dart';
 import '../models/environment.dart';
 import 'package:intl/intl.dart';
 import '../config/app_config.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
 
 class AlertsScreen extends StatefulWidget {
@@ -78,83 +76,211 @@ class _AlertsScreenState extends State<AlertsScreen> {
   }
 
   Widget _buildFilters() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: SizedBox(
-              height: 48,
-              child: TextField(
-                controller: _searchController,
-                style: GoogleFonts.inter(),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: 'Search...',
-                  hintStyle: GoogleFonts.inter(),
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: TextField(
+            controller: _searchController,
+            style: GoogleFonts.inter(),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
+            decoration: InputDecoration(
+              hintText: 'Search by monitor name...',
+              hintStyle: GoogleFonts.inter(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              prefixIcon: Icon(
+                Icons.search_rounded,
+                color: theme.colorScheme.onSurfaceVariant,
+                size: 22,
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
               ),
             ),
           ),
-          const SizedBox(width: 5),
-          Expanded(
-            child: SizedBox(
-              height: 48,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).dividerColor),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<int>(
-                    value: _selectedDays,
-                    isExpanded: true,
-                    style: GoogleFonts.inter(
-                      color: isDarkMode ? Colors.white : Colors.black,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _dayOptions.map((days) {
+                final isSelected = _selectedDays == days;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(
+                      '$days days',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      ),
                     ),
-                    dropdownColor: isDarkMode 
-                        ? Theme.of(context).colorScheme.surface 
-                        : Colors.white,
-                    items: _dayOptions.map((days) {
-                      return DropdownMenuItem<int>(
-                        value: days,
-                        child: Text(
-                          '$days days',
-                          style: GoogleFonts.inter(
-                            color: isDarkMode ? Colors.white : Colors.black,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (int? newValue) {
-                      if (newValue != null) {
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
                         setState(() {
-                          _selectedDays = newValue;
+                          _selectedDays = days;
                           _alerts = _fetchAlerts();
                         });
                       }
                     },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                ),
-              ),
+                );
+              }).toList(),
             ),
           ),
-          const SizedBox(width: 6),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAlertCard(MonitorAlert alert, Environment env) {
+    final theme = Theme.of(context);
+    final statusColor = alert.status
+        ? const Color(0xFF22C55E)
+        : const Color(0xFFEF4444);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Material(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(color: statusColor, width: 4),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: statusColor.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        alert.status ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                        color: statusColor,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            alert.monitorName,
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            DateFormat('MMM d, yyyy · HH:mm').format(alert.localTimeStamp),
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          if (alert.urlToCheck.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              alert.urlToCheck,
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: theme.colorScheme.primary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        env.name,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (alert.message.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    alert.message,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: alert.status
+                          ? theme.colorScheme.onSurfaceVariant
+                          : const Color(0xFFEF4444),
+                    ),
+                  ),
+                ],
+                if (!alert.status && alert.periodOffline > 0) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule_rounded,
+                        size: 14,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Offline for ${alert.periodOffline} min',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFEF4444),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -165,10 +291,14 @@ class _AlertsScreenState extends State<AlertsScreen> {
       appBar: AppBar(
         title: Text(
           'Alerts',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            letterSpacing: -0.3,
+          ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
@@ -202,22 +332,39 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     }
 
                     if (snapshot.hasError) {
+                      final theme = Theme.of(context);
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              'Error loading alerts',
-                              style: GoogleFonts.inter(color: Colors.red),
+                            Icon(
+                              Icons.error_outline_rounded,
+                              size: 56,
+                              color: theme.colorScheme.error,
                             ),
                             const SizedBox(height: 16),
-                            IconButton(
-                              icon: const Icon(Icons.refresh),
+                            Text(
+                              'Error loading alerts',
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                color: theme.colorScheme.error,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            FilledButton.tonal(
                               onPressed: () {
                                 setState(() {
                                   _alerts = _fetchAlerts();
                                 });
                               },
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.refresh_rounded, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Retry'),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -227,15 +374,31 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     final filteredAlerts = _filterAlerts(snapshot.data!);
 
                     if (filteredAlerts.isEmpty) {
+                      final theme = Theme.of(context);
                       return Center(
-                        child: Text(
-                          'No alerts found',
-                          style: GoogleFonts.inter(),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.notifications_none_rounded,
+                              size: 56,
+                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No alerts found',
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }
 
                     return ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 24),
                       itemCount: filteredAlerts.length,
                       itemBuilder: (context, index) {
                         final alert = filteredAlerts[index];
@@ -243,54 +406,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                           (e) => e.id == alert.environment,
                           orElse: () => Environment.production,
                         );
-
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              alert.monitorName,
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  DateFormat('yyyy-MM-dd HH:mm:ss')
-                                      .format(alert.localTimeStamp),
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                Text(
-                                  'Environment: ${env.name}',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                if (!alert.status && alert.periodOffline > 0)
-                                  Text(
-                                    'Offline for: ${alert.periodOffline} minutes',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                Text(
-                                  alert.message,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+                        return _buildAlertCard(alert, env);
                       },
                     );
                   },

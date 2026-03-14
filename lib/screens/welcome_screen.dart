@@ -10,8 +10,6 @@ import 'login_screen.dart';
 import 'settings_screen.dart';
 import '../main.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
 import '../models/environment.dart';
 import 'monitor_detail_screen.dart';
@@ -21,6 +19,7 @@ import 'agents_screen.dart';
 import 'package:flutter_new_badger/flutter_new_badger.dart';
 import '../models/monitor_group_selection.dart';
 import 'cluster_metrics_screen.dart';
+import 'clusters_dashboard_screen.dart';
 import 'cluster_events_screen.dart';
 import 'application_metrics_screen.dart';
 import 'volume_metrics_screen.dart';
@@ -83,11 +82,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildMonitorCard(Monitor monitor) {
-    // Get the appropriate icon based on monitor type
     IconData monitorIcon;
     String monitorType;
-    String?
-        targetInfo; // Make it nullable since we won't show it for TCP and K8s
+    String? targetInfo;
 
     switch (monitor.monitorTypeId) {
       case 1:
@@ -98,13 +95,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       case 3:
         monitorIcon = Icons.lan;
         monitorType = 'TCP';
-        // Remove target info for TCP monitors
         targetInfo = null;
         break;
       case 4:
         monitorIcon = Icons.dns;
         monitorType = 'K8s';
-        // Remove target info for Kubernetes monitors
         targetInfo = null;
         break;
       default:
@@ -113,85 +108,120 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         targetInfo = monitor.checkTarget;
     }
 
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => MonitorDetailScreen(monitor: monitor),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    monitorIcon,
-                    color: monitor.paused
-                        ? Colors.grey
-                        : monitor.status
-                            ? Colors.green
-                            : Colors.red,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      monitor.name,
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      monitorType,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                  ),
-                ],
+    final statusColor = monitor.paused
+        ? Colors.orange
+        : monitor.status
+            ? const Color(0xFF22C55E)
+            : const Color(0xFFEF4444);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Material(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => MonitorDetailScreen(monitor: monitor),
               ),
-              if (targetInfo != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  targetInfo,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                  color: statusColor,
+                  width: 4,
                 ),
-              ],
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildUptimeChip(
-                      '1h', monitor.monitorStatusDashboard.uptime1Hr),
-                  _buildUptimeChip(
-                      '24h', monitor.monitorStatusDashboard.uptime24Hrs),
-                  _buildUptimeChip(
-                      '7d', monitor.monitorStatusDashboard.uptime7Days),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          monitorIcon,
+                          color: statusColor,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              monitor.name,
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                letterSpacing: -0.2,
+                              ),
+                            ),
+                            if (targetInfo != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                targetInfo,
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest
+                              .withOpacity(isDark ? 0.8 : 1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          monitorType,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      _buildUptimeChip(
+                          '1h', monitor.monitorStatusDashboard.uptime1Hr),
+                      const SizedBox(width: 8),
+                      _buildUptimeChip(
+                          '24h', monitor.monitorStatusDashboard.uptime24Hrs),
+                      const SizedBox(width: 8),
+                      _buildUptimeChip(
+                          '7d', monitor.monitorStatusDashboard.uptime7Days),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -200,17 +230,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildUptimeChip(String label, double uptime) {
     final color = uptime >= 99.9
-        ? Colors.green
+        ? const Color(0xFF22C55E)
         : uptime >= 95
-            ? Colors.orange
-            : Colors.red;
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFFEF4444);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -218,7 +247,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               color: color,
             ),
           ),
@@ -227,7 +257,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             '${uptime.toStringAsFixed(1)}%',
             style: GoogleFonts.inter(
               fontSize: 12,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: color,
             ),
           ),
@@ -237,88 +267,114 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildFilters() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: SizedBox(
-              height: 48,
-              child: TextField(
-                controller: _searchController,
-                style: GoogleFonts.inter(),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: 'Search...',
-                  hintStyle: GoogleFonts.inter(),
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  style: GoogleFonts.inter(),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search monitors...',
+                    hintStyle: GoogleFonts.inter(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: theme.colorScheme.onSurfaceVariant,
+                      size: 22,
+                    ),
+                    filled: true,
+                    fillColor: theme.colorScheme.surfaceContainerHighest
+                        .withOpacity(0.5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Expanded(
-            child: SizedBox(
-              height: 48,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).dividerColor),
-                  borderRadius: BorderRadius.circular(8),
+              const SizedBox(width: 10),
+              IconButton.filled(
+                onPressed: _showGroupSelectionDialog,
+                tooltip: 'Filter by groups',
+                style: IconButton.styleFrom(
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                  foregroundColor: theme.colorScheme.onSurface,
                 ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _statusFilter,
-                    isExpanded: true,
-                    style: GoogleFonts.inter(
-                      color: isDarkMode ? Colors.white : Colors.black,
+                icon: const Icon(Icons.filter_list_rounded),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Row(
+            children: [
+              ...['All', 'Online', 'Offline'].map((value) {
+                final isSelected = _statusFilter == value;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(
+                      value,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w500,
+                      ),
                     ),
-                    dropdownColor: isDarkMode 
-                        ? Theme.of(context).colorScheme.surface 
-                        : Colors.white,
-                    items: ['All', 'Online', 'Offline'].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(
-                          value,
-                          style: GoogleFonts.inter(
-                            color: isDarkMode ? Colors.white : Colors.black,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
                         setState(() {
-                          _statusFilter = newValue;
+                          _statusFilter = value;
                         });
                       }
                     },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                ),
-              ),
-            ),
+                );
+              }),
+            ],
           ),
-          const SizedBox(width: 6),
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: _showGroupSelectionDialog,
-            tooltip: 'Filter Groups',
+        ),
+      ],
+    );
+  }
+
+  Widget _summaryItem(IconData icon, String count, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 6),
+        Text(
+          count,
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            color: color,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -603,6 +659,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       builder: (_) => const ClusterMetricsScreen()),
                 );
                 break;
+              case 'clusters_dashboard':
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const ClustersDashboardScreen()),
+                );
+                break;
               case 'cluster_events':
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -680,6 +742,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Cluster Metrics',
+                    style: GoogleFonts.inter(),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'clusters_dashboard',
+              child: Row(
+                children: [
+                  const Icon(Icons.dashboard_rounded),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Clusters Dashboard',
                     style: GoogleFonts.inter(),
                   ),
                 ],
@@ -768,93 +843,53 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         title: FutureBuilder<List<MonitorGroup>>(
           future: _monitorGroups,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: Text(
-                  'Loading...',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                ),
-              );
-            }
-
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Error',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                ),
-              );
-            }
-
             if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
+              return Text(
+                'Monitors',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                  letterSpacing: -0.3,
+                ),
+              );
             }
-
             return FutureBuilder<List<MonitorGroup>>(
               future: _filterGroups(snapshot.data!),
               builder: (context, filteredSnapshot) {
                 if (!filteredSnapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Text(
+                    'Monitors',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      letterSpacing: -0.3,
+                    ),
+                  );
                 }
-
-                // Count monitors by status
-                int upCount = 0;
-                int downCount = 0;
-                int pausedCount = 0;
-
-                for (var group in filteredSnapshot.data!) {
-                  for (var monitor in group.monitors) {
-                    if (monitor.paused) {
+                int upCount = 0, downCount = 0, pausedCount = 0;
+                for (var g in filteredSnapshot.data!) {
+                  for (var m in g.monitors) {
+                    if (m.paused) {
                       pausedCount++;
-                    } else if (monitor.status) {
+                    } else if (m.status) {
                       upCount++;
                     } else {
                       downCount++;
                     }
                   }
                 }
-
                 return Center(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        '↑$upCount',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Text(
-                        '↓$downCount',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '⏸',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            '$pausedCount',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
-                            ),
-                          ),
-                        ],
-                      ),
+                      _summaryItem(Icons.check_circle_rounded, '$upCount',
+                          const Color(0xFF22C55E)),
+                      const SizedBox(width: 20),
+                      _summaryItem(Icons.cancel_rounded, '$downCount',
+                          const Color(0xFFEF4444)),
+                      const SizedBox(width: 20),
+                      _summaryItem(Icons.pause_circle_rounded, '$pausedCount',
+                          const Color(0xFFF59E0B)),
                     ],
                   ),
                 );
@@ -916,15 +951,35 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         final filteredGroups = filteredSnapshot.data!;
                         if (filteredGroups.isEmpty) {
                           return Center(
-                            child: Text(
-                              'No monitors found',
-                              style: GoogleFonts.inter(),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.search_off_rounded,
+                                  size: 56,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant
+                                      .withOpacity(0.5),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No monitors found',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         }
 
                         return ListView.builder(
                           physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.only(bottom: 24),
                           itemCount: filteredGroups.length,
                           itemBuilder: (context, index) {
                             final group = filteredGroups[index];
@@ -932,13 +987,33 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    group.name,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  padding: const EdgeInsets.fromLTRB(
+                                      16, 20, 16, 10),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primaryContainer
+                                              .withOpacity(0.6),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          group.name,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimaryContainer,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 ...group.monitors.map(_buildMonitorCard),

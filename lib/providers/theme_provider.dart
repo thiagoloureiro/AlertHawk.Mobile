@@ -167,7 +167,8 @@ class ThemeProvider with ChangeNotifier {
   static const Color _ghSurface = Color(0xFF161B22);
   static const Color _ghBorder = Color(0xFF30363D);
   static const Color _ghText = Color(0xFFC9D1D9);
-  static const Color _ghAccent = Color(0xFF58A6FF);
+  static const Color _ghAccent = Color(0xFF58A6FF); // GitHub blue
+  static const Color _ghAccentDim = Color(0xFF388BFD);
 
   static final _githubDarkTheme = ThemeData(
     brightness: Brightness.dark,
@@ -190,7 +191,15 @@ class ThemeProvider with ChangeNotifier {
     ),
     colorScheme: ColorScheme.dark(
       primary: _ghAccent,
-      onPrimary: _ghBg,
+      onPrimary: Colors.white,
+      primaryContainer: const Color(0xFF1F3A5C),
+      onPrimaryContainer: _ghAccent,
+      secondary: _ghBorder,
+      onSecondary: _ghText,
+      secondaryContainer: _ghBorder,
+      onSecondaryContainer: _ghText,
+      tertiary: _ghAccentDim,
+      onTertiary: Colors.white,
       surface: _ghSurface,
       onSurface: _ghText,
       error: const Color(0xFFF85149),
@@ -209,7 +218,8 @@ class ThemeProvider with ChangeNotifier {
   static const Color _monoSurface = Color(0xFF3E3D32);
   static const Color _monoBorder = Color(0xFF49483E);
   static const Color _monoFg = Color(0xFFF8F8F2);
-  static const Color _monoAccent = Color(0xFF66D9EF);
+  static const Color _monoOrange = Color(0xFFFD971F); // Monokai orange – buttons/primary
+  static const Color _monoOrangeDim = Color(0xFFE65C00);
 
   static final _monokaiTheme = ThemeData(
     brightness: Brightness.dark,
@@ -231,8 +241,16 @@ class ThemeProvider with ChangeNotifier {
           ),
     ),
     colorScheme: ColorScheme.dark(
-      primary: _monoAccent,
+      primary: _monoOrange,
       onPrimary: _monoBg,
+      primaryContainer: const Color(0xFF5C4A2A),
+      onPrimaryContainer: _monoOrange,
+      secondary: _monoBorder,
+      onSecondary: _monoFg,
+      secondaryContainer: _monoBorder,
+      onSecondaryContainer: _monoFg,
+      tertiary: _monoOrangeDim,
+      onTertiary: _monoFg,
       surface: _monoSurface,
       onSurface: _monoFg,
       error: const Color(0xFFF92672),
