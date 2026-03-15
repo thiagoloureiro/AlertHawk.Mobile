@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/cluster_node_metric.dart';
 import '../services/metrics_service.dart';
 import '../widgets/theme_selector_modal.dart';
+import 'cluster_detail_screen.dart';
 
 class ClustersDashboardScreen extends StatefulWidget {
   const ClustersDashboardScreen({super.key});
@@ -229,10 +230,24 @@ class _ClustersDashboardScreenState extends State<ClustersDashboardScreen> {
               itemBuilder: (context, index) {
                 final key = clusterKeys[index];
                 final clusterNodes = byCluster[key]!;
-                return _ClusterCard(
-                  clusterName: clusterNodes.first.clusterName,
-                  clusterEnvironment: clusterNodes.first.clusterEnvironment,
-                  nodes: clusterNodes,
+                return InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ClusterDetailScreen(
+                          clusterName: clusterNodes.first.clusterName,
+                          clusterEnvironment: clusterNodes.first.clusterEnvironment,
+                          nodes: clusterNodes,
+                        ),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: _ClusterCard(
+                    clusterName: clusterNodes.first.clusterName,
+                    clusterEnvironment: clusterNodes.first.clusterEnvironment,
+                    nodes: clusterNodes,
+                  ),
                 );
               },
             );
