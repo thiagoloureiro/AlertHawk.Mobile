@@ -27,8 +27,9 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   void _processQRCode(String code) {
     try {
       final values = code.split(';');
-      if (values.length != 6) {
-        throw Exception('Invalid QR code format');
+      if (values.length != 7) {
+        throw Exception(
+            'Invalid QR code format, expected 7 values, got ${values.length}');
       }
 
       final settings = {
@@ -45,7 +46,9 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       Navigator.of(context).pop(settings);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid QR code format')),
+        SnackBar(
+          content: Text('Invalid QR code format. Error: $e'),
+        ),
       );
     }
   }
