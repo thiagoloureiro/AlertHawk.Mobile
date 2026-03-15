@@ -17,9 +17,6 @@ class _ClustersDashboardScreenState extends State<ClustersDashboardScreen> {
   /// All = null, or "PROD" / "TEST"
   String? _envFilter;
 
-  /// TEMPORARY: set to true to add 12 fake clusters (TEST/PROD) for display testing.
-  static const bool _kAddFakeClustersForTest = true;
-
   @override
   void initState() {
     super.initState();
@@ -30,36 +27,6 @@ class _ClustersDashboardScreenState extends State<ClustersDashboardScreen> {
     setState(() {
       _nodesFuture = MetricsService.getClusterDashboardNodes(minutes: _minutes);
     });
-  }
-
-  /// TEMPORARY: 12 fake clusters (6 PROD, 6 TEST) for display testing. Remove when done.
-  static List<ClusterNodeMetric> _fakeClusterNodes() {
-    final now = DateTime.now();
-    final envs = ['PROD', 'TEST'];
-    final names = ['aks-02', 'aks-03', 'eks-dev', 'gke-us', 'aks-staging', 'eks-qa', 'aks-eu', 'gke-asia', 'aks-canary', 'eks-perf', 'gke-demo', 'aks-lab'];
-    final cpuPercent = [12.0, 45.0, 78.0, 33.0, 90.0, 22.0, 56.0, 11.0, 67.0, 34.0, 88.0, 23.0];
-    final memPercent = [55.0, 70.0, 42.0, 61.0, 85.0, 38.0, 72.0, 48.0, 65.0, 51.0, 79.0, 44.0];
-    final list = <ClusterNodeMetric>[];
-    for (var i = 0; i < 12; i++) {
-      final cpuPct = cpuPercent[i];
-      final memPct = memPercent[i];
-      final cores = 4.0;
-      final memBytes = 8 * 1024 * 1024 * 1024; // 8 GB
-      list.add(ClusterNodeMetric(
-        timestamp: now,
-        clusterName: names[i],
-        clusterEnvironment: envs[i % 2],
-        nodeName: '${names[i]}-vmss00000$i',
-        cpuUsageCores: cores * (cpuPct / 100),
-        cpuCapacityCores: cores,
-        memoryUsageBytes: (memBytes * (memPct / 100)).round(),
-        memoryCapacityBytes: memBytes,
-        kubernetesVersion: 'v1.${28 + (i % 6)}.${i % 10}',
-        cloudProvider: ['AKS', 'EKS', 'GKE'][i % 3],
-        isReady: i % 7 != 3,
-      ));
-    }
-    return list;
   }
 
   /// Group nodes by cluster (name + environment). Returns map keyed by "name|env".
@@ -220,10 +187,7 @@ class _ClustersDashboardScreenState extends State<ClustersDashboardScreen> {
                 ),
               );
             }
-            var nodes = snapshot.data ?? [];
-            if (_kAddFakeClustersForTest) {
-              nodes = [...nodes, ..._fakeClusterNodes()];
-            }
+            final nodes = snapshot.data ?? [];
             if (nodes.isEmpty) {
               return Center(
                 child: Column(
