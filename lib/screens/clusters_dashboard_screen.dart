@@ -368,9 +368,11 @@ class _ClusterCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: clusterEnvironment.toUpperCase() == 'PROD'
-                            ? const Color(0xFFEF4444).withOpacity(0.2)
-                            : theme.colorScheme.surfaceContainerHighest,
+                        color: clusterEnvironment.toUpperCase() == 'TEST'
+                            ? const Color(0xFF22C55E).withOpacity(0.2)
+                            : clusterEnvironment.toUpperCase() == 'PROD'
+                                ? const Color(0xFFEF4444).withOpacity(0.2)
+                                : theme.colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -378,9 +380,11 @@ class _ClusterCard extends StatelessWidget {
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: clusterEnvironment.toUpperCase() == 'PROD'
-                              ? const Color(0xFFEF4444)
-                              : theme.colorScheme.onSurfaceVariant,
+                          color: clusterEnvironment.toUpperCase() == 'TEST'
+                              ? const Color(0xFF22C55E)
+                              : clusterEnvironment.toUpperCase() == 'PROD'
+                                  ? const Color(0xFFEF4444)
+                                  : theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),

@@ -326,7 +326,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Row(
             children: [
-              ...['All', 'Online', 'Offline'].map((value) {
+              ...['All', 'Online', 'Offline', 'Paused'].map((value) {
                 final isSelected = _statusFilter == value;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -405,8 +405,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       .contains(_searchQuery.toLowerCase());
 
               final matchesStatus = _statusFilter == 'All' ||
-                  (_statusFilter == 'Online' && monitor.status) ||
-                  (_statusFilter == 'Offline' && !monitor.status);
+                  (_statusFilter == 'Online' &&
+                      !monitor.paused &&
+                      monitor.status) ||
+                  (_statusFilter == 'Offline' &&
+                      !monitor.paused &&
+                      !monitor.status) ||
+                  (_statusFilter == 'Paused' && monitor.paused);
 
               return matchesSearch && matchesStatus;
             }).toList(),
@@ -853,47 +858,34 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               );
             }
-            return FutureBuilder<List<MonitorGroup>>(
-              future: _filterGroups(snapshot.data!),
-              builder: (context, filteredSnapshot) {
-                if (!filteredSnapshot.hasData) {
-                  return Text(
-                    'Monitors',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                      letterSpacing: -0.3,
-                    ),
-                  );
+            // Counts in title are always overall (unfiltered)
+            final groups = snapshot.data!;
+            int upCount = 0, downCount = 0, pausedCount = 0;
+            for (var g in groups) {
+              for (var m in g.monitors) {
+                if (m.paused) {
+                  pausedCount++;
+                } else if (m.status) {
+                  upCount++;
+                } else {
+                  downCount++;
                 }
-                int upCount = 0, downCount = 0, pausedCount = 0;
-                for (var g in filteredSnapshot.data!) {
-                  for (var m in g.monitors) {
-                    if (m.paused) {
-                      pausedCount++;
-                    } else if (m.status) {
-                      upCount++;
-                    } else {
-                      downCount++;
-                    }
-                  }
-                }
-                return Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _summaryItem(Icons.check_circle_rounded, '$upCount',
-                          const Color(0xFF22C55E)),
-                      const SizedBox(width: 20),
-                      _summaryItem(Icons.cancel_rounded, '$downCount',
-                          const Color(0xFFEF4444)),
-                      const SizedBox(width: 20),
-                      _summaryItem(Icons.pause_circle_rounded, '$pausedCount',
-                          const Color(0xFFF59E0B)),
-                    ],
-                  ),
-                );
-              },
+              }
+            }
+            return Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _summaryItem(Icons.check_circle_rounded, '$upCount',
+                      const Color(0xFF22C55E)),
+                  const SizedBox(width: 20),
+                  _summaryItem(Icons.cancel_rounded, '$downCount',
+                      const Color(0xFFEF4444)),
+                  const SizedBox(width: 20),
+                  _summaryItem(Icons.pause_circle_rounded, '$pausedCount',
+                      const Color(0xFFF59E0B)),
+                ],
+              ),
             );
           },
         ),

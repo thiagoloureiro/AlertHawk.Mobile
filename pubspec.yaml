@@ -129,6 +129,8 @@ flutter:
     - .env
     - assets/logo.png
     - assets/logosmall.png
+    - assets/windows.png
+    - assets/linux.png
 
 flutter_native_splash:
 

@@ -34,9 +34,12 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
     setState(() => _isRefreshing = true);
     try {
       final all = await MetricsService.getClusterDashboardNodes(minutes: 1);
-      final filtered = all.where((n) =>
-          n.clusterName == widget.clusterName &&
-          n.clusterEnvironment.toUpperCase() == widget.clusterEnvironment.toUpperCase()).toList();
+      final filtered = all
+          .where((n) =>
+              n.clusterName == widget.clusterName &&
+              n.clusterEnvironment.toUpperCase() ==
+                  widget.clusterEnvironment.toUpperCase())
+          .toList();
       if (mounted) {
         setState(() {
           _nodes = filtered;
@@ -58,6 +61,7 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
     }
     return cap > 0 ? (used / cap) * 100 : 0;
   }
+
   double get _aggregateMemoryPercent {
     int used = 0, cap = 0;
     for (final n in _nodes) {
@@ -66,9 +70,11 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
     }
     return cap > 0 ? (used / cap) * 100 : 0;
   }
+
   String get _lastUpdateLabel {
     if (_nodes.isEmpty) return 'Unknown';
-    final t = _nodes.map((n) => n.timestamp).reduce((a, b) => a.isAfter(b) ? a : b);
+    final t =
+        _nodes.map((n) => n.timestamp).reduce((a, b) => a.isAfter(b) ? a : b);
     final now = DateTime.now();
     final diff = now.difference(t);
     if (diff.inMinutes < 1) return 'Just now';
@@ -80,32 +86,36 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final statusColor = _isClusterReady ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
-    final k8sVersion = _nodes.isNotEmpty ? _nodes.first.kubernetesVersion : null;
+    final statusColor =
+        _isClusterReady ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+    final k8sVersion =
+        _nodes.isNotEmpty ? _nodes.first.kubernetesVersion : null;
     final cloudProvider = _nodes.isNotEmpty ? _nodes.first.cloudProvider : null;
-    final isProd = widget.clusterEnvironment.toUpperCase() == 'PROD';
+    final envUpper = widget.clusterEnvironment.toUpperCase();
+    final isTest = envUpper == 'TEST';
+    final isProd = envUpper == 'PROD';
 
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
-            Expanded(
-              child: Text(
-                widget.clusterName,
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                  letterSpacing: -0.3,
-                ),
-                overflow: TextOverflow.ellipsis,
+            Text(
+              'Cluster Details',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                letterSpacing: -0.3,
               ),
             ),
+            const SizedBox(width: 10),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: isProd
-                    ? const Color(0xFFEF4444).withOpacity(0.2)
-                    : theme.colorScheme.surfaceContainerHighest,
+                color: isTest
+                    ? const Color(0xFF22C55E).withOpacity(0.2)
+                    : isProd
+                        ? const Color(0xFFEF4444).withOpacity(0.2)
+                        : theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -113,7 +123,11 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isProd ? const Color(0xFFEF4444) : theme.colorScheme.onSurfaceVariant,
+                  color: isTest
+                      ? const Color(0xFF22C55E)
+                      : isProd
+                          ? const Color(0xFFEF4444)
+                          : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -157,10 +171,22 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        widget.clusterName,
+                        style: GoogleFonts.inter(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           Icon(
-                            _isClusterReady ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                            _isClusterReady
+                                ? Icons.check_circle_rounded
+                                : Icons.cancel_rounded,
                             size: 24,
                             color: statusColor,
                           ),
@@ -177,14 +203,18 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
                       ),
                       if (k8sVersion != null && k8sVersion.isNotEmpty) ...[
                         const SizedBox(height: 12),
-                        _detailRow(Icons.code_rounded, 'Kubernetes', k8sVersion, theme),
+                        _detailRow(Icons.code_rounded, 'Kubernetes', k8sVersion,
+                            theme),
                       ],
-                      if (cloudProvider != null && cloudProvider.isNotEmpty) ...[
+                      if (cloudProvider != null &&
+                          cloudProvider.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        _detailRow(Icons.cloud_rounded, 'Cloud', cloudProvider, theme),
+                        _detailRow(
+                            Icons.cloud_rounded, 'Cloud', cloudProvider, theme),
                       ],
                       const SizedBox(height: 12),
-                      _detailRow(Icons.schedule_rounded, 'Last update', _lastUpdateLabel, theme),
+                      _detailRow(Icons.schedule_rounded, 'Last update',
+                          _lastUpdateLabel, theme),
                     ],
                   ),
                 ),
@@ -215,6 +245,7 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
                           null,
                         ),
                       ),
+                      const SizedBox(width: 20),
                       Expanded(
                         child: _buildSummaryColumn(
                           theme,
@@ -224,6 +255,7 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
                           _aggregateCpuPercent,
                         ),
                       ),
+                      const SizedBox(width: 20),
                       Expanded(
                         child: _buildSummaryColumn(
                           theme,
@@ -248,7 +280,9 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
               ),
               const SizedBox(height: 12),
               ..._nodes.map((node) {
-                final nodeColor = node.isReady ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+                final nodeColor = node.isReady
+                    ? const Color(0xFF22C55E)
+                    : const Color(0xFFEF4444);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Material(
@@ -261,7 +295,8 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.dns_rounded, size: 20, color: nodeColor),
+                              Icon(Icons.dns_rounded,
+                                  size: 20, color: nodeColor),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
@@ -273,17 +308,34 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              if (node.operatingSystem != null &&
+                                  node.operatingSystem!.isNotEmpty) ...[
+                                _osImage(node.operatingSystem!, 20),
+                                const SizedBox(width: 8),
+                              ],
                               Icon(
-                                node.isReady ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                                node.isReady
+                                    ? Icons.check_circle_rounded
+                                    : Icons.cancel_rounded,
                                 size: 22,
                                 color: nodeColor,
                               ),
                             ],
                           ),
                           const SizedBox(height: 12),
-                          _nodeMetricRow(theme, 'CPU', '${node.cpuUsagePercent.toStringAsFixed(1)}%', node.cpuUsagePercent, nodeColor),
+                          _nodeMetricRow(
+                              theme,
+                              'CPU',
+                              '${node.cpuUsagePercent.toStringAsFixed(1)}%',
+                              node.cpuUsagePercent,
+                              nodeColor),
                           const SizedBox(height: 8),
-                          _nodeMetricRow(theme, 'RAM', '${node.memoryUsagePercent.toStringAsFixed(1)}%', node.memoryUsagePercent, nodeColor),
+                          _nodeMetricRow(
+                              theme,
+                              'RAM',
+                              '${node.memoryUsagePercent.toStringAsFixed(1)}%',
+                              node.memoryUsagePercent,
+                              nodeColor),
                         ],
                       ),
                     ),
@@ -297,7 +349,8 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
     );
   }
 
-  Widget _detailRow(IconData icon, String label, String value, ThemeData theme) {
+  Widget _detailRow(
+      IconData icon, String label, String value, ThemeData theme) {
     return Row(
       children: [
         Icon(icon, size: 20, color: theme.colorScheme.onSurfaceVariant),
@@ -320,7 +373,8 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
     );
   }
 
-  Widget _buildSummaryColumn(ThemeData theme, IconData icon, String label, String value, double? percent) {
+  Widget _buildSummaryColumn(ThemeData theme, IconData icon, String label,
+      String value, double? percent) {
     final color = const Color(0xFF22C55E);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,7 +417,31 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
     );
   }
 
-  Widget _nodeMetricRow(ThemeData theme, String label, String value, double percent, Color color) {
+  Widget _osImage(String operatingSystem, double size) {
+    final path = _osAssetPath(operatingSystem);
+    if (path == null) return const SizedBox.shrink();
+    return Image.asset(
+      path,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+    );
+  }
+
+  String? _osAssetPath(String operatingSystem) {
+    switch (operatingSystem.toLowerCase()) {
+      case 'linux':
+        return 'assets/linux.png';
+      case 'windows':
+        return 'assets/windows.png';
+      default:
+        return null;
+    }
+  }
+
+  Widget _nodeMetricRow(ThemeData theme, String label, String value,
+      double percent, Color color) {
     return Row(
       children: [
         SizedBox(
