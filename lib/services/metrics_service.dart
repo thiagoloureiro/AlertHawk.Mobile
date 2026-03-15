@@ -33,6 +33,19 @@ class MetricsService {
     }
   }
 
+  /// Keeps only the latest metric per node (cluster + nodeName); API may return multiple in the same minute.
+  static List<ClusterNodeMetric> _deduplicateNodesByLatest(List<ClusterNodeMetric> nodes) {
+    final byNode = <String, ClusterNodeMetric>{};
+    for (final n in nodes) {
+      final key = '${n.clusterName}|${n.clusterEnvironment}|${n.nodeName}';
+      final existing = byNode[key];
+      if (existing == null || n.timestamp.isAfter(existing.timestamp)) {
+        byNode[key] = n;
+      }
+    }
+    return byNode.values.toList();
+  }
+
   /// Fetches node metrics for all clusters (dashboard view).
   /// Tries /api/metrics/node first (same as getNodeMetrics, no cluster filter), then /metrics/api/Metrics/node.
   static Future<List<ClusterNodeMetric>> getClusterDashboardNodes({
@@ -67,9 +80,10 @@ class MetricsService {
         final List<dynamic> jsonList = decoded is List
             ? decoded
             : (decoded is Map ? (decoded['data'] ?? decoded['nodes'] ?? []) : []);
-        return jsonList
+        final list = jsonList
             .map((e) => ClusterNodeMetric.fromJson(Map<String, dynamic>.from(e)))
             .toList();
+        return _deduplicateNodesByLatest(list);
       } catch (_) {
         rethrow;
       }

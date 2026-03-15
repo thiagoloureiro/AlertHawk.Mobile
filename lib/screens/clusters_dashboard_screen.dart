@@ -30,19 +30,6 @@ class _ClustersDashboardScreenState extends State<ClustersDashboardScreen> {
     });
   }
 
-  /// Keeps only the latest metric per node (same cluster + nodeName); API may return multiple in the same minute.
-  List<ClusterNodeMetric> _deduplicateNodesByLatest(List<ClusterNodeMetric> nodes) {
-    final byNode = <String, ClusterNodeMetric>{};
-    for (final n in nodes) {
-      final key = '${n.clusterName}|${n.clusterEnvironment}|${n.nodeName}';
-      final existing = byNode[key];
-      if (existing == null || n.timestamp.isAfter(existing.timestamp)) {
-        byNode[key] = n;
-      }
-    }
-    return byNode.values.toList();
-  }
-
   /// Group nodes by cluster (name + environment). Returns map keyed by "name|env".
   Map<String, List<ClusterNodeMetric>> _groupByCluster(List<ClusterNodeMetric> nodes) {
     final map = <String, List<ClusterNodeMetric>>{};
@@ -201,7 +188,7 @@ class _ClustersDashboardScreenState extends State<ClustersDashboardScreen> {
                 ),
               );
             }
-            final nodes = _deduplicateNodesByLatest(snapshot.data ?? []);
+            final nodes = snapshot.data ?? [];
             if (nodes.isEmpty) {
               return Center(
                 child: Column(
