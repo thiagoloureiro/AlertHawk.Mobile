@@ -102,7 +102,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 size: 22,
               ),
               filled: true,
-              fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+              fillColor:
+                  theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide.none,
@@ -128,7 +129,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       '$days days',
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w500,
                       ),
                     ),
                     selected: isSelected,
@@ -155,9 +157,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
   Widget _buildAlertCard(MonitorAlert alert, Environment env) {
     final theme = Theme.of(context);
-    final statusColor = alert.status
-        ? const Color(0xFF22C55E)
-        : const Color(0xFFEF4444);
+    final statusColor =
+        alert.status ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -186,7 +187,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
-                        alert.status ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                        alert.status
+                            ? Icons.check_circle_rounded
+                            : Icons.cancel_rounded,
                         color: statusColor,
                         size: 20,
                       ),
@@ -206,7 +209,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('MMM d, yyyy · HH:mm').format(alert.localTimeStamp),
+                            DateFormat('MMM d, yyyy · HH:mm')
+                                .format(alert.localTimeStamp),
                             style: GoogleFonts.inter(
                               fontSize: 13,
                               color: theme.colorScheme.onSurfaceVariant,
@@ -228,9 +232,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.8),
+                        color: theme.colorScheme.surfaceContainerHighest
+                            .withOpacity(0.8),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -372,6 +378,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     }
 
                     final filteredAlerts = _filterAlerts(snapshot.data!);
+                    filteredAlerts.sort(
+                        (a, b) => b.localTimeStamp.compareTo(a.localTimeStamp));
 
                     if (filteredAlerts.isEmpty) {
                       final theme = Theme.of(context);
@@ -382,7 +390,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
                             Icon(
                               Icons.notifications_none_rounded,
                               size: 56,
-                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withOpacity(0.5),
                             ),
                             const SizedBox(height: 16),
                             Text(

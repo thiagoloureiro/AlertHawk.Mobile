@@ -519,19 +519,44 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
         await showDialog(
           context: context,
-          builder: (dialogContext) => StatefulBuilder(
-            builder: (context, setDialogState) => AlertDialog(
-              title: Text('Select Groups', style: GoogleFonts.inter()),
-              content: SizedBox(
-                width: 400,
-                height: 400,
-                child: Scrollbar(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          builder: (dialogContext) {
+            final media = MediaQuery.of(context);
+            return StatefulBuilder(
+              builder: (context, setDialogState) => Dialog(
+                insetPadding: EdgeInsets.only(
+                  left: media.size.width * 0.03,
+                  right: media.size.width * 0.03,
+                  top: media.size.height * 0.05,
+                  bottom: 0,
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: media.size.width * 0.94,
+                    maxHeight: media.size.height * 0.88,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Select Groups',
+                                style: GoogleFonts.inter(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             TextButton(
                               onPressed: () {
@@ -541,8 +566,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   }
                                 });
                               },
-                              child: Text('Clear All',
-                                  style: GoogleFonts.inter()),
+                              child: Text(
+                                'Clear All',
+                                style: GoogleFonts.inter(),
+                              ),
                             ),
                             TextButton(
                               onPressed: () {
@@ -552,49 +579,89 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   }
                                 });
                               },
-                              child: Text('Select All',
-                                  style: GoogleFonts.inter()),
+                              child: Text(
+                                'Select All',
+                                style: GoogleFonts.inter(),
+                              ),
                             ),
                           ],
                         ),
-                        ...sortedGroups.map((group) {
-                          return CheckboxListTile(
-                            title: Text(group.name,
-                                style: GoogleFonts.inter()),
-                            value: group.isSelected,
-                            onChanged: (bool? value) {
-                              setDialogState(() {
-                                group.isSelected = value ?? false;
-                              });
+                      ),
+                      Flexible(
+                        child: Scrollbar(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: sortedGroups.length,
+                            itemBuilder: (context, index) {
+                              final group = sortedGroups[index];
+                              return CheckboxListTile(
+                                dense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 2,
+                                ),
+                                visualDensity: VisualDensity.compact,
+                                title: Text(
+                                  group.name,
+                                  style: GoogleFonts.inter(fontSize: 15),
+                                ),
+                                value: group.isSelected,
+                                onChanged: (bool? value) {
+                                  setDialogState(() {
+                                    group.isSelected = value ?? false;
+                                  });
+                                },
+                              );
                             },
-                          );
-                        }),
-                      ],
-                    ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                          top: 8,
+                          bottom: 8 + media.padding.bottom,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(dialogContext),
+                              child: Text(
+                                'Cancel',
+                                style: GoogleFonts.inter(),
+                              ),
+                            ),
+                            FilledButton(
+                              onPressed: () {
+                                final selectedGroupIds = sortedGroups
+                                    .where((group) => group.isSelected)
+                                    .map((group) => group.id.toString())
+                                    .toList();
+                                prefs.setStringList(
+                                    'selected_groups', selectedGroupIds);
+
+                                Navigator.pop(dialogContext);
+
+                                setState(() {
+                                  _monitorGroups = _fetchMonitorGroups();
+                                });
+                              },
+                              child: Text(
+                                'Save',
+                                style: GoogleFonts.inter(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    final selectedGroupIds = sortedGroups
-                        .where((group) => group.isSelected)
-                        .map((group) => group.id.toString())
-                        .toList();
-                    prefs.setStringList('selected_groups', selectedGroupIds);
-
-                    Navigator.pop(dialogContext);
-
-                    // Use the outer setState to refresh the main screen
-                    setState(() {
-                      _monitorGroups = _fetchMonitorGroups();
-                    });
-                  },
-                  child: Text('Save', style: GoogleFonts.inter()),
-                ),
-              ],
-            ),
-          ),
+            );
+          },
         );
       }
     } catch (e) {
