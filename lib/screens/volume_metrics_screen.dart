@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
 import '../services/metrics_service.dart';
 import '../models/volume_metric.dart';
@@ -93,6 +91,28 @@ class _VolumeMetricsScreenState extends State<VolumeMetricsScreen> {
     if (_selectedNamespace == null) return _metrics;
     return _metrics.where((m) => m.namespace == _selectedNamespace).toList();
   }
+
+  /// One row per PVC: the latest sample only.
+  List<VolumeMetric> get _latestMetrics {
+    if (_filteredMetrics.isEmpty) return [];
+    final Map<String, VolumeMetric> latestByPvc = {};
+    for (final m in _filteredMetrics) {
+      final existing = latestByPvc[m.pvcName];
+      if (existing == null || m.timestamp.isAfter(existing.timestamp)) {
+        latestByPvc[m.pvcName] = m;
+      }
+    }
+    final result = latestByPvc.values.toList();
+    result.sort((a, b) => a.pvcName.compareTo(b.pvcName));
+    return result;
+  }
+
+  int get _totalCapacityBytes =>
+      _latestMetrics.fold(0, (sum, m) => sum + m.capacityBytes);
+  int get _totalUsedBytes =>
+      _latestMetrics.fold(0, (sum, m) => sum + m.usedBytes);
+  int get _totalAvailableBytes =>
+      _latestMetrics.fold(0, (sum, m) => sum + m.availableBytes);
 
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
@@ -185,8 +205,8 @@ class _VolumeMetricsScreenState extends State<VolumeMetricsScreen> {
     return _volumeColors[index % _volumeColors.length];
   }
 
-  // Fixed column widths for aligned table (avoids expensive IntrinsicColumnWidth).
-  static const List<double> _columnWidths = [90, 95, 100, 160, 100, 72, 72, 72, 58];
+  // Fixed column widths: Timestamp, Pod, PVC Name, Volume, Used, Available, Capacity, Usage %
+  static const List<double> _columnWidths = [90, 120, 160, 100, 72, 72, 72, 58];
 
   Widget _tableCell(String text, {bool bold = false, bool isDarkMode = false, Color? color}) {
     return Padding(
@@ -205,7 +225,7 @@ class _VolumeMetricsScreenState extends State<VolumeMetricsScreen> {
 
   Widget _buildTableHeader(bool isDarkMode) {
     final labels = [
-      'Timestamp', 'Namespace', 'Pod', 'PVC Name', 'Volume',
+      'Timestamp', 'Pod', 'PVC Name', 'Volume',
       'Used', 'Available', 'Capacity', 'Usage %',
     ];
     return Container(
@@ -214,7 +234,7 @@ class _VolumeMetricsScreenState extends State<VolumeMetricsScreen> {
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(9, (i) => SizedBox(
+        children: List.generate(8, (i) => SizedBox(
           width: _columnWidths[i],
           child: _tableCell(labels[i], bold: true, isDarkMode: isDarkMode),
         )),
@@ -227,15 +247,14 @@ class _VolumeMetricsScreenState extends State<VolumeMetricsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(width: _columnWidths[0], child: _tableCell(DateFormat('MM/dd HH:mm').format(m.timestamp.toLocal()), isDarkMode: isDarkMode)),
-        SizedBox(width: _columnWidths[1], child: _tableCell(m.namespace, isDarkMode: isDarkMode)),
-        SizedBox(width: _columnWidths[2], child: _tableCell(m.pod, isDarkMode: isDarkMode)),
-        SizedBox(width: _columnWidths[3], child: _tableCell(m.pvcName, isDarkMode: isDarkMode)),
-        SizedBox(width: _columnWidths[4], child: _tableCell(m.volumeName, isDarkMode: isDarkMode)),
-        SizedBox(width: _columnWidths[5], child: _tableCell(_formatBytes(m.usedBytes), isDarkMode: isDarkMode)),
-        SizedBox(width: _columnWidths[6], child: _tableCell(_formatBytes(m.availableBytes), isDarkMode: isDarkMode)),
-        SizedBox(width: _columnWidths[7], child: _tableCell(_formatBytes(m.capacityBytes), isDarkMode: isDarkMode)),
+        SizedBox(width: _columnWidths[1], child: _tableCell(m.pod, isDarkMode: isDarkMode)),
+        SizedBox(width: _columnWidths[2], child: _tableCell(m.pvcName, isDarkMode: isDarkMode)),
+        SizedBox(width: _columnWidths[3], child: _tableCell(m.volumeName, isDarkMode: isDarkMode)),
+        SizedBox(width: _columnWidths[4], child: _tableCell(_formatBytes(m.usedBytes), isDarkMode: isDarkMode)),
+        SizedBox(width: _columnWidths[5], child: _tableCell(_formatBytes(m.availableBytes), isDarkMode: isDarkMode)),
+        SizedBox(width: _columnWidths[6], child: _tableCell(_formatBytes(m.capacityBytes), isDarkMode: isDarkMode)),
         SizedBox(
-          width: _columnWidths[8],
+          width: _columnWidths[7],
           child: _tableCell(
             '${m.usagePercent.toStringAsFixed(1)}%',
             isDarkMode: isDarkMode,
@@ -665,6 +684,29 @@ class _VolumeMetricsScreenState extends State<VolumeMetricsScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Total: ${_formatBytes(_totalCapacityBytes)}',
+                                  style: GoogleFonts.inter(fontSize: 12),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  'Used: ${_formatBytes(_totalUsedBytes)}',
+                                  style: GoogleFonts.inter(fontSize: 12),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  'Left: ${_formatBytes(_totalAvailableBytes)}',
+                                  style: GoogleFonts.inter(fontSize: 12),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Column(
@@ -672,16 +714,7 @@ class _VolumeMetricsScreenState extends State<VolumeMetricsScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 _buildTableHeader(isDarkMode),
-                                // Build limited rows in Column to avoid nested scrollable (prevents semantics assertion).
-                                ..._filteredMetrics.take(100).map((m) => _buildDataRow(m, isDarkMode)),
-                                if (_filteredMetrics.length > 100)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      'Showing first 100 of ${_filteredMetrics.length}',
-                                      style: GoogleFonts.inter(fontSize: 11, color: Colors.grey),
-                                    ),
-                                  ),
+                                ..._latestMetrics.map((m) => _buildDataRow(m, isDarkMode)),
                               ],
                             ),
                           ),
