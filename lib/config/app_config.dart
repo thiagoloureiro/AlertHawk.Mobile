@@ -42,4 +42,9 @@ class AppConfig {
       _prefs.getString('metrics_api_url') ??
       dotenv.env['METRICS_API_URL'] ??
       'https://metrics.alerthawk.net';
+
+  static String get finopsApiUrl =>
+      _prefs.getString('finops_api_url') ??
+      dotenv.env['FINOPS_API_URL'] ??
+      'https://finops.alerthawk.net';
 }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
 import '../services/metrics_service.dart';
 import '../models/node_metric.dart';
@@ -104,9 +102,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
     if (_metrics.isEmpty) return [];
 
     // Filter metrics for this node
-    final nodeMetrics = _metrics
-        .where((m) => m.nodeName == nodeName)
-        .toList();
+    final nodeMetrics = _metrics.where((m) => m.nodeName == nodeName).toList();
 
     // Group by timestamp (minute level) - convert to local timezone
     final Map<DateTime, double> aggregated = {};
@@ -132,7 +128,9 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
     // Get all unique timestamps for x-axis alignment
     final allTimestamps = _getAllUniqueTimestamps();
 
-    return allTimestamps.asMap().entries
+    return allTimestamps
+        .asMap()
+        .entries
         .map((entry) {
           final timestamp = entry.value;
           final cpuPercent = aggregated[timestamp];
@@ -149,9 +147,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
     if (_metrics.isEmpty) return [];
 
     // Filter metrics for this node
-    final nodeMetrics = _metrics
-        .where((m) => m.nodeName == nodeName)
-        .toList();
+    final nodeMetrics = _metrics.where((m) => m.nodeName == nodeName).toList();
 
     // Group by timestamp (minute level) - convert to local timezone
     final Map<DateTime, double> aggregated = {};
@@ -177,7 +173,9 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
     // Get all unique timestamps for x-axis alignment
     final allTimestamps = _getAllUniqueTimestamps();
 
-    return allTimestamps.asMap().entries
+    return allTimestamps
+        .asMap()
+        .entries
         .map((entry) {
           final timestamp = entry.value;
           final memoryPercent = aggregated[timestamp];
@@ -336,9 +334,8 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                             DropdownButton<int>(
                               value: _selectedHours,
                               style: GoogleFonts.inter(
-                                color: isDarkMode
-                                    ? Colors.white
-                                    : Colors.black87,
+                                color:
+                                    isDarkMode ? Colors.white : Colors.black87,
                               ),
                               dropdownColor: isDarkMode
                                   ? Theme.of(context).colorScheme.surface
@@ -379,8 +376,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         _errorMessage!,
-                        style:
-                            GoogleFonts.inter(color: Colors.red.shade900),
+                        style: GoogleFonts.inter(color: Colors.red.shade900),
                       ),
                     ),
                   ),
@@ -417,14 +413,18 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                               final nodeNames = _getNodeNames();
                               // Calculate items per row to ensure at least 4 rows
                               final itemsPerRow = (nodeNames.length / 4).ceil();
-                              final screenWidth = MediaQuery.of(context).size.width;
-                              final availableWidth = screenWidth - 64; // Account for padding
-                              final itemWidth = (availableWidth / itemsPerRow).clamp(120.0, 200.0);
-                              
+                              final screenWidth =
+                                  MediaQuery.of(context).size.width;
+                              final availableWidth =
+                                  screenWidth - 64; // Account for padding
+                              final itemWidth = (availableWidth / itemsPerRow)
+                                  .clamp(120.0, 200.0);
+
                               return Wrap(
                                 spacing: 12,
                                 runSpacing: 8,
-                                children: nodeNames.asMap().entries.map((entry) {
+                                children:
+                                    nodeNames.asMap().entries.map((entry) {
                                   final nodeName = entry.value;
                                   final color = _getNodeColor(entry.key);
                                   return SizedBox(
@@ -488,14 +488,18 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                               final nodeNames = _getNodeNames();
                               // Calculate items per row to ensure at least 4 rows
                               final itemsPerRow = (nodeNames.length / 4).ceil();
-                              final screenWidth = MediaQuery.of(context).size.width;
-                              final availableWidth = screenWidth - 64; // Account for padding
-                              final itemWidth = (availableWidth / itemsPerRow).clamp(120.0, 200.0);
-                              
+                              final screenWidth =
+                                  MediaQuery.of(context).size.width;
+                              final availableWidth =
+                                  screenWidth - 64; // Account for padding
+                              final itemWidth = (availableWidth / itemsPerRow)
+                                  .clamp(120.0, 200.0);
+
                               return Wrap(
                                 spacing: 12,
                                 runSpacing: 8,
-                                children: nodeNames.asMap().entries.map((entry) {
+                                children:
+                                    nodeNames.asMap().entries.map((entry) {
                                   final nodeName = entry.value;
                                   final color = _getNodeColor(entry.key);
                                   return SizedBox(
@@ -600,9 +604,9 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
                                           borderRadius:
                                               BorderRadius.circular(4),
                                           child: LinearProgressIndicator(
-                                            value: latestMetric
-                                                    .cpuUsagePercent /
-                                                100,
+                                            value:
+                                                latestMetric.cpuUsagePercent /
+                                                    100,
                                             minHeight: 8,
                                             backgroundColor: isDarkMode
                                                 ? Colors.grey.shade800
@@ -713,9 +717,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
           horizontalInterval: 20,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: isDarkMode
-                  ? Colors.grey.shade800
-                  : Colors.grey.shade300,
+              color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
               strokeWidth: 1,
             );
           },
@@ -775,9 +777,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
         borderData: FlBorderData(
           show: true,
           border: Border.all(
-            color: isDarkMode
-                ? Colors.grey.shade800
-                : Colors.grey.shade300,
+            color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
           ),
         ),
         minX: 0,
@@ -845,9 +845,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
           horizontalInterval: 20,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: isDarkMode
-                  ? Colors.grey.shade800
-                  : Colors.grey.shade300,
+              color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
               strokeWidth: 1,
             );
           },
@@ -907,9 +905,7 @@ class _ClusterMetricsScreenState extends State<ClusterMetricsScreen> {
         borderData: FlBorderData(
           show: true,
           border: Border.all(
-            color: isDarkMode
-                ? Colors.grey.shade800
-                : Colors.grey.shade300,
+            color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
           ),
         ),
         minX: 0,

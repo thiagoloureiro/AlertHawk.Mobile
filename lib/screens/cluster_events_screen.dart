@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
 import '../services/metrics_service.dart';
 import '../models/cluster_event.dart';
@@ -28,10 +26,9 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
   int _selectedMinutes = 1440;
   final ScrollController _scrollController = ScrollController();
 
-  List<ClusterEvent> get _filteredEvents =>
-      _selectedNamespace == null
-          ? _events
-          : _events.where((e) => e.namespace == _selectedNamespace).toList();
+  List<ClusterEvent> get _filteredEvents => _selectedNamespace == null
+      ? _events
+      : _events.where((e) => e.namespace == _selectedNamespace).toList();
 
   static const List<int> _minutesOptions = [60, 360, 720, 1440, 4320, 10080];
   static const int _pageSize = 50;
@@ -278,9 +275,8 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                                 ),
                               ),
                               style: GoogleFonts.inter(
-                                color: isDarkMode
-                                    ? Colors.white
-                                    : Colors.black87,
+                                color:
+                                    isDarkMode ? Colors.white : Colors.black87,
                               ),
                               dropdownColor: isDarkMode
                                   ? Theme.of(context).colorScheme.surface
@@ -385,10 +381,10 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                     const SizedBox(height: 16),
                     const Center(child: CircularProgressIndicator()),
                   ],
-                  if (!_isLoadingEvents && _events.isNotEmpty) ...[
+                  if (!_isLoadingEvents && _filteredEvents.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     Text(
-                      '${_events.length} events (scroll for more)',
+                      '${_filteredEvents.length} events (scroll for more)',
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         color: isDarkMode
@@ -400,7 +396,7 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                   ],
                   if (!_isLoadingEvents &&
                       !_isLoadingClusters &&
-                      _events.isEmpty &&
+                      _filteredEvents.isEmpty &&
                       _selectedCluster != null) ...[
                     const SizedBox(height: 16),
                     Center(
@@ -417,13 +413,14 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                 ]),
               ),
             ),
-            if (!_isLoadingEvents && _events.isNotEmpty)
+            if (!_isLoadingEvents && _filteredEvents.isNotEmpty)
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 sliver: SliverList.builder(
-                  itemCount: _events.length + (_hasMore || _isLoadingMore ? 1 : 0),
+                  itemCount:
+                      _filteredEvents.length + (_hasMore || _isLoadingMore ? 1 : 0),
                   itemBuilder: (context, index) {
-                    if (index >= _events.length) {
+                    if (index >= _filteredEvents.length) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Center(
@@ -441,7 +438,7 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                         ),
                       );
                     }
-                    return _buildEventCard(_events[index], isDarkMode);
+                    return _buildEventCard(_filteredEvents[index], isDarkMode);
                   },
                 ),
               ),
@@ -526,7 +523,8 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                         children: [
                           _chip(
                             Icons.schedule,
-                            DateFormat('MMM d, HH:mm:ss').format(event.timestamp),
+                            DateFormat('MMM d, HH:mm:ss')
+                                .format(event.timestamp),
                             isDarkMode,
                           ),
                           _chip(
@@ -569,9 +567,7 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
             label,
             style: GoogleFonts.inter(
               fontSize: 12,
-              color: isDarkMode
-                  ? Colors.grey.shade400
-                  : Colors.grey.shade700,
+              color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700,
             ),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,

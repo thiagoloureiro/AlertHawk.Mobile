@@ -23,6 +23,7 @@ import 'clusters_dashboard_screen.dart';
 import 'cluster_events_screen.dart';
 import 'application_metrics_screen.dart';
 import 'volume_metrics_screen.dart';
+import 'finops_metrics_screen.dart';
 import 'dart:io';
 
 class WelcomeScreen extends StatefulWidget {
@@ -755,6 +756,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       builder: (_) => const VolumeMetricsScreen()),
                 );
                 break;
+              case 'finops_metrics':
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const FinOpsMetricsScreen()),
+                );
+                break;
             }
           },
           itemBuilder: (context) => [
@@ -866,6 +873,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Volume Metrics',
+                    style: GoogleFonts.inter(),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'finops_metrics',
+              child: Row(
+                children: [
+                  const Icon(Icons.account_balance_wallet_outlined),
+                  const SizedBox(width: 8),
+                  Text(
+                    'FinOps Metrics',
                     style: GoogleFonts.inter(),
                   ),
                 ],

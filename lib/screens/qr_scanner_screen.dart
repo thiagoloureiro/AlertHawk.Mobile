@@ -27,20 +27,34 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   void _processQRCode(String code) {
     try {
       final values = code.split(';');
-      if (values.length != 7) {
+      if (values.length != 7 && values.length != 8) {
         throw Exception(
-            'Invalid QR code format, expected 7 values, got ${values.length}');
+            'Invalid QR code format, expected 7 or 8 values, got ${values.length}');
       }
 
-      final settings = {
-        'monitoring_api_url': values[0],
-        'auth_api_url': values[1],
-        'notification_api_url': values[2],
-        'metrics_api_url': values[3],
-        'azure_ad_tenant': values[4],
-        'azure_ad_client_id': values[5],
-        'auth_api_key': values[6],
-      };
+      final Map<String, String> settings;
+      if (values.length == 7) {
+        settings = {
+          'monitoring_api_url': values[0],
+          'auth_api_url': values[1],
+          'notification_api_url': values[2],
+          'metrics_api_url': values[3],
+          'azure_ad_tenant': values[4],
+          'azure_ad_client_id': values[5],
+          'auth_api_key': values[6],
+        };
+      } else {
+        settings = {
+          'monitoring_api_url': values[0],
+          'auth_api_url': values[1],
+          'notification_api_url': values[2],
+          'metrics_api_url': values[3],
+          'finops_api_url': values[4],
+          'azure_ad_tenant': values[5],
+          'azure_ad_client_id': values[6],
+          'auth_api_key': values[7],
+        };
+      }
 
       _hasScanned = true;
       Navigator.of(context).pop(settings);

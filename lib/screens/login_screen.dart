@@ -5,8 +5,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../services/auth_service.dart';
 import 'welcome_screen.dart';
 import '../main.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
 import 'settings_screen.dart';
 import 'dart:convert';
@@ -646,8 +644,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           )
                         : Text(
                             'Register',
-                            style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold),
+                            style:
+                                GoogleFonts.inter(fontWeight: FontWeight.bold),
                           ),
                   ),
                 ],
@@ -823,8 +821,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       )
                     : Text(
                         'Reset Password',
-                        style:
-                            GoogleFonts.inter(fontWeight: FontWeight.bold),
+                        style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                       ),
               ),
             ],

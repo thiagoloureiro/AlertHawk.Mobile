@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
 import '../services/metrics_service.dart';
 import '../models/pod_metric.dart';
@@ -134,23 +132,20 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     if (podMetrics.isEmpty) return;
 
     // Get the latest metric
-    final latestMetric = podMetrics.reduce((a, b) =>
-        a.timestamp.isAfter(b.timestamp) ? a : b);
+    final latestMetric =
+        podMetrics.reduce((a, b) => a.timestamp.isAfter(b.timestamp) ? a : b);
 
     // Calculate statistics
     final sortedMetrics = List<PodMetric>.from(podMetrics)
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-    final minCpu = podMetrics
-        .map((m) => m.cpuUsageCores)
-        .reduce((a, b) => a < b ? a : b);
-    final maxCpu = podMetrics
-        .map((m) => m.cpuUsageCores)
-        .reduce((a, b) => a > b ? a : b);
-    final avgCpu = podMetrics
-            .map((m) => m.cpuUsageCores)
-            .reduce((a, b) => a + b) /
-        podMetrics.length;
+    final minCpu =
+        podMetrics.map((m) => m.cpuUsageCores).reduce((a, b) => a < b ? a : b);
+    final maxCpu =
+        podMetrics.map((m) => m.cpuUsageCores).reduce((a, b) => a > b ? a : b);
+    final avgCpu =
+        podMetrics.map((m) => m.cpuUsageCores).reduce((a, b) => a + b) /
+            podMetrics.length;
 
     final minMemory = podMetrics
         .map((m) => m.memoryUsageBytes)
@@ -158,11 +153,10 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     final maxMemory = podMetrics
         .map((m) => m.memoryUsageBytes)
         .reduce((a, b) => a > b ? a : b);
-    final avgMemory = (podMetrics
-                .map((m) => m.memoryUsageBytes)
-                .reduce((a, b) => a + b) /
-            podMetrics.length)
-        .round();
+    final avgMemory =
+        (podMetrics.map((m) => m.memoryUsageBytes).reduce((a, b) => a + b) /
+                podMetrics.length)
+            .round();
 
     final cpuPercent = latestMetric.cpuLimitCores != null
         ? (latestMetric.cpuUsageCores / latestMetric.cpuLimitCores!) * 100
@@ -172,8 +166,8 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: isDarkMode 
-              ? Theme.of(context).scaffoldBackgroundColor 
+          backgroundColor: isDarkMode
+              ? Theme.of(context).scaffoldBackgroundColor
               : Colors.white,
           child: Container(
             constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
@@ -256,7 +250,9 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                         _buildMetricRow(
                           'CPU Usage',
                           '${latestMetric.cpuUsageCores.toStringAsFixed(4)} cores',
-                          cpuPercent != null ? '${cpuPercent.toStringAsFixed(1)}%' : 'N/A',
+                          cpuPercent != null
+                              ? '${cpuPercent.toStringAsFixed(1)}%'
+                              : 'N/A',
                           latestMetric.cpuLimitCores != null
                               ? (latestMetric.cpuUsageCores /
                                   latestMetric.cpuLimitCores!)
@@ -281,13 +277,19 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        _buildStatRow('CPU - Min', '${minCpu.toStringAsFixed(4)} cores', isDarkMode),
-                        _buildStatRow('CPU - Max', '${maxCpu.toStringAsFixed(4)} cores', isDarkMode),
-                        _buildStatRow('CPU - Avg', '${avgCpu.toStringAsFixed(4)} cores', isDarkMode),
+                        _buildStatRow('CPU - Min',
+                            '${minCpu.toStringAsFixed(4)} cores', isDarkMode),
+                        _buildStatRow('CPU - Max',
+                            '${maxCpu.toStringAsFixed(4)} cores', isDarkMode),
+                        _buildStatRow('CPU - Avg',
+                            '${avgCpu.toStringAsFixed(4)} cores', isDarkMode),
                         const SizedBox(height: 12),
-                        _buildStatRow('Memory - Min', _formatBytes(minMemory), isDarkMode),
-                        _buildStatRow('Memory - Max', _formatBytes(maxMemory), isDarkMode),
-                        _buildStatRow('Memory - Avg', _formatBytes(avgMemory), isDarkMode),
+                        _buildStatRow('Memory - Min', _formatBytes(minMemory),
+                            isDarkMode),
+                        _buildStatRow('Memory - Max', _formatBytes(maxMemory),
+                            isDarkMode),
+                        _buildStatRow('Memory - Avg', _formatBytes(avgMemory),
+                            isDarkMode),
                         const SizedBox(height: 24),
                         // Time Range
                         Text(
@@ -393,9 +395,8 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
             child: LinearProgressIndicator(
               value: progressValue,
               minHeight: 6,
-              backgroundColor: isDarkMode
-                  ? Colors.grey.shade800
-                  : Colors.grey.shade300,
+              backgroundColor:
+                  isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
               valueColor: AlwaysStoppedAnimation<Color>(
                 progressValue > 0.8
                     ? Colors.red
@@ -420,9 +421,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
             label,
             style: GoogleFonts.inter(
               fontSize: 11,
-              color: isDarkMode
-                  ? Colors.grey.shade400
-                  : Colors.grey.shade600,
+              color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
             ),
           ),
           Text(
@@ -450,8 +449,9 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     if (_metrics.isEmpty) return [];
 
     // Filter metrics for this pod/container
-    final podMetrics = _metrics.where((m) => '${m.pod}/${m.container}' == podKey).toList();
-    
+    final podMetrics =
+        _metrics.where((m) => '${m.pod}/${m.container}' == podKey).toList();
+
     // Group by timestamp (minute level) - convert to local timezone
     final Map<DateTime, double> aggregated = {};
     for (var metric in podMetrics) {
@@ -468,19 +468,18 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
         aggregated[key] = metric.cpuUsageCores;
       } else {
         // If multiple metrics at same minute, take the max (or could average)
-        aggregated[key] = aggregated[key]! > metric.cpuUsageCores 
-            ? aggregated[key]! 
+        aggregated[key] = aggregated[key]! > metric.cpuUsageCores
+            ? aggregated[key]!
             : metric.cpuUsageCores;
       }
     }
 
-    final sortedEntries = aggregated.entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
-
     // Get all unique timestamps for x-axis alignment
     final allTimestamps = _getAllUniqueTimestamps();
-    
-    return allTimestamps.asMap().entries
+
+    return allTimestamps
+        .asMap()
+        .entries
         .map((entry) {
           final timestamp = entry.value;
           final cpuValue = aggregated[timestamp];
@@ -497,8 +496,9 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     if (_metrics.isEmpty) return [];
 
     // Filter metrics for this pod/container
-    final podMetrics = _metrics.where((m) => '${m.pod}/${m.container}' == podKey).toList();
-    
+    final podMetrics =
+        _metrics.where((m) => '${m.pod}/${m.container}' == podKey).toList();
+
     // Group by timestamp (minute level) - convert to local timezone
     final Map<DateTime, int> aggregated = {};
     for (var metric in podMetrics) {
@@ -514,19 +514,18 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
       if (!aggregated.containsKey(key)) {
         aggregated[key] = metric.memoryUsageBytes;
       } else {
-        aggregated[key] = aggregated[key]! > metric.memoryUsageBytes 
-            ? aggregated[key]! 
+        aggregated[key] = aggregated[key]! > metric.memoryUsageBytes
+            ? aggregated[key]!
             : metric.memoryUsageBytes;
       }
     }
 
-    final sortedEntries = aggregated.entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
-
     // Get all unique timestamps for x-axis alignment
     final allTimestamps = _getAllUniqueTimestamps();
-    
-    return allTimestamps.asMap().entries
+
+    return allTimestamps
+        .asMap()
+        .entries
         .map((entry) {
           final timestamp = entry.value;
           final memoryBytes = aggregated[timestamp];
@@ -566,7 +565,6 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     }
     return grouped;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -724,9 +722,8 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                             DropdownButton<int>(
                               value: _selectedHours,
                               style: GoogleFonts.inter(
-                                color: isDarkMode
-                                    ? Colors.white
-                                    : Colors.black87,
+                                color:
+                                    isDarkMode ? Colors.white : Colors.black87,
                               ),
                               dropdownColor: isDarkMode
                                   ? Theme.of(context).colorScheme.surface
@@ -767,8 +764,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         _errorMessage!,
-                        style:
-                            GoogleFonts.inter(color: Colors.red.shade900),
+                        style: GoogleFonts.inter(color: Colors.red.shade900),
                       ),
                     ),
                   ),
@@ -805,10 +801,13 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                               final podKeys = _getPodKeys();
                               // Calculate items per row to ensure at least 4 rows
                               final itemsPerRow = (podKeys.length / 4).ceil();
-                              final screenWidth = MediaQuery.of(context).size.width;
-                              final availableWidth = screenWidth - 64; // Account for padding
-                              final itemWidth = (availableWidth / itemsPerRow).clamp(120.0, 200.0);
-                              
+                              final screenWidth =
+                                  MediaQuery.of(context).size.width;
+                              final availableWidth =
+                                  screenWidth - 64; // Account for padding
+                              final itemWidth = (availableWidth / itemsPerRow)
+                                  .clamp(120.0, 200.0);
+
                               return Wrap(
                                 spacing: 12,
                                 runSpacing: 8,
@@ -876,10 +875,13 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                               final podKeys = _getPodKeys();
                               // Calculate items per row to ensure at least 4 rows
                               final itemsPerRow = (podKeys.length / 4).ceil();
-                              final screenWidth = MediaQuery.of(context).size.width;
-                              final availableWidth = screenWidth - 64; // Account for padding
-                              final itemWidth = (availableWidth / itemsPerRow).clamp(120.0, 200.0);
-                              
+                              final screenWidth =
+                                  MediaQuery.of(context).size.width;
+                              final availableWidth =
+                                  screenWidth - 64; // Account for padding
+                              final itemWidth = (availableWidth / itemsPerRow)
+                                  .clamp(120.0, 200.0);
+
                               return Wrap(
                                 spacing: 12,
                                 runSpacing: 8,
@@ -999,11 +1001,12 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                             final podIndex = podKeys.indexOf(podKey);
                             final podColor = _getPodColor(podIndex);
 
-                            final cpuPercent = latestMetric.cpuLimitCores != null
-                                ? (latestMetric.cpuUsageCores /
-                                    latestMetric.cpuLimitCores!) *
-                                    100
-                                : null;
+                            final cpuPercent =
+                                latestMetric.cpuLimitCores != null
+                                    ? (latestMetric.cpuUsageCores /
+                                            latestMetric.cpuLimitCores!) *
+                                        100
+                                    : null;
 
                             return InkWell(
                               onTap: () => _showPodDetailsDialog(
@@ -1030,75 +1033,79 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                   vertical: 12,
                                 ),
                                 child: Row(
-                                children: [
-                                  // Pod/Container name with color indicator
-                                  Expanded(
-                                    flex: 3,
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 12,
-                                          height: 12,
-                                          decoration: BoxDecoration(
-                                            color: podColor,
-                                            shape: BoxShape.circle,
+                                  children: [
+                                    // Pod/Container name with color indicator
+                                    Expanded(
+                                      flex: 3,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 12,
+                                            height: 12,
+                                            decoration: BoxDecoration(
+                                              color: podColor,
+                                              shape: BoxShape.circle,
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            podKey,
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              podKey,
+                                              style: GoogleFonts.inter(
+                                                fontSize: 11,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // CPU Usage
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${latestMetric.cpuUsageCores.toStringAsFixed(4)} cores',
                                             style: GoogleFonts.inter(
                                               fontSize: 11,
                                             ),
-                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  // CPU Usage
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '${latestMetric.cpuUsageCores.toStringAsFixed(4)} cores',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 11,
-                                          ),
-                                        ),
-                                        if (latestMetric.cpuLimitCores != null)
-                                          Text(
-                                            '${cpuPercent!.toStringAsFixed(1)}%',
-                                            style: GoogleFonts.inter(
-                                              fontSize: 10,
-                                              color: cpuPercent > 80
-                                                  ? Colors.red
-                                                  : cpuPercent > 60
-                                                      ? Colors.orange
-                                                      : isDarkMode
-                                                          ? Colors.grey.shade400
-                                                          : Colors.grey.shade600,
+                                          if (latestMetric.cpuLimitCores !=
+                                              null)
+                                            Text(
+                                              '${cpuPercent!.toStringAsFixed(1)}%',
+                                              style: GoogleFonts.inter(
+                                                fontSize: 10,
+                                                color: cpuPercent > 80
+                                                    ? Colors.red
+                                                    : cpuPercent > 60
+                                                        ? Colors.orange
+                                                        : isDarkMode
+                                                            ? Colors
+                                                                .grey.shade400
+                                                            : Colors
+                                                                .grey.shade600,
+                                              ),
                                             ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  // Memory Usage
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      _formatBytes(latestMetric.memoryUsageBytes),
-                                      style: GoogleFonts.inter(
-                                        fontSize: 11,
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                    // Memory Usage
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        _formatBytes(
+                                            latestMetric.memoryUsageBytes),
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           }),
@@ -1165,9 +1172,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
           horizontalInterval: maxCpu > 0 ? maxCpu / 5 : 1,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: isDarkMode
-                  ? Colors.grey.shade800
-                  : Colors.grey.shade300,
+              color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
               strokeWidth: 1,
             );
           },
@@ -1227,9 +1232,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
         borderData: FlBorderData(
           show: true,
           border: Border.all(
-            color: isDarkMode
-                ? Colors.grey.shade800
-                : Colors.grey.shade300,
+            color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
           ),
         ),
         minX: 0,
@@ -1307,9 +1310,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
           horizontalInterval: maxMemoryMB > 0 ? maxMemoryMB / 5 : 100,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: isDarkMode
-                  ? Colors.grey.shade800
-                  : Colors.grey.shade300,
+              color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
               strokeWidth: 1,
             );
           },
@@ -1369,9 +1370,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
         borderData: FlBorderData(
           show: true,
           border: Border.all(
-            color: isDarkMode
-                ? Colors.grey.shade800
-                : Colors.grey.shade300,
+            color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
           ),
         ),
         minX: 0,
@@ -1417,4 +1416,3 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
     );
   }
 }
-
