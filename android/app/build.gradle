@@ -9,15 +9,15 @@ android {
     namespace = "net.alerthawk.alerthawk_mobile"
     compileSdk = flutter.compileSdkVersion
    // ndkVersion = flutter.ndkVersion
-    ndkVersion = "27.0.12077973" // Explicitly specify the required NDK version
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     defaultConfig {
@@ -30,7 +30,7 @@ android {
        // versionCode = flutter.versionCode
         //versionName = flutter.versionName
         versionCode 61// Increment this number
-        versionName "1.0.28" // Match the `x.y.z` from pubspec.yaml
+        versionName "1.0.29" // Match the `x.y.z` from pubspec.yaml
     }
 
     buildTypes {
