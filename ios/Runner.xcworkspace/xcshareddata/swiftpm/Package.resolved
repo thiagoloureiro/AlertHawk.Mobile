@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "pushy-sdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pushy/pushy-sdk-ios",
+      "state" : {
+        "revision" : "188bfcd523722b82c2507f0a327d551f62ed9e39",
+        "version" : "1.0.65"
+      }
+    }
+  ],
+  "version" : 2
+}

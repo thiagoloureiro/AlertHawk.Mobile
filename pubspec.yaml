@@ -33,25 +33,27 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.9
   http: ^1.6.0  # For API calls
-  shared_preferences: ^2.5.4  # For session management
+  shared_preferences: ^2.5.5  # For session management
   aad_oauth: ^1.0.1  # For Azure AD authentication
   provider: ^6.1.5+1  # For state management
-  google_fonts: ^8.0.2  # Add this line for easy font handling
+  google_fonts: ^8.2.1  # Add this line for easy font handling
   font_awesome_flutter: ^11.0.0  # Add this line
-  fl_chart: ^1.1.1
-  intl: ^0.20.2
-  flutter_dotenv: ^6.0.0
+  fl_chart: ^1.2.0
+  intl: ^0.20.3
+  flutter_dotenv: ^6.0.1
   url_launcher: ^6.3.2
-  mobile_scanner: ^7.2.0
-  pushy_flutter: ^2.0.43
-  package_info_plus: ^9.0.0
-  flutter_native_splash: ^2.4.7
-  sign_in_with_apple: ^7.0.1
+  mobile_scanner: ^7.4.2
+  pushy_flutter: ^2.0.47
+  # Keep <10.1.0: 10.1+ needs win32 ^6, but aad_oauth → flutter_secure_storage needs win32 ^5
+  package_info_plus: ">=9.0.0 <10.1.0"
+  flutter_native_splash: ^2.4.8
+  sign_in_with_apple: ^8.2.0
   jwt_decoder: ^2.0.1
-  device_info_plus: ^12.3.0
-  flutter_new_badger: ^1.1.1
+  # Keep <13.1.0: same win32 ^6 vs aad_oauth / flutter_secure_storage conflict
+  device_info_plus: ">=12.0.0 <13.1.0"
+  flutter_new_badger: ^2.0.0
 
 dependency_overrides:
   js:  
