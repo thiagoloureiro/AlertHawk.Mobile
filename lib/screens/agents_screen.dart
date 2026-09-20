@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/monitor_agent.dart';
 import '../config/app_config.dart';
 import '../models/monitor_region.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_ui.dart';
 
 class AgentsScreen extends StatefulWidget {
   const AgentsScreen({super.key});
@@ -45,12 +47,11 @@ class _AgentsScreenState extends State<AgentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Agents',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Agents'),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -66,162 +67,194 @@ class _AgentsScreenState extends State<AgentsScreen> {
             }
 
             if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Error loading agents',
-                  style: GoogleFonts.inter(color: Colors.red),
-                ),
+              return AppErrorState(
+                title: 'Could not load agents',
+                message: 'Check your connection and try again.',
+                onRetry: () {
+                  setState(() {
+                    _agents = _fetchAgents();
+                  });
+                },
               );
             }
 
             final agents = snapshot.data!;
+            if (agents.isEmpty) {
+              return const AppEmptyState(
+                icon: Icons.dns_outlined,
+                title: 'No agents found',
+              );
+            }
+
             final totalMonitors =
                 agents.fold<int>(0, (sum, agent) => sum + agent.listTasks);
 
             return ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               children: [
-                // Summary card
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        Text(
-                          'Summary',
-                          style: GoogleFonts.inter(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: _summaryStat(
+                            theme,
+                            label: 'Agents',
+                            value: '${agents.length}',
+                            icon: Icons.dns_rounded,
+                            color: theme.colorScheme.primary,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Total Agents:',
-                              style: GoogleFonts.inter(),
-                            ),
-                            Text(
-                              '${agents.length}',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ],
+                        Container(
+                          width: 1,
+                          height: 44,
+                          color: theme.colorScheme.outlineVariant,
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Total Monitors:',
-                              style: GoogleFonts.inter(),
-                            ),
-                            Text(
-                              '$totalMonitors',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                          ],
+                        Expanded(
+                          child: _summaryStat(
+                            theme,
+                            label: 'Monitors',
+                            value: '$totalMonitors',
+                            icon: Icons.monitor_heart_outlined,
+                            color: AppColors.online,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Agent cards
-                ...agents.map((agent) => Card(
-                      margin: const EdgeInsets.only(bottom: 8),
+                ...agents.map((agent) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                AppIconBadge(
+                                  icon: Icons.computer_rounded,
+                                  color: theme.colorScheme.primary,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
                                     agent.hostname,
                                     style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
                                     ),
                                   ),
                                 ),
-                                Icon(
-                                  agent.isMaster
-                                      ? Icons.star
-                                      : Icons.star_border,
-                                  color: agent.isMaster
-                                      ? Colors.amber
-                                      : Colors.grey,
-                                ),
+                                if (agent.isMaster)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.paused
+                                          .withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.star_rounded,
+                                          size: 14,
+                                          color: AppColors.paused,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Master',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.paused,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Monitors:',
-                                  style: GoogleFonts.inter(),
-                                ),
-                                Text(
-                                  '${agent.listTasks}',
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Version:',
-                                  style: GoogleFonts.inter(),
-                                ),
-                                Text(
-                                  agent.version,
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Region:',
-                                  style: GoogleFonts.inter(),
-                                ),
-                                Text(
-                                  MonitorRegion.fromId(agent.monitorRegion)
-                                      .name,
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ],
+                            const SizedBox(height: 14),
+                            _infoRow('Monitors', '${agent.listTasks}'),
+                            _infoRow('Version', agent.version),
+                            _infoRow(
+                              'Region',
+                              MonitorRegion.fromId(agent.monitorRegion).name,
                             ),
                           ],
                         ),
                       ),
-                    )),
+                    ),
+                  );
+                }),
               ],
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _summaryStat(
+    ThemeData theme, {
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 22),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

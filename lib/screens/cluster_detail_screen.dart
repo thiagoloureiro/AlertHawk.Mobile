@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/cluster_node_metric.dart';
 import '../services/metrics_service.dart';
+import '../theme/app_colors.dart';
 
 class ClusterDetailScreen extends StatefulWidget {
   final String clusterName;
@@ -87,7 +88,7 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final statusColor =
-        _isClusterReady ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+        _isClusterReady ? AppColors.online : AppColors.offline;
     final k8sVersion =
         _nodes.isNotEmpty ? _nodes.first.kubernetesVersion : null;
     final cloudProvider = _nodes.isNotEmpty ? _nodes.first.cloudProvider : null;
@@ -112,9 +113,9 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: isTest
-                    ? const Color(0xFF22C55E).withOpacity(0.2)
+                    ? AppColors.online.withOpacity(0.2)
                     : isProd
-                        ? const Color(0xFFEF4444).withOpacity(0.2)
+                        ? AppColors.offline.withOpacity(0.2)
                         : theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -124,9 +125,9 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: isTest
-                      ? const Color(0xFF22C55E)
+                      ? AppColors.online
                       : isProd
-                          ? const Color(0xFFEF4444)
+                          ? AppColors.offline
                           : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
@@ -281,8 +282,8 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
               const SizedBox(height: 12),
               ..._nodes.map((node) {
                 final nodeColor = node.isReady
-                    ? const Color(0xFF22C55E)
-                    : const Color(0xFFEF4444);
+                    ? AppColors.online
+                    : AppColors.offline;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Material(
@@ -375,7 +376,7 @@ class _ClusterDetailScreenState extends State<ClusterDetailScreen> {
 
   Widget _buildSummaryColumn(ThemeData theme, IconData icon, String label,
       String value, double? percent) {
-    final color = const Color(0xFF22C55E);
+    final color = AppColors.online;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
+import '../widgets/app_ui.dart';
 import '../screens/qr_scanner_screen.dart';
 import 'package:http/http.dart' as http;
 
@@ -262,18 +261,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Settings',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        title: const Text('Settings'),
         actions: [
           IconButton(
             tooltip: 'Select theme',
@@ -284,217 +276,97 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextFormField(
-                  controller: _monitoringApiController,
-                  decoration: InputDecoration(
-                    labelText: 'Monitoring API URL',
-                    labelStyle: GoogleFonts.inter(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  style: GoogleFonts.inter(),
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Please enter Monitoring API URL';
-                    }
-                    return null;
-                  },
+                AppSettingsGroup(
+                  title: 'API endpoints',
+                  icon: Icons.cloud_outlined,
+                  children: [
+                    _field(_monitoringApiController, 'Monitoring API URL'),
+                    _field(_authApiController, 'Auth API URL'),
+                    _field(_notificationApiController, 'Notification API URL'),
+                    _field(_metricsApiController, 'Metrics API URL',
+                        last: true),
+                  ],
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _authApiController,
-                  decoration: InputDecoration(
-                    labelText: 'Auth API URL',
-                    labelStyle: GoogleFonts.inter(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  style: GoogleFonts.inter(),
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Please enter Auth API URL';
-                    }
-                    return null;
-                  },
+                AppSettingsGroup(
+                  title: 'Authentication',
+                  icon: Icons.vpn_key_outlined,
+                  children: [
+                    _field(_authKeyController, 'Auth API Key'),
+                    _field(_azureTenantController, 'Azure AD Tenant'),
+                    _field(_azureClientIdController, 'Azure AD Client ID',
+                        last: true),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _notificationApiController,
-                  decoration: InputDecoration(
-                    labelText: 'Notification API URL',
-                    labelStyle: GoogleFonts.inter(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  style: GoogleFonts.inter(),
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Please enter Notification API URL';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _metricsApiController,
-                  decoration: InputDecoration(
-                    labelText: 'Metrics API URL',
-                    labelStyle: GoogleFonts.inter(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  style: GoogleFonts.inter(),
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Please enter Metrics API URL';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _authKeyController,
-                  decoration: InputDecoration(
-                    labelText: 'Auth API Key',
-                    labelStyle: GoogleFonts.inter(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  style: GoogleFonts.inter(),
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Please enter Auth API Key';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _azureTenantController,
-                  decoration: InputDecoration(
-                    labelText: 'Azure AD Tenant',
-                    labelStyle: GoogleFonts.inter(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  style: GoogleFonts.inter(),
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Please enter Azure AD Tenant';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _azureClientIdController,
-                  decoration: InputDecoration(
-                    labelText: 'Azure AD Client ID',
-                    labelStyle: GoogleFonts.inter(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  style: GoogleFonts.inter(),
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Please enter Azure AD Client ID';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
+                const SizedBox(height: 20),
+                FilledButton.icon(
                   onPressed: _isLoading ? null : _saveSettings,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        isDarkMode ? Colors.blue[700] : Colors.blue[600],
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
+                  icon: _isLoading
+                      ? SizedBox(
+                          height: 18,
+                          width: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            color: theme.colorScheme.onPrimary,
                           ),
                         )
-                      : Text(
-                          'Save Settings',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      : const Icon(Icons.save_outlined, size: 18),
+                  label: Text(_isLoading ? 'Saving…' : 'Save settings'),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
                   onPressed: _isLoading ? null : _scanQRCode,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDarkMode 
-                        ? Theme.of(context).colorScheme.surfaceContainerHighest 
-                        : Colors.grey[200],
-                    foregroundColor: isDarkMode ? Colors.white : Colors.black87,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: const Size(double.infinity, 0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  icon: const Icon(Icons.qr_code_scanner),
-                  label: Text(
-                    'Read QR Code',
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
+                  label: const Text('Scan QR code'),
                 ),
                 if (_isLoggedIn) ...[
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
+                  const SizedBox(height: 28),
+                  Text(
+                    'Danger zone',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
                     onPressed: _isLoading ? null : _deleteUser,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      minimumSize: const Size(double.infinity, 0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: theme.colorScheme.error,
+                      side: BorderSide(color: theme.colorScheme.error),
                     ),
-                    icon: const Icon(Icons.delete_forever),
-                    label: Text(
-                      'Delete My Account',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    icon: const Icon(Icons.delete_forever_rounded, size: 18),
+                    label: const Text('Delete my account'),
                   ),
                 ],
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _field(TextEditingController controller, String label,
+      {bool last = false}) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: last ? 8 : 14),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(labelText: label),
+        validator: (value) {
+          if (value?.isEmpty ?? true) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
       ),
     );
   }

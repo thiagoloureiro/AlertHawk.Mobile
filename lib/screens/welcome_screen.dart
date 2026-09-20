@@ -24,6 +24,8 @@ import 'cluster_events_screen.dart';
 import 'application_metrics_screen.dart';
 import 'volume_metrics_screen.dart';
 import 'dart:io';
+import '../widgets/app_ui.dart';
+import '../theme/app_colors.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -108,11 +110,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         targetInfo = monitor.checkTarget;
     }
 
-    final statusColor = monitor.paused
-        ? Colors.orange
-        : monitor.status
-            ? const Color(0xFF22C55E)
-            : const Color(0xFFEF4444);
+    final statusColor = AppColors.statusFor(
+      paused: monitor.paused,
+      online: monitor.status,
+    );
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -230,10 +231,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildUptimeChip(String label, double uptime) {
     final color = uptime >= 99.9
-        ? const Color(0xFF22C55E)
+        ? AppColors.online
         : uptime >= 95
-            ? const Color(0xFFF59E0B)
-            : const Color(0xFFEF4444);
+            ? AppColors.warning
+            : AppColors.offline;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -277,36 +278,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Row(
             children: [
               Expanded(
-                child: TextField(
+                child: AppSearchField(
                   controller: _searchController,
-                  style: GoogleFonts.inter(),
+                  hintText: 'Search monitors...',
                   onChanged: (value) {
                     setState(() {
                       _searchQuery = value;
                     });
                   },
-                  decoration: InputDecoration(
-                    hintText: 'Search monitors...',
-                    hintStyle: GoogleFonts.inter(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: theme.colorScheme.onSurfaceVariant,
-                      size: 22,
-                    ),
-                    filled: true,
-                    fillColor: theme.colorScheme.surfaceContainerHighest
-                        .withOpacity(0.5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(width: 10),
@@ -324,9 +303,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Row(
-            children: [
-              ...['All', 'Online', 'Offline', 'Paused'].map((value) {
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                ...['All', 'Online', 'Offline', 'Paused'].map((value) {
                 final isSelected = _statusFilter == value;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -354,6 +335,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 );
               }),
             ],
+            ),
           ),
         ),
       ],
@@ -680,6 +662,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: PopupMenuButton<String>(
+          icon: const Icon(Icons.menu_rounded),
+          tooltip: 'Menu',
           onSelected: (value) async {
             switch (value) {
               case 'about':
@@ -797,7 +781,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               value: 'agents',
               child: Row(
                 children: [
-                  const Icon(Icons.list),
+                  const Icon(Icons.dns_outlined),
                   const SizedBox(width: 8),
                   Text(
                     'Agents',
@@ -806,6 +790,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ],
               ),
             ),
+            const PopupMenuDivider(),
             PopupMenuItem(
               value: 'cluster_metrics',
               child: Row(
@@ -871,6 +856,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ],
               ),
             ),
+            const PopupMenuDivider(),
             PopupMenuItem(
               value: 'about',
               child: Row(
@@ -897,6 +883,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ],
               ),
             ),
+            const PopupMenuDivider(),
             PopupMenuItem(
               value: 'logout',
               child: Row(
@@ -944,13 +931,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _summaryItem(Icons.check_circle_rounded, '$upCount',
-                      const Color(0xFF22C55E)),
+                      AppColors.online),
                   const SizedBox(width: 20),
                   _summaryItem(Icons.cancel_rounded, '$downCount',
-                      const Color(0xFFEF4444)),
+                      AppColors.offline),
                   const SizedBox(width: 20),
                   _summaryItem(Icons.pause_circle_rounded, '$pausedCount',
-                      const Color(0xFFF59E0B)),
+                      AppColors.paused),
                 ],
               ),
             );
@@ -987,11 +974,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     }
 
                     if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Error loading monitors',
-                          style: GoogleFonts.inter(),
-                        ),
+                      return AppErrorState(
+                        title: 'Error loading monitors',
+                        message: 'Pull down to retry, or check your connection.',
+                        onRetry: () {
+                          setState(() {
+                            _monitorGroups = _fetchMonitorGroups();
+                          });
+                        },
                       );
                     }
 
@@ -1009,30 +999,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                         final filteredGroups = filteredSnapshot.data!;
                         if (filteredGroups.isEmpty) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.search_off_rounded,
-                                  size: 56,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant
-                                      .withOpacity(0.5),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No monitors found',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          return const AppEmptyState(
+                            icon: Icons.search_off_rounded,
+                            title: 'No monitors found',
+                            subtitle: 'Try a different search or status filter.',
                           );
                         }
 

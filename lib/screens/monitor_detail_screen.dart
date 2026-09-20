@@ -8,6 +8,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_ui.dart';
 
 class MonitorDetailScreen extends StatefulWidget {
   final Monitor monitor;
@@ -312,11 +314,10 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     final defaultMaxY = (maxResponse / interval).ceil() * interval;
 
     final theme = Theme.of(context);
-    final statusColor = widget.monitor.paused
-        ? const Color(0xFFF59E0B)
-        : widget.monitor.status
-            ? const Color(0xFF22C55E)
-            : const Color(0xFFEF4444);
+    final statusColor = AppColors.statusFor(
+      paused: widget.monitor.paused,
+      online: widget.monitor.status,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -363,16 +364,23 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
+                return Padding(
+                  padding: const EdgeInsets.only(top: 80),
+                  child: AppErrorState(
+                    title: 'Could not load monitor',
+                    message: snapshot.error?.toString(),
+                    onRetry: _refreshData,
+                  ),
+                );
               } else if (snapshot.hasData) {
                 final monitor = snapshot.data!;
                 _currentMonitor = monitor;
                 final spots = _getChartData();
                 final monitorStatusColor = monitor.paused
-                    ? const Color(0xFFF59E0B)
+                    ? AppColors.paused
                     : monitor.status
-                        ? const Color(0xFF22C55E)
-                        : const Color(0xFFEF4444);
+                        ? AppColors.online
+                        : AppColors.offline;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -524,7 +532,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                             itemBuilder: (context, index) {
                               final node = (_k8sData!['monitorK8sNodes'] as List)[index];
                               final bool isReady = node['ready'] ?? false;
-                              final nodeColor = isReady ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+                              final nodeColor = isReady ? AppColors.online : AppColors.offline;
 
                               return ExpansionTile(
                                 tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -734,7 +742,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                           LineChartBarData(
                                             spots: spots,
                                             isCurved: true,
-                                            color: const Color(0xFF22C55E),
+                                            color: AppColors.online,
                                             barWidth: 2.5,
                                             isStrokeCapRound: true,
                                             dotData: FlDotData(
@@ -749,7 +757,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                                 if (hasFailed) {
                                                   return FlDotCirclePainter(
                                                     radius: 3,
-                                                    color: const Color(0xFFEF4444),
+                                                    color: AppColors.offline,
                                                     strokeWidth: 0,
                                                   );
                                                 }
@@ -763,7 +771,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
                                             ),
                                             belowBarData: BarAreaData(
                                               show: true,
-                                              color: const Color(0xFF22C55E).withOpacity(0.12),
+                                              color: AppColors.online.withOpacity(0.12),
                                             ),
                                           ),
                                         ],
@@ -956,10 +964,10 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
 
     final formattedUptime = uptime.toStringAsFixed(2);
     final color = uptime >= 99.9
-        ? const Color(0xFF22C55E)
+        ? AppColors.online
         : uptime >= 95
-            ? const Color(0xFFF59E0B)
-            : const Color(0xFFEF4444);
+            ? AppColors.paused
+            : AppColors.offline;
 
     final isSelected = _selectedPeriod == period;
     final theme = Theme.of(context);
@@ -1035,17 +1043,17 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
 
     if (certDays != null) {
       valueColor = certDays > 30
-          ? const Color(0xFF22C55E)
+          ? AppColors.online
           : certDays >= 10
-              ? const Color(0xFFF59E0B)
-              : const Color(0xFFEF4444);
+              ? AppColors.paused
+              : AppColors.offline;
     } else if (title == 'Average Response Time') {
       final responseTime = widget.monitor.monitorStatusDashboard.responseTime;
       valueColor = responseTime < 500
-          ? const Color(0xFF22C55E)
+          ? AppColors.online
           : responseTime < 1000
-              ? const Color(0xFFF59E0B)
-              : const Color(0xFFEF4444);
+              ? AppColors.paused
+              : AppColors.offline;
     }
 
     return ListTile(
@@ -1084,7 +1092,7 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
   }
 
   Widget _buildNodeStatusRow(String label, bool isHealthy) {
-    final color = isHealthy ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+    final color = isHealthy ? AppColors.online : AppColors.offline;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -1126,8 +1134,8 @@ class _MonitorDetailScreenState extends State<MonitorDetailScreen> {
     Color? valueColor;
     if (label == 'Last Status') {
       valueColor = value == 'Connected'
-          ? const Color(0xFF22C55E)
-          : const Color(0xFFEF4444);
+          ? AppColors.online
+          : AppColors.offline;
     }
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),

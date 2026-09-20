@@ -124,6 +124,7 @@ class MyApp extends StatelessWidget {
           navigatorKey: navigatorKey,
           title: 'AlertHawk',
           theme: themeProvider.theme,
+          themeAnimationDuration: const Duration(milliseconds: 250),
           debugShowCheckedModeBanner: false,
           home: isAuthenticated ? const WelcomeScreen() : const LoginScreen(),
           routes: {

@@ -9,10 +9,7 @@ class DebugScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Debug Info',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Debug info'),
       ),
       body: FutureBuilder<SharedPreferences>(
         future: SharedPreferences.getInstance(),
@@ -26,41 +23,45 @@ class DebugScreen extends StatelessWidget {
           final authToken = prefs.getString('auth_token') ?? 'Not found';
           final pushyToken = prefs.getString('deviceToken') ?? 'Not found';
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSection('User Email', userEmail),
-                const SizedBox(height: 24),
-                _buildSection('Auth Token', authToken),
-                const SizedBox(height: 24),
-                _buildSection('Pushy Token', pushyToken),
-              ],
-            ),
+          return ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            children: [
+              _buildSection(context, 'User email', userEmail),
+              const SizedBox(height: 12),
+              _buildSection(context, 'Auth token', authToken),
+              const SizedBox(height: 12),
+              _buildSection(context, 'Pushy token', pushyToken),
+            ],
           );
         },
       ),
     );
   }
 
-  Widget _buildSection(String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+  Widget _buildSection(BuildContext context, String title, String value) {
+    final theme = Theme.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            SelectableText(
+              value,
+              style: GoogleFonts.inter(fontSize: 14, height: 1.4),
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
-        SelectableText(
-          value,
-          style: GoogleFonts.inter(fontSize: 14),
-        ),
-      ],
+      ),
     );
   }
 }

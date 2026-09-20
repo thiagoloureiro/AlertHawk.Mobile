@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import '../games/snake_game.dart';
 import '../screens/debug_screen.dart';
+import '../theme/app_colors.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -37,128 +38,159 @@ class _AboutScreenState extends State<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'About',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        title: const Text('About'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 48),
-              GestureDetector(
-                onTap: () {
-                  _tapCount++;
-                  _tapTimer?.cancel();
-                  _tapTimer = Timer(const Duration(seconds: 2), () {
-                    _tapCount = 0;
-                  });
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      _tapCount++;
+                      _tapTimer?.cancel();
+                      _tapTimer = Timer(const Duration(seconds: 2), () {
+                        _tapCount = 0;
+                      });
 
-                  if (_tapCount >= 6) {
-                    _tapCount = 0;
-                    _tapTimer?.cancel();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const DebugScreen()),
-                    );
-                  }
-                },
-                child: Image.asset(
-                  'assets/logo.png',
-                  width: 150,
-                  height: 150,
-                ),
-              ),
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () {
-                  _tapCount++;
-                  _tapTimer?.cancel();
-                  _tapTimer = Timer(const Duration(seconds: 2), () {
-                    _tapCount = 0;
-                  });
+                      if (_tapCount >= 6) {
+                        _tapCount = 0;
+                        _tapTimer?.cancel();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const DebugScreen()),
+                        );
+                      }
+                    },
+                    child: Image.asset(
+                      'assets/logo.png',
+                      width: 112,
+                      height: 112,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () {
+                      _tapCount++;
+                      _tapTimer?.cancel();
+                      _tapTimer = Timer(const Duration(seconds: 2), () {
+                        _tapCount = 0;
+                      });
 
-                  if (_tapCount >= 5) {
-                    _tapCount = 0;
-                    _tapTimer?.cancel();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const SnakeGame()),
-                    );
-                  }
-                },
-                child: Text(
-                  'AlertHawk',
-                  style: GoogleFonts.inter(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                      if (_tapCount >= 5) {
+                        _tapCount = 0;
+                        _tapTimer?.cancel();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const SnakeGame()),
+                        );
+                      }
+                    },
+                    child: Text(
+                      'AlertHawk',
+                      style: GoogleFonts.inter(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              FutureBuilder<String>(
-                future: _version,
-                builder: (context, snapshot) {
-                  return Text(
-                    'Version: ${snapshot.data ?? 'Loading...'}',
-                    style: GoogleFonts.inter(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              InkWell(
-                onTap: () => _launchUrl(
-                    'https://github.com/thiagoloureiro/AlertHawk.Mobile'),
-                child: Text(
-                  'Check project on Github',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
+                  const SizedBox(height: 8),
+                  FutureBuilder<String>(
+                    future: _version,
+                    builder: (context, snapshot) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          borderRadius:
+                              BorderRadius.circular(AppColors.radiusXs),
+                        ),
+                        child: Text(
+                          'Version ${snapshot.data ?? '…'}',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  textAlign: TextAlign.center,
-                ),
+                ],
               ),
-              const SizedBox(height: 16),
-              InkWell(
-                onTap: () => _launchUrl(
-                    'https://github.com/thiagoloureiro/AlertHawk.Mobile/releases'),
-                child: Text(
-                  'Release Notes',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 16),
-              InkWell(
-                onTap: () => _launchUrl('https://alerthawk.net/privacy.html'),
-                child: Text(
-                  'Privacy Notice',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 16),
+          Card(
+            child: Column(
+              children: [
+                _linkTile(
+                  context,
+                  icon: Icons.code_rounded,
+                  title: 'GitHub project',
+                  subtitle: 'Source code and issues',
+                  url:
+                      'https://github.com/thiagoloureiro/AlertHawk.Mobile',
+                ),
+                Divider(
+                  height: 1,
+                  indent: 56,
+                  color: theme.colorScheme.outlineVariant,
+                ),
+                _linkTile(
+                  context,
+                  icon: Icons.new_releases_outlined,
+                  title: 'Release notes',
+                  subtitle: 'What changed in each version',
+                  url:
+                      'https://github.com/thiagoloureiro/AlertHawk.Mobile/releases',
+                ),
+                Divider(
+                  height: 1,
+                  indent: 56,
+                  color: theme.colorScheme.outlineVariant,
+                ),
+                _linkTile(
+                  context,
+                  icon: Icons.privacy_tip_outlined,
+                  title: 'Privacy notice',
+                  subtitle: 'How we handle your data',
+                  url: 'https://alerthawk.net/privacy.html',
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _linkTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String url,
+  }) {
+    final theme = Theme.of(context);
+    return ListTile(
+      leading: Icon(icon, color: theme.colorScheme.primary),
+      title: Text(title),
+      subtitle: Text(subtitle),
+      trailing: Icon(
+        Icons.open_in_new_rounded,
+        size: 16,
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+      onTap: () => _launchUrl(url),
     );
   }
 

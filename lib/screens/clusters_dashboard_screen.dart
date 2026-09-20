@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/cluster_node_metric.dart';
 import '../services/metrics_service.dart';
 import '../widgets/theme_selector_modal.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_ui.dart';
 import 'cluster_detail_screen.dart';
 
 class ClustersDashboardScreen extends StatefulWidget {
@@ -140,75 +142,18 @@ class _ClustersDashboardScreenState extends State<ClustersDashboardScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              final errMsg = snapshot.error?.toString() ?? 'Unknown error';
-              return Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.cloud_off_rounded,
-                        size: 56,
-                        color: theme.colorScheme.error,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Failed to load clusters',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.error,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        errMsg,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 20),
-                      FilledButton.tonal(
-                        onPressed: _refresh,
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.refresh_rounded, size: 18),
-                            SizedBox(width: 8),
-                            Text('Retry'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              return AppErrorState(
+                title: 'Failed to load clusters',
+                message: snapshot.error?.toString(),
+                onRetry: _refresh,
               );
             }
             final nodes = snapshot.data ?? [];
             if (nodes.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.dns_rounded,
-                      size: 56,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No cluster data',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+              return const AppEmptyState(
+                icon: Icons.dns_rounded,
+                title: 'No cluster data',
+                subtitle: 'Pull down to refresh.',
               );
             }
 
@@ -311,7 +256,7 @@ class _ClusterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final statusColor = isClusterReady ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+    final statusColor = isClusterReady ? AppColors.online : AppColors.offline;
     final k8sVersion = nodes.first.kubernetesVersion;
     final cloudProvider = nodes.first.cloudProvider;
 
@@ -356,9 +301,9 @@ class _ClusterCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: clusterEnvironment.toUpperCase() == 'TEST'
-                            ? const Color(0xFF22C55E).withOpacity(0.2)
+                            ? AppColors.online.withOpacity(0.2)
                             : clusterEnvironment.toUpperCase() == 'PROD'
-                                ? const Color(0xFFEF4444).withOpacity(0.2)
+                                ? AppColors.offline.withOpacity(0.2)
                                 : theme.colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -368,9 +313,9 @@ class _ClusterCard extends StatelessWidget {
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: clusterEnvironment.toUpperCase() == 'TEST'
-                              ? const Color(0xFF22C55E)
+                              ? AppColors.online
                               : clusterEnvironment.toUpperCase() == 'PROD'
-                                  ? const Color(0xFFEF4444)
+                                  ? AppColors.offline
                                   : theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -458,7 +403,7 @@ class _ClusterCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 ...nodes.map((node) {
-                  final nodeColor = node.isReady ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+                  final nodeColor = node.isReady ? AppColors.online : AppColors.offline;
                   return Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Row(
@@ -568,7 +513,7 @@ class _SummaryCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = const Color(0xFF22C55E);
+    final color = AppColors.online;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

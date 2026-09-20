@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_ui.dart';
 import '../services/metrics_service.dart';
 import '../models/cluster_event.dart';
 
@@ -227,22 +227,16 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                                     ),
                                   ),
                                   style: GoogleFonts.inter(
-                                    color: isDarkMode
-                                        ? Colors.white
-                                        : Colors.black87,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
-                                  dropdownColor: isDarkMode
-                                      ? Theme.of(context).colorScheme.surface
-                                      : Colors.white,
+                                  dropdownColor: Theme.of(context).colorScheme.surface,
                                   items: _clusters.map((cluster) {
                                     return DropdownMenuItem<String>(
                                       value: cluster,
                                       child: Text(
                                         cluster,
                                         style: GoogleFonts.inter(
-                                          color: isDarkMode
-                                              ? Colors.white
-                                              : Colors.black87,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ),
                                       ),
                                     );
@@ -278,22 +272,16 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                                 ),
                               ),
                               style: GoogleFonts.inter(
-                                color: isDarkMode
-                                    ? Colors.white
-                                    : Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
-                              dropdownColor: isDarkMode
-                                  ? Theme.of(context).colorScheme.surface
-                                  : Colors.white,
+                              dropdownColor: Theme.of(context).colorScheme.surface,
                               items: [
                                 DropdownMenuItem<String?>(
                                   value: null,
                                   child: Text(
                                     'All',
                                     style: GoogleFonts.inter(
-                                      color: isDarkMode
-                                          ? Colors.white
-                                          : Colors.black87,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                 ),
@@ -303,9 +291,7 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                                     child: Text(
                                       ns,
                                       style: GoogleFonts.inter(
-                                        color: isDarkMode
-                                            ? Colors.white
-                                            : Colors.black87,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -329,13 +315,9 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                               DropdownButton<int>(
                                 value: _selectedMinutes,
                                 style: GoogleFonts.inter(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Colors.black87,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
-                                dropdownColor: isDarkMode
-                                    ? Theme.of(context).colorScheme.surface
-                                    : Colors.white,
+                                dropdownColor: Theme.of(context).colorScheme.surface,
                                 items: _minutesOptions.map((minutes) {
                                   final hours = minutes ~/ 60;
                                   final label = hours >= 24
@@ -346,9 +328,7 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                                     child: Text(
                                       label,
                                       style: GoogleFonts.inter(
-                                        color: isDarkMode
-                                            ? Colors.white
-                                            : Colors.black87,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                   );
@@ -370,16 +350,7 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
                   ),
                   if (_errorMessage != null) ...[
                     const SizedBox(height: 16),
-                    Card(
-                      color: Colors.red.shade100,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          _errorMessage!,
-                          style: GoogleFonts.inter(color: Colors.red.shade900),
-                        ),
-                      ),
-                    ),
+                    AppErrorBanner(message: _errorMessage!),
                   ],
                   if (_isLoadingEvents) ...[
                     const SizedBox(height: 16),
@@ -453,7 +424,7 @@ class _ClusterEventsScreenState extends State<ClusterEventsScreen> {
 
   Widget _buildEventCard(ClusterEvent event, bool isDarkMode) {
     final isWarning = event.eventType == 'Warning';
-    final typeColor = isWarning ? Colors.orange : Colors.green;
+    final typeColor = isWarning ? AppColors.warning : AppColors.online;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),

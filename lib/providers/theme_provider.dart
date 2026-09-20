@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_theme.dart';
 
 enum AppThemeMode {
   light,
@@ -108,159 +108,13 @@ class ThemeProvider with ChangeNotifier {
   ThemeData get theme {
     switch (_themeMode) {
       case AppThemeMode.light:
-        return _lightTheme;
+        return AppTheme.light;
       case AppThemeMode.dark:
-        return _darkTheme;
+        return AppTheme.dark;
       case AppThemeMode.githubDark:
-        return _githubDarkTheme;
+        return AppTheme.githubDark;
       case AppThemeMode.monokai:
-        return _monokaiTheme;
+        return AppTheme.monokai;
     }
   }
-
-  // --- Light theme ---
-  static final _lightTheme = ThemeData(
-    brightness: Brightness.light,
-    useMaterial3: true,
-    textTheme: GoogleFonts.interTextTheme(),
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: Colors.blue,
-      brightness: Brightness.light,
-    ),
-  );
-
-  // --- Dark theme (existing gray palette) ---
-  static const Color _gray900 = Color(0xFF111827);
-  static const Color _gray800 = Color(0xFF1F2937);
-  static const Color _gray700 = Color(0xFF374151);
-
-  static final _darkTheme = ThemeData(
-    brightness: Brightness.dark,
-    useMaterial3: true,
-    scaffoldBackgroundColor: _gray900,
-    cardColor: _gray800,
-    dividerColor: _gray700,
-    popupMenuTheme: PopupMenuThemeData(
-      color: _gray800,
-    ),
-    cardTheme: CardThemeData(
-      color: _gray800,
-      elevation: 2,
-    ),
-    textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: Colors.blue,
-      brightness: Brightness.dark,
-      surface: _gray800,
-      background: _gray900,
-      surfaceContainerHighest: _gray700,
-    ).copyWith(
-      surface: _gray800,
-      surfaceContainerHighest: _gray700,
-      onSurface: Colors.white,
-    ),
-    dialogTheme: DialogThemeData(backgroundColor: _gray800),
-  );
-
-  // --- GitHub Dark ---
-  static const Color _ghBg = Color(0xFF0D1117);
-  static const Color _ghSurface = Color(0xFF161B22);
-  static const Color _ghBorder = Color(0xFF30363D);
-  static const Color _ghText = Color(0xFFC9D1D9);
-  static const Color _ghAccent = Color(0xFF58A6FF); // GitHub blue
-  static const Color _ghAccentDim = Color(0xFF388BFD);
-
-  static final _githubDarkTheme = ThemeData(
-    brightness: Brightness.dark,
-    useMaterial3: true,
-    scaffoldBackgroundColor: _ghBg,
-    cardColor: _ghSurface,
-    dividerColor: _ghBorder,
-    popupMenuTheme: PopupMenuThemeData(
-      color: _ghSurface,
-    ),
-    cardTheme: CardThemeData(
-      color: _ghSurface,
-      elevation: 2,
-    ),
-    textTheme: GoogleFonts.interTextTheme(
-      ThemeData.dark().textTheme.apply(
-            bodyColor: _ghText,
-            displayColor: _ghText,
-          ),
-    ),
-    colorScheme: ColorScheme.dark(
-      primary: _ghAccent,
-      onPrimary: Colors.white,
-      primaryContainer: const Color(0xFF1F3A5C),
-      onPrimaryContainer: _ghAccent,
-      secondary: _ghBorder,
-      onSecondary: _ghText,
-      secondaryContainer: _ghBorder,
-      onSecondaryContainer: _ghText,
-      tertiary: _ghAccentDim,
-      onTertiary: Colors.white,
-      surface: _ghSurface,
-      onSurface: _ghText,
-      error: const Color(0xFFF85149),
-      onError: Colors.white,
-      brightness: Brightness.dark,
-    ).copyWith(
-      surface: _ghSurface,
-      onSurface: _ghText,
-      surfaceContainerHighest: _ghBorder,
-    ),
-    dialogTheme: DialogThemeData(backgroundColor: _ghSurface),
-  );
-
-  // --- Monokai ---
-  static const Color _monoBg = Color(0xFF272822);
-  static const Color _monoSurface = Color(0xFF3E3D32);
-  static const Color _monoBorder = Color(0xFF49483E);
-  static const Color _monoFg = Color(0xFFF8F8F2);
-  static const Color _monoOrange = Color(0xFFFD971F); // Monokai orange – buttons/primary
-  static const Color _monoOrangeDim = Color(0xFFE65C00);
-
-  static final _monokaiTheme = ThemeData(
-    brightness: Brightness.dark,
-    useMaterial3: true,
-    scaffoldBackgroundColor: _monoBg,
-    cardColor: _monoSurface,
-    dividerColor: _monoBorder,
-    popupMenuTheme: PopupMenuThemeData(
-      color: _monoSurface,
-    ),
-    cardTheme: CardThemeData(
-      color: _monoSurface,
-      elevation: 2,
-    ),
-    textTheme: GoogleFonts.interTextTheme(
-      ThemeData.dark().textTheme.apply(
-            bodyColor: _monoFg,
-            displayColor: _monoFg,
-          ),
-    ),
-    colorScheme: ColorScheme.dark(
-      primary: _monoOrange,
-      onPrimary: _monoBg,
-      primaryContainer: const Color(0xFF5C4A2A),
-      onPrimaryContainer: _monoOrange,
-      secondary: _monoBorder,
-      onSecondary: _monoFg,
-      secondaryContainer: _monoBorder,
-      onSecondaryContainer: _monoFg,
-      tertiary: _monoOrangeDim,
-      onTertiary: _monoFg,
-      surface: _monoSurface,
-      onSurface: _monoFg,
-      error: const Color(0xFFF92672),
-      onError: Colors.white,
-      brightness: Brightness.dark,
-    ).copyWith(
-      surface: _monoSurface,
-      onSurface: _monoFg,
-      surfaceContainerHighest: _monoBorder,
-    ),
-    dialogTheme: DialogThemeData(backgroundColor: _monoSurface),
-  );
 }

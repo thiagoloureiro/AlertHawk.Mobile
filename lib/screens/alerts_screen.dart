@@ -9,6 +9,8 @@ import '../models/environment.dart';
 import 'package:intl/intl.dart';
 import '../config/app_config.dart';
 import '../widgets/theme_selector_modal.dart';
+import '../widgets/app_ui.dart';
+import '../theme/app_colors.dart';
 
 class AlertsScreen extends StatefulWidget {
   final int? monitorId;
@@ -76,43 +78,19 @@ class _AlertsScreenState extends State<AlertsScreen> {
   }
 
   Widget _buildFilters() {
-    final theme = Theme.of(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: TextField(
+          child: AppSearchField(
             controller: _searchController,
-            style: GoogleFonts.inter(),
+            hintText: 'Search by monitor name...',
             onChanged: (value) {
               setState(() {
                 _searchQuery = value;
               });
             },
-            decoration: InputDecoration(
-              hintText: 'Search by monitor name...',
-              hintStyle: GoogleFonts.inter(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              prefixIcon: Icon(
-                Icons.search_rounded,
-                color: theme.colorScheme.onSurfaceVariant,
-                size: 22,
-              ),
-              filled: true,
-              fillColor:
-                  theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
-            ),
           ),
         ),
         Padding(
@@ -158,7 +136,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
   Widget _buildAlertCard(MonitorAlert alert, Environment env) {
     final theme = Theme.of(context);
     final statusColor =
-        alert.status ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+        alert.status ? AppColors.online : AppColors.offline;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -258,7 +236,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       fontSize: 13,
                       color: alert.status
                           ? theme.colorScheme.onSurfaceVariant
-                          : const Color(0xFFEF4444),
+                          : AppColors.offline,
                     ),
                   ),
                 ],
@@ -277,7 +255,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFFEF4444),
+                          color: AppColors.offline,
                         ),
                       ),
                     ],
@@ -338,42 +316,13 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     }
 
                     if (snapshot.hasError) {
-                      final theme = Theme.of(context);
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline_rounded,
-                              size: 56,
-                              color: theme.colorScheme.error,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Error loading alerts',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                color: theme.colorScheme.error,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            FilledButton.tonal(
-                              onPressed: () {
-                                setState(() {
-                                  _alerts = _fetchAlerts();
-                                });
-                              },
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.refresh_rounded, size: 18),
-                                  SizedBox(width: 8),
-                                  Text('Retry'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                      return AppErrorState(
+                        title: 'Error loading alerts',
+                        onRetry: () {
+                          setState(() {
+                            _alerts = _fetchAlerts();
+                          });
+                        },
                       );
                     }
 
@@ -382,27 +331,10 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         (a, b) => b.localTimeStamp.compareTo(a.localTimeStamp));
 
                     if (filteredAlerts.isEmpty) {
-                      final theme = Theme.of(context);
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.notifications_none_rounded,
-                              size: 56,
-                              color: theme.colorScheme.onSurfaceVariant
-                                  .withOpacity(0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No alerts found',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
+                      return const AppEmptyState(
+                        icon: Icons.notifications_none_rounded,
+                        title: 'No alerts found',
+                        subtitle: 'Try a different time range or search.',
                       );
                     }
 

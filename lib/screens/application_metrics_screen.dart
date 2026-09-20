@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
 import '../widgets/theme_selector_modal.dart';
+import '../widgets/app_ui.dart';
 import '../services/metrics_service.dart';
 import '../models/pod_metric.dart';
 import 'package:intl/intl.dart';
@@ -636,22 +635,16 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                   ),
                                 ),
                                 style: GoogleFonts.inter(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Colors.black87,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
-                                dropdownColor: isDarkMode
-                                    ? Theme.of(context).colorScheme.surface
-                                    : Colors.white,
+                                dropdownColor: Theme.of(context).colorScheme.surface,
                                 items: _clusters.map((cluster) {
                                   return DropdownMenuItem<String>(
                                     value: cluster,
                                     child: Text(
                                       cluster,
                                       style: GoogleFonts.inter(
-                                        color: isDarkMode
-                                            ? Colors.white
-                                            : Colors.black87,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                   );
@@ -686,22 +679,16 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                                   ),
                                 ),
                                 style: GoogleFonts.inter(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Colors.black87,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
-                                dropdownColor: isDarkMode
-                                    ? Theme.of(context).colorScheme.surface
-                                    : Colors.white,
+                                dropdownColor: Theme.of(context).colorScheme.surface,
                                 items: _namespaces.map((namespace) {
                                   return DropdownMenuItem<String>(
                                     value: namespace,
                                     child: Text(
                                       namespace,
                                       style: GoogleFonts.inter(
-                                        color: isDarkMode
-                                            ? Colors.white
-                                            : Colors.black87,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                   );
@@ -724,22 +711,16 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                             DropdownButton<int>(
                               value: _selectedHours,
                               style: GoogleFonts.inter(
-                                color: isDarkMode
-                                    ? Colors.white
-                                    : Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
-                              dropdownColor: isDarkMode
-                                  ? Theme.of(context).colorScheme.surface
-                                  : Colors.white,
+                              dropdownColor: Theme.of(context).colorScheme.surface,
                               items: [1, 6, 12, 24, 48, 72].map((hours) {
                                 return DropdownMenuItem<int>(
                                   value: hours,
                                   child: Text(
                                     '$hours hours',
                                     style: GoogleFonts.inter(
-                                      color: isDarkMode
-                                          ? Colors.white
-                                          : Colors.black87,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                 );
@@ -761,17 +742,7 @@ class _ApplicationMetricsScreenState extends State<ApplicationMetricsScreen> {
                 ),
                 if (_errorMessage != null) ...[
                   const SizedBox(height: 16),
-                  Card(
-                    color: Colors.red.shade100,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        _errorMessage!,
-                        style:
-                            GoogleFonts.inter(color: Colors.red.shade900),
-                      ),
-                    ),
-                  ),
+                  AppErrorBanner(message: _errorMessage!),
                 ],
                 if (_isLoadingMetrics) ...[
                   const SizedBox(height: 16),
